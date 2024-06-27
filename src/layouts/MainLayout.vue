@@ -1,115 +1,56 @@
 <template>
-  <q-layout view="lHh Lpr lFf">
-    <q-header elevated>
-      <q-toolbar>
-        <q-btn
-          flat
-          dense
-          round
-          icon="menu"
-          aria-label="Menu"
-          @click="toggleLeftDrawer"
-        />
 
-        <q-toolbar-title>
-          Quasar App
-        </q-toolbar-title>
+  <!-- Render only when app ready -->
+  <template v-if="this.$q.appStore.ready">
 
-        <div>Quasar v{{ $q.version }}</div>
-      </q-toolbar>
-    </q-header>
+    <!-- Login window -->
+    <login-window v-if="!this.$q.appStore.user"/>
 
-    <q-drawer
-      v-model="leftDrawerOpen"
-      show-if-above
-      bordered
-    >
-      <q-list>
-        <q-item-label
-          header
-        >
-          Essential Links
-        </q-item-label>
+    <!-- Main layout -->
+    <q-layout view="lHh lpR fFf" v-else>
+      <!-- Header -->
+      <header-component
+        @toggleLeftDrawer="toggleLeftDrawer"
+      />
+      <!-- Left drawer -->
+      <drawer-left
+        ref="DrawerLeft"
+      />
+      <!-- Page -->
+      <q-page-container>
+        <router-view />
+      </q-page-container>
+    </q-layout>
 
-        <EssentialLink
-          v-for="link in essentialLinks"
-          :key="link.title"
-          v-bind="link"
-        />
-      </q-list>
-    </q-drawer>
+  </template>
 
-    <q-page-container>
-      <router-view />
-    </q-page-container>
-  </q-layout>
 </template>
 
 <script>
 import { defineComponent, ref } from 'vue'
-import EssentialLink from 'components/EssentialLink.vue'
 
-const linksList = [
-  {
-    title: 'Docs',
-    caption: 'quasar.dev',
-    icon: 'school',
-    link: 'https://quasar.dev'
-  },
-  {
-    title: 'Github',
-    caption: 'github.com/quasarframework',
-    icon: 'code',
-    link: 'https://github.com/quasarframework'
-  },
-  {
-    title: 'Discord Chat Channel',
-    caption: 'chat.quasar.dev',
-    icon: 'chat',
-    link: 'https://chat.quasar.dev'
-  },
-  {
-    title: 'Forum',
-    caption: 'forum.quasar.dev',
-    icon: 'record_voice_over',
-    link: 'https://forum.quasar.dev'
-  },
-  {
-    title: 'Twitter',
-    caption: '@quasarframework',
-    icon: 'rss_feed',
-    link: 'https://twitter.quasar.dev'
-  },
-  {
-    title: 'Facebook',
-    caption: '@QuasarFramework',
-    icon: 'public',
-    link: 'https://facebook.quasar.dev'
-  },
-  {
-    title: 'Quasar Awesome',
-    caption: 'Community Quasar projects',
-    icon: 'favorite',
-    link: 'https://awesome.quasar.dev'
-  }
-]
+import LoginWindow from 'components/LoginWindow'
+import HeaderComponent from 'components/HeaderComponent'
+import DrawerLeft from 'components/DrawerLeft'
 
 export default defineComponent({
   name: 'MainLayout',
 
   components: {
-    EssentialLink
+    LoginWindow,
+    HeaderComponent,
+    DrawerLeft
   },
 
   setup () {
-    const leftDrawerOpen = ref(false)
-
     return {
-      essentialLinks: linksList,
-      leftDrawerOpen,
-      toggleLeftDrawer () {
-        leftDrawerOpen.value = !leftDrawerOpen.value
-      }
+
+    }
+  },
+
+  methods: {
+    toggleLeftDrawer () {
+      this.$refs.DrawerLeft.toggle()
     }
   }
 })
