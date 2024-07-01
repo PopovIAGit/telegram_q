@@ -1,6 +1,6 @@
 import { useQuasar } from "quasar";
 
-class Theme {
+class Account {
   constructor() {
     this.$q = useQuasar();
 
@@ -15,34 +15,42 @@ class Theme {
           return val !== null && typeof val === "number";
         },
       },
-      title: {
-        label: "Заголовок",
-        type: "string",
-        default: "",
-        min: 2,
-        max: 30,
+      phone: {
+        label: 'Телефон',
+        type: 'string',
+        default: '',
+        mask: '#(###) ###-####',
+        min: 10,
+        max: 10,
         required: true,
         rules: (val) => {
-          return val && val.length >= 2 && val.length <= 30;
-        },
+          return val && val && val.length === 11;
+        }
       },
       description: {
         label: "Описание",
         type: "string",
         default: "",
         min: 2,
-        max: 300,
+        max: 3000,
         rules: (val) => {
-          return val && val.length >= 2 && val.length <= 300;
+          return val && val.length >= 2 && val.length <= 3000;
         },
       },
-      parentId: {
-        label: "Родительская группа",
-        type: "number",
-        default: undefined,
-        required: true,
+      active: {
+        label: "Активен",
+        type: "boolean",
+        default: false,
         rules: (val) => {
-          return (typeof val === "number" && val > 0) || val === null;
+          return typeof val === "boolean";
+        },
+      },
+      isDeleted: {
+        label: "Удален",
+        type: "boolean",
+        default: false,
+        rules: (val) => {
+          return typeof val === "boolean";
         },
       },
     };
@@ -68,7 +76,7 @@ class Theme {
   }
 
   /**
-   * Сохранение темы (add или update)
+   * Сохранение пользователя (add или update)
    * @param method
    * @param data
    * @param dataWas
@@ -77,17 +85,18 @@ class Theme {
   async save(method, data, dataWas) {
     // Если add
     if (method === "add" && data) {
+    console.log(data);
       const _data = structuredClone(data);
+      delete _data.password2;
       const response = await this.$q.ws.sendRequest({
         type: "query",
-        iface: "service",
-        method: "addGroup",
+        iface: "tgAccount",
+        method: "add",
         args: {
-          group: {
             ..._data,
-          },
         },
       });
+      console.log(response);
       // Если ошибка сохранения
       if (response.type === "error") {
         return {
@@ -112,6 +121,8 @@ class Theme {
           _data[key] = data[key];
         }
       });
+
+      console.log("data",_data);
       // Если нет никаких изменений
       if (Object.keys(_data).length === 0) {
         return {
@@ -123,13 +134,12 @@ class Theme {
       else {
         const response = await this.$q.ws.sendRequest({
           type: "query",
-          iface: "service",
-          method: "updateGroup",
+          iface: "tgAccount",
+          method: "update",
           args: {
-            group: {
+
               id: data.id,
               ..._data,
-            },
           },
         });
         // Если ошибка сохранения
@@ -141,78 +151,53 @@ class Theme {
         }
         // Если всё ОК
         else if (response.type === "answer") {
-          const theme = response.args;
+          const Account = response.args;
           return {
             success: true,
-            theme,
+            Account,
           };
         }
       }
     }
   }
 
-  async takeTheme(){
-    const responseTheme = await this.$q.ws.sendRequest({
+  async delete(personId) {
+
+
+    const response = await this.$q.ws.sendRequest({
       type: "query",
-      iface: "service",
-      method: "getGroupList",
-      args: {},
+      iface: "tgAccount",
+      method: "delete",
+      args: {
+          id: personId,
+      },
     });
-    // Если ошибка получения getGroupList
-    if (responseTheme.type === 'error') {
+
+    console.log(response);
+
+    // Если ошибка удаления
+    if (response.type === "error") {
       return {
         success: false,
-        message: '<div>Ошибка получения getGroupList</div><div class="text-red">' + (response.args.message || 'Ошибка') + '</div>'
+        message: response.args.message || "Ошибка",
+      };
+    }
+    // Если получен ответ от login
+    else if (response.type === "answer") {
+      // Если в ответе по каким-то причинам нет данных пользователя
+      if (!response.args || !response.args.id || !response.args.token) {
+        return {
+          success: false,
+        };
+      }
+      // Если всё ОК
+      else {
+        return {
+          success: true,
+        };
       }
     }
-    // Если получен ответ от getGroupList
-    else if (responseTheme.type === 'answer') {
-      const groupList = responseTheme.args.rows;
-      const themeTitles = groupList.map(obj => obj.title);
-
-      this.$q.helperTablesStore.set({
-        themeTitles
-      });
-      return {
-        success: true
-      }
-    }
-  }
-  async remove (groupId){
-    const response = await this.$q.ws.sendRequest({
-      type: 'query',
-      iface: 'service',
-      method: 'removeGroup',
-      args: {
-        group: {
-          id: groupId
-        }
-      }
-    });
-
-        // Если ошибка удаления
-        if (response.type === 'error') {
-          return {
-            success: false,
-            message: response.args.message || 'Ошибка'
-          }
-        }
-        // Если получен ответ от login
-        else if (response.type === 'answer') {
-          // Если в ответе по каким-то причинам нет данных пользователя
-          if (!response.args || !response.args.id || !response.args.token) {
-            return {
-              success: false
-            }
-          }
-          // Если всё ОК
-          else {
-            return {
-              success: true,
-            }
-          }
-        }
   }
 }
 
-export default Theme;
+export default Account;

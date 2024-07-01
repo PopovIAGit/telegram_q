@@ -14,6 +14,7 @@ import DialogComponent from 'components/dialogs/DialogComponent'
 
 import UserClass from 'src/utils/classes/User.Class'
 
+
 export default defineComponent({
   name: 'App',
 
@@ -23,8 +24,9 @@ export default defineComponent({
 
   setup () {
     const User = new UserClass();
+
     return {
-      User
+      User,
     }
   },
 
@@ -61,8 +63,7 @@ export default defineComponent({
       window['splash-screen'].classList.add('ready', 'error');
       return;
     }
-
-
+``
     /** AUTH */
     const resultAuth = await this.User.auth();
     // Если не авторизовались

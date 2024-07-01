@@ -1,30 +1,29 @@
-import { useQuasar } from "quasar";
+import { useQuasar } from 'quasar'
 
-class Service {
+class Chanel {
   constructor() {
     this.$q = useQuasar();
 
     // DB fields
     this.fields = {
       id: {
-        label: "ID",
-        type: "number",
+        label: 'ID',
+        type: 'number',
         default: undefined,
         index: true,
         rules: (val) => {
-          return val !== null && typeof val === "number";
-        },
+          return val !== null && typeof val === 'number';
+        }
       },
-      title: {
-        label: "Заголовок",
-        type: "string",
-        default: "",
-        min: 2,
-        max: 300,
+      url: {
+        label: 'URL',
+        type: 'string',
+        default: '',
         required: true,
         rules: (val) => {
-          return val && val.length >= 2 && val.length <= 300;
-        },
+          // You can add custom validation rules for URL here
+          return val && val.length > 0;
+        }
       },
       description: {
         label: "Описание",
@@ -36,16 +35,23 @@ class Service {
           return val && val.length >= 2 && val.length <= 3000;
         },
       },
-      groupId: {
-        label: "Родительская группа",
-        type: "number",
-        default: undefined,
-        required: true,
+      active: {
+        label: 'Активен',
+        type: 'boolean',
+        default: false,
         rules: (val) => {
-          return typeof val === "number" && val > 0;
-        },
+          return typeof val === 'boolean';
+        }
       },
-    };
+      isDeleted: {
+        label: 'Удален',
+        type: 'boolean',
+        default: false,
+        rules: (val) => {
+          return typeof val === 'boolean';
+        }
+      },
+    }
 
     // Dialog add/update
     this.dialogAddUpdateDefault = {
@@ -53,22 +59,17 @@ class Service {
       method: undefined,
       onHide: undefined,
       dataWas: {
-        ...Object.assign(
-          {},
-          ...Object.entries(this.fields).map(([k, v]) => ({ [k]: v.default }))
-        ),
+        ...Object.assign({}, ...Object.entries(this.fields).map(([k, v]) => ({[k]: v.default})))
       },
       data: {
-        ...Object.assign(
-          {},
-          ...Object.entries(this.fields).map(([k, v]) => ({ [k]: v.default }))
-        ),
-      },
-    };
+        ...Object.assign({}, ...Object.entries(this.fields).map(([k, v]) => ({[k]: v.default}))),
+      }
+    }
+
   }
 
-    /**
-   * Сохранение тикета (add или update)
+  /**
+   * Сохранение chanel (add или update)
    * @param method
    * @param data
    * @param dataWas
@@ -78,14 +79,13 @@ class Service {
     // Если add
     if (method === 'add' && data) {
       const _data = structuredClone(data);
+
       const response = await this.$q.ws.sendRequest({
         type: 'query',
-        iface: 'service',
+        iface: 'tgChannel',
         method: 'add',
         args: {
-          service: {
             ..._data
-          }
         }
       });
       // Если ошибка сохранения
@@ -97,10 +97,10 @@ class Service {
       }
       // Если всё ОК
       else if (response.type === 'answer') {
-        const user = response.args;
+        const chanel = response.args;
         return {
           success: true,
-          user
+          chanel
         }
       }
     }
@@ -123,13 +123,11 @@ class Service {
       else {
         const response = await this.$q.ws.sendRequest({
           type: 'query',
-          iface: 'service',
+          iface: 'tgChannel',
           method: 'update',
           args: {
-            service: {
               id: data.id,
               ..._data
-            }
           }
         });
         // Если ошибка сохранения
@@ -141,25 +139,24 @@ class Service {
         }
         // Если всё ОК
         else if (response.type === 'answer') {
-          const ticket = response.args;
+          const chanel = response.args;
           return {
             success: true,
-            ticket
+            chanel
           }
         }
       }
     }
   }
 
-  async remove (serviceId){
+
+  async delete (chanelId){
     const response = await this.$q.ws.sendRequest({
       type: 'query',
-      iface: 'service',
-      method: 'remove',
+      iface: 'tgChannel',
+      method: 'delete',
       args: {
-        service: {
-          id: serviceId
-        }
+          id: chanelId
       }
     });
 
@@ -188,4 +185,4 @@ class Service {
   }
 }
 
-export default Service;
+export default Chanel

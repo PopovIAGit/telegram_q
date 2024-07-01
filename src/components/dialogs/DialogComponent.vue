@@ -9,7 +9,8 @@
       </q-card-section>
       <q-card-section
         class="q-dialog__body"
-        v-if="this.$q.dialogStore.text || this.$q.dialogStore.html"/>
+        v-if="this.$q.dialogStore.text || this.$q.dialogStore.html"
+        v-html="this.$q.dialogStore.text ? this.$q.dialogStore.text : this.$q.dialogStore.html"/>
       <q-card-section class="q-dialog__footer">
         <template v-if="this.$q.dialogStore.cancel">
           <q-btn
