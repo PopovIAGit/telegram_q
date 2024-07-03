@@ -49,7 +49,7 @@
               </q-item-section>
               <q-item-section>
                 <q-item-label>{{ tgChannel && tgChannel.url ? tgChannel.url : 'N/A' }}</q-item-label>
-                <q-item-label caption lines="1">{{ tgAccount && tgAccount.description ? tgAccount.description : 'N/A'
+                <q-item-label caption lines="1">{{ tgChannel && tgChannel.description ? tgChannel.description : 'N/A'
                   }}</q-item-label>
               </q-item-section>
               <q-item-section>
@@ -334,6 +334,7 @@ export default defineComponent({
       };
     },
     showChanelUpdate(Chenal) {
+
       const excludeFields = ["id", "isDeleted", "active"];
       const data = {};
       Object.keys(this.dialogChanelAddUpdateDefault.data).forEach((key) => {
@@ -341,7 +342,8 @@ export default defineComponent({
           data[key] = this.dialogChanelAddUpdateDefault.data[key];
         }
       });
-      this.dialogChannelAddUpdate = {
+
+      this.dialogChanelAddUpdate = {
         show: true,
         method: "update",
         onHide: () =>

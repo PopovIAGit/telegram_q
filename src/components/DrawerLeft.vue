@@ -21,12 +21,12 @@
           </q-item-section>
           <q-item-section>Главная</q-item-section>
         </q-item>
-        <q-item to="/tickets">
+        <!-- <q-item to="/tickets">
           <q-item-section avatar>
             <q-icon name="list_alt"/>
           </q-item-section>
           <q-item-section>Тикеты</q-item-section>
-        </q-item>
+        </q-item> -->
       </q-list>
     </div>
   </q-drawer>
