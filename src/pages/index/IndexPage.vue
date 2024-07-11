@@ -190,13 +190,14 @@ export default defineComponent({
         },
       });
     } else if (responseTgAccounts.type === "answer") {
+
       this.listOfTgAccounts = responseTgAccounts.args.rows.map(account => {
         if (account.description === null) {
             account.description = '';
         }
         return account;
     });
-
+      this.$q.appStore.set({ accountList: this.listOfTgAccounts });
     }
 
     const responseTgChannel = await this.$q.ws.sendRequest({
@@ -224,6 +225,7 @@ export default defineComponent({
         }
         return channel;
       });
+      this.$q.appStore.set({ listOfTgChanals: this.listOfTgChanals });
     }
 
     const responseTasks = await this.$q.ws.sendRequest({
@@ -243,6 +245,7 @@ export default defineComponent({
       });
     } else if (responseTasks.type === "answer") {
       this.listOfTasks = responseTasks.args.rows;
+       this.$q.appStore.set({ taskList: this.listOfTasks });
     }
 
     },
