@@ -73,7 +73,7 @@
           <q-toolbar class="bg-primary text-white">
             <q-toolbar-title>Задачи</q-toolbar-title>
             <q-btn flat round dense :icon="showTask !== true ? 'visibility_off' :   'visibility'" @click="showTask = !showTask" />
-            <q-btn flat round dense icon="add" @click="addChannel" />
+            <q-btn flat round dense icon="add" @click="showTaskAdd" />
           </q-toolbar>
           <q-list bordered separator v-if="showTask">
             <q-item v-for="tgTask in listOfTasks" :key="tgTask.id" clickable v-ripple class="drawer-left__menu">
@@ -93,7 +93,7 @@
               </q-item-section>
               <q-item-section>
                 <q-item-label>
-                  <q-btn flat round dense icon="edit" @click="editChannel" />
+                  <q-btn flat round dense icon="edit" @click="showTaskUpdate(tgTask)" />
                 </q-item-label>
               </q-item-section>
             </q-item>
@@ -108,8 +108,13 @@
   />
   <dialog-chanel-add-update
     :dialog="dialogChanelAddUpdate"
-    @onSave="onChanelSave"
-    @onRemove="onChanelRemove"
+    @onSaveChanel="onChanelSave"
+    @onRemoveChanel="onChanelRemove"
+  />
+  <dialog-task-add-update
+    :dialog="dialogTaskAddUpdate"
+    @onSave="onTaskSave"
+    @onRemove="onTaskRemove"
   />
   </q-page>
 </template>
@@ -119,23 +124,28 @@ import { defineComponent, ref } from "vue";
 
 import AccountClass from 'src/utils/classes/Account.Class'
 import ChanelClass from 'src/utils/classes/Chanel.Class'
+import TaskClass from 'src/utils/classes/Task.Class'
 import DialogAccountAddUpdate from 'components/dialogs/Account/DialogAccountAddUpdate'
 import DialogChanelAddUpdate from 'components/dialogs/Channel/DialogChanelAddUpdate'
+import DialogTaskAddUpdate from 'components/dialogs/Task/DialogTaskAddUpdate'
 import { useRoute } from "vue-router";
 
 export default defineComponent({
   name: "IndexPage",
   components: {
     DialogAccountAddUpdate,
-    DialogChanelAddUpdate
+    DialogChanelAddUpdate,
+    DialogTaskAddUpdate
   },
   setup() {
 
     const Account = new AccountClass();
     const Chanel = new ChanelClass();
+    const Task = new TaskClass();
 
     const dialogAccountAddUpdateDefault = Account.dialogAddUpdateDefault;
     const dialogChanelAddUpdateDefault = Chanel.dialogAddUpdateDefault;
+    const dialogTaskAddUpdateDefault = Task.dialogAddUpdateDefault;
 
     return {
       listOfTgAccounts: ref([]),
@@ -146,10 +156,13 @@ export default defineComponent({
       showTask: ref(true),
       Account,
       Chanel,
+      Task,
       dialogAccountAddUpdateDefault,
       dialogAccountAddUpdate: ref({}),
       dialogChanelAddUpdateDefault,
       dialogChanelAddUpdate: ref({}),
+      dialogTaskAddUpdateDefault,
+      dialogTaskAddUpdate: ref({}),
     };
   },
 
@@ -192,7 +205,6 @@ export default defineComponent({
       method: 'getList',
       args: {}
     })
-    console.log(responseTgChannel);
     if (responseTgChannel.type === "error") {
       this.$q.dialogStore.set({
         show: true,
@@ -216,7 +228,7 @@ export default defineComponent({
 
     const responseTasks = await this.$q.ws.sendRequest({
       type: 'query',
-      iface: 'task',
+      iface: 'tgTask',
       method: 'getList',
       args: {}
     });
@@ -233,9 +245,8 @@ export default defineComponent({
       this.listOfTasks = responseTasks.args.rows;
     }
 
-
     },
-
+    // Account
     showAccountAdd() {
       const excludeFields = ["id", "isDeleted", "active"];
       const data = {};
@@ -274,7 +285,6 @@ export default defineComponent({
       };
     },
     onAccountSave(result) {
-
       if (!result.success) {
         this.$q.dialogStore.set({
           show: true,
@@ -314,6 +324,7 @@ export default defineComponent({
         this.getData();
       }
     },
+    // Chanel
     showChanelAdd() {
       const excludeFields = ["id", "isDeleted", "active"];
       const data = {};
@@ -355,7 +366,7 @@ export default defineComponent({
       };
     },
     onChanelSave(result) {
-
+      console.log(result);
       if (!result.success) {
         this.$q.dialogStore.set({
           show: true,
@@ -365,13 +376,13 @@ export default defineComponent({
             color: "red",
           },
         });
-      } else if (result.success && result.Account) {
+      } else if (result.success && result.chanel) {
 
         this.$q.dialogStore.set({
           show: true,
           title: "Канал сохронен",
         });
-        this.dialogAccountAddUpdate.show = false;
+        this.dialogChanelAddUpdate.show = false;
         this.getData();
       }
     },
@@ -386,12 +397,91 @@ export default defineComponent({
           },
         });
       } else if (result.success) {
-
         this.$q.dialogStore.set({
           show: true,
           title: "Канал удален",
         });
-        this.dialogAccountAddUpdate.show = false;
+        this.dialogChanelAddUpdate.show = false;
+        this.getData();
+      }
+    },
+  // task
+    showTaskAdd() {
+      const excludeFields = ["id", "isDeleted", "active"];
+      const data = {};
+      Object.keys(this.dialogTaskAddUpdateDefault.data).forEach((key) => {
+        if (!excludeFields.includes(key)) {
+          data[key] = this.dialogTaskAddUpdateDefault.data[key];
+        }
+      });
+
+      this.dialogTaskAddUpdate = {
+        show: true,
+        method: "add",
+        onHide: () =>
+          (this.dialogTaskAddUpdate = structuredClone(
+            this.dialogTaskAddUpdateDefault
+          )),
+        data,
+      };
+    },
+    showTaskUpdate(Task) {
+      const excludeFields = ["id", "isDeleted", "active"];
+      const data = {};
+      Object.keys(this.dialogTaskAddUpdateDefault.data).forEach((key) => {
+        if (!excludeFields.includes(key)) {
+          data[key] = this.dialogTaskAddUpdateDefault.data[key];
+        }
+      });
+
+      this.dialogTaskAddUpdate = {
+        show: true,
+        method: "update",
+        onHide: () =>
+          (this.dialogTaskAddUpdate = structuredClone(
+            this.dialogTaskAddUpdateDefault
+          )),
+          dataWas:structuredClone(Task),
+          data:structuredClone(Task)
+      };
+    },
+    onTaskSave(result) {
+      if (!result.success) {
+        this.$q.dialogStore.set({
+          show: true,
+          title: "Ошибка",
+          text: result.message,
+          ok: {
+            color: "red",
+          },
+        });
+      } else if (result.success && result.task) {
+
+        this.$q.dialogStore.set({
+          show: true,
+          title: "Task сохронен",
+        });
+        this.dialogTaskAddUpdate.show = false;
+        this.getData();
+      }
+    },
+    onTaskRemove(result) {
+      if (!result.success) {
+        this.$q.dialogStore.set({
+          show: true,
+          title: "Ошибка",
+          text: result.message,
+          ok: {
+            color: "red",
+          },
+        });
+      } else if (result.success) {
+
+        this.$q.dialogStore.set({
+          show: true,
+          title: "Task удален",
+        });
+        this.dialogTaskAddUpdate.show = false;
         this.getData();
       }
     },

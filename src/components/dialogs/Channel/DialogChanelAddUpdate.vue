@@ -96,8 +96,8 @@ export default defineComponent({
   props: ["dialog"],
 
   emits: {
-    onSave: null,
-    onRemove: null,
+    onSaveChanel: null,
+    onRemoveChanel: null,
   },
 
   setup() {
@@ -118,16 +118,17 @@ export default defineComponent({
         this.dialog.dataWas
       );
       this.processing = false;
-      this.$emit("onSave", result);
+      console.log(result);
+      this.$emit("onSaveChanel", result);
     },
 
     async onRemove() {
       if (this.processing) return;
       this.processing = true;
       const result = await this.Chanel.delete(this.dialog.data.id);
-      console.log(result);
+
       this.processing = false;
-      this.$emit("onRemove", result);
+      this.$emit("onRemoveChanel", result);
     },
   },
 });

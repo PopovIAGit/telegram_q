@@ -4,7 +4,7 @@
       <q-form @submit="onSubmit">
         <q-card-section class="q-dialog__header">
           <div class="q-dialog__header-content">
-         
+
             <div class="q-dialog__title">
               {{
                 dialog.method === "add"
@@ -107,7 +107,6 @@ export default defineComponent({
     return {
       Account,
     };
-    console.log("dialog", this.dialog);
   },
 
   methods: {
@@ -128,7 +127,6 @@ export default defineComponent({
       if (this.processing) return;
       this.processing = true;
       const result = await this.Account.delete(this.dialog.data.id);
-      console.log(result);
       this.processing = false;
       this.$emit("onRemove", result);
     },
