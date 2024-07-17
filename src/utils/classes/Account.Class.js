@@ -19,12 +19,12 @@ class Account {
         label: "Телефон",
         type: "string",
         default: "",
-        mask: "#(###) ###-####",
-        min: 10,
-        max: 10,
+        mask: "+###########",
+        min: 12,
+        max: 12,
         required: true,
         rules: (val) => {
-          return val && val && val.length === 11;
+          return val && val.length === 12;
         },
       },
       description: {
@@ -95,6 +95,7 @@ class Account {
           ..._data,
         },
       });
+      console.log("add", response);
       // Если ошибка сохранения
       if (response.type === "error") {
         return {
@@ -138,6 +139,7 @@ class Account {
             ..._data,
           },
         });
+        console.log("update", _data);
         // Если ошибка сохранения
         if (response.type === "error") {
           return {
@@ -166,7 +168,7 @@ class Account {
         id: personId,
       },
     });
-
+    console.log(response);
     // Если ошибка удаления
     if (response.type === "error") {
       return {
@@ -188,6 +190,62 @@ class Account {
           success: true,
         };
       }
+    }
+  }
+
+  async activate(accountId) {
+    console.log(accountId);
+    const response = await this.$q.ws.sendRequest({
+      type: "query",
+      iface: "tgAccount",
+      method: "activate",
+      args: {
+        accountId: accountId,
+      },
+    });
+    console.log(response);
+    // Если ошибка удаления
+    if (response.type === "error") {
+      return {
+        success: false,
+        message: response.args.message || "Ошибка",
+      };
+    }
+    // Если получен ответ от login
+    else if (response.type === "answer") {
+      const answer = response.args;
+      return {
+        success: true,
+        answer,
+      };
+    }
+  }
+
+  async signIn(accountId, phoneCode) {
+    const response = await this.$q.ws.sendRequest({
+      type: "query",
+      iface: "tgAccount",
+      method: "signIn",
+      args: {
+        accountId: accountId,
+        phoneCode: phoneCode,
+      },
+    });
+    console.log(response);
+    // Если ошибка удаления
+    if (response.type === "error") {
+      return {
+        success: false,
+        message: response.args.message || "Ошибка",
+      };
+    }
+    // Если получен ответ от login
+    else if (response.type === "answer") {
+      const answer = response.args;
+      return {
+        success: true,
+        answer,
+      };
     }
   }
 }

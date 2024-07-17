@@ -216,6 +216,60 @@ class Task {
       };
     }
   }
+  async chanelTaskList(channel_id) {
+    const response = await this.$q.ws.sendRequest({
+      type: "query",
+      iface: "tgTask",
+      method: "getChannelList",
+      args: {
+        channel_id: channel_id,
+      },
+    });
+
+    // Если ошибка сохранения
+    if (response.type === "error") {
+      return {
+        success: false,
+        message: response.args.message || "Ошибка",
+      };
+    }
+    // Если всё ОК
+    else if (response.type === "answer") {
+      const Account = response.args;
+      return {
+        success: true,
+        Account,
+      };
+    }
+  }
+
+  async addTaskToChannel(channel_id, task_id) {
+    const response = await this.$q.ws.sendRequest({
+      type: "query",
+      iface: "tgTask",
+      method: "addChannelt",
+      args: {
+        task_id: task_id,
+        channel_id: channel_id,
+      },
+    });
+
+    // Если ошибка сохранения
+    if (response.type === "error") {
+      return {
+        success: false,
+        message: response.args.message || "Ошибка",
+      };
+    }
+    // Если всё ОК
+    else if (response.type === "answer") {
+      const Account = response.args;
+      return {
+        success: true,
+        Account,
+      };
+    }
+  }
 }
 
 export default Task;
