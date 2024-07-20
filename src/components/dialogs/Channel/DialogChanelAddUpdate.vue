@@ -55,6 +55,21 @@
 
             </q-input>
           </div>
+          <!-- Список тасков на канале -->
+          <div class="q-mb-md">
+            <div class="label">
+             Список тасков на канале
+            </div>
+            <q-select
+              outlined
+              bg-color="white"
+              hide-bottom-space
+              v-model="model"
+              :options="options"
+            >
+
+            </q-select>
+          </div>
         </q-card-section>
         <q-card-section class="q-dialog__footer">
           <q-btn
