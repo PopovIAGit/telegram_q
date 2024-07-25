@@ -45,7 +45,7 @@ class Task {
         },
       },
       chanelId: {
-        label: "id канала",
+        label: "Добавить каналы",
         type: "number",
         default: undefined,
         rules: (val) => {

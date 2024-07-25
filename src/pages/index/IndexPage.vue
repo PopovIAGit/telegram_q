@@ -7,7 +7,8 @@
         <div class="q-pa-sm col-lg-6 col-md-12 col-xs-12">
           <q-toolbar class="bg-primary text-white">
             <q-toolbar-title>Aкаутны</q-toolbar-title>
-            <q-btn flat round dense :icon="showAccount !== true ? 'visibility_off' :   'visibility'" @click="showAccount = !showAccount" />
+            <q-btn flat round dense :icon="showAccount !== true ? 'visibility_off' : 'visibility'"
+              @click="showAccount = !showAccount" />
             <q-btn flat round dense icon="add" @click="showAccountAdd" />
           </q-toolbar>
           <q-list bordered separator v-if="showAccount">
@@ -38,7 +39,8 @@
         <div class="q-pa-sm col-lg-6 col-md-12 col-xs-12">
           <q-toolbar class="bg-primary text-white">
             <q-toolbar-title>Каналы</q-toolbar-title>
-            <q-btn flat round dense :icon="showChannel !== true ? 'visibility_off' :   'visibility'" @click="showChannel = !showChannel" />
+            <q-btn flat round dense :icon="showChannel !== true ? 'visibility_off' : 'visibility'"
+              @click="showChannel = !showChannel" />
             <q-btn flat round dense icon="add" @click="showChanelAdd" />
           </q-toolbar>
           <q-list bordered separator v-if="showChannel">
@@ -72,7 +74,8 @@
         <div class="q-pa-sm col-lg-6 col-md-12 col-xs-12">
           <q-toolbar class="bg-primary text-white">
             <q-toolbar-title>Задачи</q-toolbar-title>
-            <q-btn flat round dense :icon="showTask !== true ? 'visibility_off' :   'visibility'" @click="showTask = !showTask" />
+            <q-btn flat round dense :icon="showTask !== true ? 'visibility_off' : 'visibility'"
+              @click="showTask = !showTask" />
             <q-btn flat round dense icon="add" @click="showTaskAdd" />
           </q-toolbar>
           <q-list bordered separator v-if="showTask">
@@ -81,7 +84,7 @@
                 <q-item-label>{{ tgTask && tgTask.id ? tgTask.id : 'N/A' }}</q-item-label>
               </q-item-section>
               <q-item-section>
-                <q-item-label>{{ tgTask && tgTask.url ? tgTask.url : 'N/A' }}</q-item-label>
+                <q-item-label>{{ tgTask && tgTask.message ? tgTask.message : 'N/A' }}</q-item-label>
                 <q-item-label caption lines="1">{{ tgTask && tgTask.description ? tgTask.description : 'N/A'
                   }}</q-item-label>
               </q-item-section>
@@ -101,21 +104,10 @@
         </div>
       </div>
     </div>
-    <dialog-account-add-update
-    :dialog="dialogAccountAddUpdate"
-    @onSave="onAccountSave"
-    @onRemove="onAccountRemove"
-  />
-  <dialog-chanel-add-update
-    :dialog="dialogChanelAddUpdate"
-    @onSaveChanel="onChanelSave"
-    @onRemoveChanel="onChanelRemove"
-  />
-  <dialog-task-add-update
-    :dialog="dialogTaskAddUpdate"
-    @onSave="onTaskSave"
-    @onRemove="onTaskRemove"
-  />
+    <dialog-account-add-update :dialog="dialogAccountAddUpdate" @onSave="onAccountSave" @onRemove="onAccountRemove" />
+    <dialog-chanel-add-update :dialog="dialogChanelAddUpdate" @onSaveChanel="onChanelSave"
+      @onRemoveChanel="onChanelRemove" />
+    <dialog-task-add-update :dialog="dialogTaskAddUpdate" @onSave="onTaskSave" @onRemove="onTaskRemove" />
   </q-page>
 </template>
 
@@ -172,81 +164,82 @@ export default defineComponent({
 
   methods: {
 
-    async getData(){
+    async getData() {
       const responseTgAccounts = await this.$q.ws.sendRequest({
-      type: 'query',
-      iface: 'tgAccount',
-      method: 'getList',
-      args: {}
-    });
-
-    if (responseTgAccounts.type === "error") {
-      this.$q.dialogStore.set({
-        show: true,
-        title: "Ошибка",
-        text: "Ошибка получения списка аккаунтов",
-        ok: {
-          color: "red",
-        },
+        type: 'query',
+        iface: 'tgAccount',
+        method: 'getList',
+        args: {}
       });
-    } else if (responseTgAccounts.type === "answer") {
 
-      this.listOfTgAccounts = responseTgAccounts.args.rows.map(account => {
-        if (account.description === null) {
+      if (responseTgAccounts.type === "error") {
+        this.$q.dialogStore.set({
+          show: true,
+          title: "Ошибка",
+          text: "Ошибка получения списка аккаунтов",
+          ok: {
+            color: "red",
+          },
+        });
+      } else if (responseTgAccounts.type === "answer") {
+
+        this.listOfTgAccounts = responseTgAccounts.args.rows.map(account => {
+          if (account.description === null) {
             account.description = '';
-        }
-        return account;
-    });
-      this.$q.appStore.set({ accountList: this.listOfTgAccounts });
-    }
+          }
+          return account;
+        });
+        this.$q.appStore.set({ accountList: this.listOfTgAccounts });
+      }
 
-    const responseTgChannel = await this.$q.ws.sendRequest({
-      type: 'query',
-      iface: 'tgChannel',
-      method: 'getList',
-      args: {}
-    })
-    if (responseTgChannel.type === "error") {
-      this.$q.dialogStore.set({
-        show: true,
-        title: "Ошибка",
-        text: "Ошибка получения списка каналов",
-        ok: {
-          color: "red",
-        },
-      });
-    } else if (responseTgChannel.type === "answer") {
-      this.listOfTgChanals = responseTgChannel.args.rows.map(channel => {
-        if (channel.description === null) {
+      const responseTgChannel = await this.$q.ws.sendRequest({
+        type: 'query',
+        iface: 'tgChannel',
+        method: 'getList',
+        args: {}
+      })
+      if (responseTgChannel.type === "error") {
+        this.$q.dialogStore.set({
+          show: true,
+          title: "Ошибка",
+          text: "Ошибка получения списка каналов",
+          ok: {
+            color: "red",
+          },
+        });
+      } else if (responseTgChannel.type === "answer") {
+        this.listOfTgChanals = responseTgChannel.args.rows.map(channel => {
+          if (channel.description === null) {
             channel.description = '';
-        }
-        if (channel.url === null) {
+          }
+          if (channel.url === null) {
             channel.url = '';
-        }
-        return channel;
-      });
-      this.$q.appStore.set({ listOfTgChanals: this.listOfTgChanals });
-    }
+          }
+          return channel;
+        });
+        this.$q.appStore.set({ listOfTgChanals: this.listOfTgChanals });
 
-    const responseTasks = await this.$q.ws.sendRequest({
-      type: 'query',
-      iface: 'tgTask',
-      method: 'getList',
-      args: {}
-    });
-    if (responseTasks.type === "error") {
-      this.$q.dialogStore.set({
-        show: true,
-        title: "Ошибка",
-        text: "Ошибка получения списка задач",
-        ok: {
-          color: "red",
-        },
+      }
+
+      const responseTasks = await this.$q.ws.sendRequest({
+        type: 'query',
+        iface: 'tgTask',
+        method: 'getList',
+        args: {}
       });
-    } else if (responseTasks.type === "answer") {
-      this.listOfTasks = responseTasks.args.rows;
-       this.$q.appStore.set({ taskList: this.listOfTasks });
-    }
+      if (responseTasks.type === "error") {
+        this.$q.dialogStore.set({
+          show: true,
+          title: "Ошибка",
+          text: "Ошибка получения списка задач",
+          ok: {
+            color: "red",
+          },
+        });
+      } else if (responseTasks.type === "answer") {
+        this.listOfTasks = responseTasks.args.rows;
+        this.$q.appStore.set({ taskList: this.listOfTasks });
+      }
 
     },
     // Account
@@ -262,9 +255,9 @@ export default defineComponent({
         show: true,
         method: "add",
         onHide: () =>
-          (this.dialogAccountAddUpdate = structuredClone(
-            this.dialogAccountAddUpdateDefault
-          )),
+        (this.dialogAccountAddUpdate = structuredClone(
+          this.dialogAccountAddUpdateDefault
+        )),
         data,
       };
     },
@@ -280,11 +273,11 @@ export default defineComponent({
         show: true,
         method: "update",
         onHide: () =>
-          (this.dialogAccountAddUpdate = structuredClone(
-            this.dialogAccountAddUpdateDefault
-          )),
-          dataWas:structuredClone(Account),
-          data:structuredClone(Account)
+        (this.dialogAccountAddUpdate = structuredClone(
+          this.dialogAccountAddUpdateDefault
+        )),
+        dataWas: structuredClone(Account),
+        data: structuredClone(Account)
       };
     },
     onAccountSave(result) {
@@ -341,9 +334,9 @@ export default defineComponent({
         show: true,
         method: "add",
         onHide: () =>
-          (this.dialogChannelAddUpdate = structuredClone(
-            this.dialogChanelAddUpdateDefault
-          )),
+        (this.dialogChannelAddUpdate = structuredClone(
+          this.dialogChanelAddUpdateDefault
+        )),
         data,
       };
     },
@@ -361,11 +354,11 @@ export default defineComponent({
         show: true,
         method: "update",
         onHide: () =>
-          (this.dialogChannelAddUpdate = structuredClone(
-            this.dialogChanelAddUpdateDefault
-          )),
-          dataWas:structuredClone(Chenal),
-          data:structuredClone(Chenal)
+        (this.dialogChannelAddUpdate = structuredClone(
+          this.dialogChanelAddUpdateDefault
+        )),
+        dataWas: structuredClone(Chenal),
+        data: structuredClone(Chenal)
       };
     },
     onChanelSave(result) {
@@ -408,7 +401,7 @@ export default defineComponent({
         this.getData();
       }
     },
-  // task
+    // task
     showTaskAdd() {
       const excludeFields = ["id", "isDeleted", "active"];
       const data = {};
@@ -422,9 +415,9 @@ export default defineComponent({
         show: true,
         method: "add",
         onHide: () =>
-          (this.dialogTaskAddUpdate = structuredClone(
-            this.dialogTaskAddUpdateDefault
-          )),
+        (this.dialogTaskAddUpdate = structuredClone(
+          this.dialogTaskAddUpdateDefault
+        )),
         data,
       };
     },
@@ -441,14 +434,15 @@ export default defineComponent({
         show: true,
         method: "update",
         onHide: () =>
-          (this.dialogTaskAddUpdate = structuredClone(
-            this.dialogTaskAddUpdateDefault
-          )),
-          dataWas:structuredClone(Task),
-          data:structuredClone(Task)
+        (this.dialogTaskAddUpdate = structuredClone(
+          this.dialogTaskAddUpdateDefault
+        )),
+        dataWas: structuredClone(Task),
+        data: structuredClone(Task)
       };
     },
     onTaskSave(result) {
+      console.log(result);
       if (!result.success) {
         this.$q.dialogStore.set({
           show: true,
