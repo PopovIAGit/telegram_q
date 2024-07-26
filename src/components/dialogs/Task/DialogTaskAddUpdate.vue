@@ -48,7 +48,8 @@
             <q-select outlined bg-color="white" hide-bottom-space v-model="dialog.data.chanelId"
               :mask="Task.fields.chanelId.mask" unmasked-value :min="Task.fields.chanelId.min"
               :max="Task.fields.chanelId.max" :required="Task.fields.chanelId.required" multiple
-              :rules="[(val) => Task.fields.chanelId.rules(val)]" :options="this.$q.appStore.listOfTgChanals">
+              :rules="[(val) => Task.fields.chanelId.rules(val)]"
+              :options="this.$q.appStore.listOfTgChanals.map(item => ({ label: item.url, value: item.id }))">
             </q-select>
           </div>
           <!-- chanelId -->
