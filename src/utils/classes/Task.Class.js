@@ -41,7 +41,7 @@ class Task {
         type: "number",
         default: undefined,
         rules: (val) => {
-          return val !== null && typeof val === "number";
+          return val !== null;
         },
       },
       chanelId: {

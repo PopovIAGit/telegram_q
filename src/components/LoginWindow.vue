@@ -51,7 +51,11 @@
       </div>
       <div class="q-mb-lg row justify-between items-center">
         <q-checkbox v-model="remember" label="Запомнить" />
-        <span class="text-primary cursor-pointer" @click="isRegistrations = !isRegistrations">Регистрация</span>
+        <span
+          class="text-primary cursor-pointer"
+          @click="isRegistrations = !isRegistrations"
+          >Регистрация</span
+        >
       </div>
       <q-btn
         unelevated
@@ -140,8 +144,12 @@
           </template>
         </q-input>
       </div>
-      <div class="q-mb-lg row justify-end ">
-        <span class="text-primary cursor-pointer" @click="isRegistrations = !isRegistrations">Авторизация</span>
+      <div class="q-mb-lg row justify-end">
+        <span
+          class="text-primary cursor-pointer"
+          @click="isRegistrations = !isRegistrations"
+          >Авторизация</span
+        >
       </div>
       <q-btn
         unelevated
@@ -185,43 +193,39 @@ export default defineComponent({
     };
   },
 
-  async beforeMount() {
-
-  },
+  async beforeMount() {},
 
   methods: {
     async onSubmit() {
       if (this.isRegistrations == false) {
         const result = await this.User.login({
-        login: this.login,
-        password: this.password,
-      });
-      // Если ошибка логина TODO
-      if (!result.success) {
-      }
-      // Если успешный логин
-      else if (result.success) {
-
-        // Выполняем подготовительные действия, доступные только после успешной авторизации
-        const resultAuthAfter = await this.User.authAfter();
-        // Если ошибка
-        if (!resultAuthAfter.success) {
-          if (resultAuthAfter.message) {
-            this.$q.dialogStore.set({
-              show: true,
-              title: "Ошибка",
-              html: resultAuthAfter.message,
-              ok: {
-                color: "red",
-              },
-            });
+          login: this.login,
+          password: this.password,
+        });
+        // Если ошибка логина TODO
+        if (!result.success) {
+        }
+        // Если успешный логин
+        else if (result.success) {
+          // Выполняем подготовительные действия, доступные только после успешной авторизации
+          const resultAuthAfter = await this.User.authAfter();
+          // Если ошибка
+          if (!resultAuthAfter.success) {
+            if (resultAuthAfter.message) {
+              this.$q.dialogStore.set({
+                show: true,
+                title: "Ошибка",
+                html: resultAuthAfter.message,
+                ok: {
+                  color: "red",
+                },
+              });
+            }
           }
         }
-      }
       } else {
-        console.log("isRegistrations",this.isRegistrations);
+        console.log("isRegistrations", this.isRegistrations);
       }
-
     },
   },
 });

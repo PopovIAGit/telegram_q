@@ -32,6 +32,9 @@ export default defineComponent({
 
   async beforeMount () {
 
+
+
+
     /** STORES */
     this.$q.appStore = useAppStore();
     this.$q.helperTablesStore = useHelperTablesStore();
@@ -83,6 +86,8 @@ export default defineComponent({
       ready: true
     });
 
+ 
+
     /** SPLASH SCREEN **/
     // Убираем splash screen
     window['splash-screen'].classList.add('ready');
@@ -96,6 +101,7 @@ export default defineComponent({
   },
 
   methods: {
+
   }
 })
 </script>
