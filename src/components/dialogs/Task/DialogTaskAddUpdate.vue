@@ -61,32 +61,33 @@
               hide-bottom-space
               v-model="dialog.data.chanelId"
               :required="Task.fields.chanelId.required"
-              multiple
-              :rules="[(val) => Task.fields.chanelId.rules(val)]"
-              :options="
-                this.$q.appStore.listOfTgChanals.map((item) => ({
-                  label: item.id,
-                  value: item.id,
-                }))
-              "
+              :options="filteredOptions"
             >
             </q-select>
           </div>
-          <!-- chanelId -->
+          <!-- chanelAddList -->
           <div class="q-mb-md" v-if="dialog.method === 'update'">
             <div class="label">Лист подключенных каналов</div>
             <q-list bordered separator>
               <q-item
-                v-for="tgChannel in ListAddChanels"
+                v-for="tgChannel in onGetListAddChanels()"
                 :key="tgChannel.id"
                 v-ripple
               >
-                <q-item-section>{{ tgChannel.url }}</q-item-section>
+                <q-item-section>{{ tgChannel.channel_id }}</q-item-section>
               </q-item>
             </q-list>
           </div>
         </q-card-section>
         <q-card-section class="q-dialog__footer">
+          <q-btn
+            unelevated
+            color="primary"
+            no-caps
+            @click="onAdd"
+            label="Добавить канал к таску"
+            v-if="dialog.method === 'update'"
+          />
           <q-btn
             unelevated
             color="negative"
@@ -137,11 +138,28 @@ export default defineComponent({
       ListAddChanels: ref([]),
     };
   },
+  computed: {
+    filteredOptions() {
+      return this.$q.appStore.listOfTgChanals
+        .filter(
+          (item) =>
+            !this.ListAddChanels.some(
+              (tgChannel) => tgChannel.channel_id === item.id
+            )
+        )
+        .map((item) => ({
+          label: item.description,
+          value: item.id,
+        }));
+    },
+  },
 
   methods: {
     async onGetListAddChanels() {
       const result = await this.Task.taskChanelList(this.dialog.data.id);
-      this.ListAddChanels = result;
+      this.ListAddChanels = result.task.rows;
+      console.log(this.ListAddChanels);
+      return this.ListAddChanels;
     },
     async onSubmit() {
       if (this.dialog.method === "add") {
@@ -155,6 +173,14 @@ export default defineComponent({
         this.dialog.data,
         this.dialog.dataWas
       );
+      if (this.dialog.data.chanelId) {
+        const result2 = await this.Task.addTaskToChannel(
+          this.dialog.data.chanelId.value,
+          this.dialog.data.id
+        );
+        console.log("123", result2);
+      }
+
       this.processing = false;
       this.$emit("onSave", result);
     },
@@ -165,6 +191,17 @@ export default defineComponent({
       const result = await this.Task.delete(this.dialog.data.id);
       this.processing = false;
       this.$emit("onRemove", result);
+    },
+    async onAdd() {
+      if (this.processing) return;
+      this.processing = true;
+      const result = await this.Task.addTaskToChannel(
+        this.dialog.data.chanelId.value,
+        this.dialog.data.id
+      );
+      console.log("123", result);
+      this.processing = false;
+      this.onGetListAddChanels();
     },
   },
 });

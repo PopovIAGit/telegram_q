@@ -146,10 +146,10 @@ class Task {
         }
         // Если всё ОК
         else if (response.type === "answer") {
-          const Account = response.args;
+          const task = response.args;
           return {
             success: true,
-            Account,
+            task,
           };
         }
       }
@@ -209,10 +209,10 @@ class Task {
     }
     // Если всё ОК
     else if (response.type === "answer") {
-      const Account = response.args;
+      const task = response.args;
       return {
         success: true,
-        Account,
+        task,
       };
     }
   }
@@ -247,13 +247,13 @@ class Task {
     const response = await this.$q.ws.sendRequest({
       type: "query",
       iface: "tgTask",
-      method: "addChannelt",
+      method: "addChannel",
       args: {
         task_id: task_id,
         channel_id: channel_id,
       },
     });
-
+    console.log(response);
     // Если ошибка сохранения
     if (response.type === "error") {
       return {
@@ -263,10 +263,10 @@ class Task {
     }
     // Если всё ОК
     else if (response.type === "answer") {
-      const Account = response.args;
+      const task = response.args;
       return {
         success: true,
-        Account,
+        task,
       };
     }
   }
