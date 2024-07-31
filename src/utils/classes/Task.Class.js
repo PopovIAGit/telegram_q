@@ -1,6 +1,6 @@
 import { useQuasar } from "quasar";
 
-class Account {
+class Task {
   constructor() {
     this.$q = useQuasar();
 
@@ -15,18 +15,6 @@ class Account {
           return val !== null && typeof val === "number";
         },
       },
-      phone: {
-        label: "Телефон",
-        type: "string",
-        default: "",
-        mask: "+###########",
-        min: 12,
-        max: 12,
-        required: true,
-        rules: (val) => {
-          return val && val.length === 12;
-        },
-      },
       description: {
         label: "Описание",
         type: "string",
@@ -37,20 +25,31 @@ class Account {
           return val && val.length >= 2 && val.length <= 3000;
         },
       },
-      active: {
-        label: "Активен",
-        type: "boolean",
-        default: false,
+      message: {
+        label: "сообщение",
+        type: "string",
+        default: "",
+        required: true,
+        min: 2,
+        max: 3000,
         rules: (val) => {
-          return typeof val === "boolean";
+          return val && val.length >= 2 && val.length <= 3000;
         },
       },
-      isDeleted: {
-        label: "Удален",
-        type: "boolean",
-        default: false,
+      userId: {
+        label: "id пользователя",
+        type: "number",
+        default: undefined,
         rules: (val) => {
-          return typeof val === "boolean";
+          return val !== null;
+        },
+      },
+      chanelId: {
+        label: "Добавить каналы",
+        type: "number",
+        default: undefined,
+        rules: (val) => {
+          return val !== null && typeof val === "number";
         },
       },
     };
@@ -89,13 +88,12 @@ class Account {
       delete _data.password2;
       const response = await this.$q.ws.sendRequest({
         type: "query",
-        iface: "tgAccount",
+        iface: "tgTask",
         method: "add",
         args: {
           ..._data,
         },
       });
-      console.log("add", response);
       // Если ошибка сохранения
       if (response.type === "error") {
         return {
@@ -105,10 +103,10 @@ class Account {
       }
       // Если всё ОК
       else if (response.type === "answer") {
-        const user = response.args;
+        const task = response.args;
         return {
           success: true,
-          user,
+          task,
         };
       }
     }
@@ -132,14 +130,13 @@ class Account {
       else {
         const response = await this.$q.ws.sendRequest({
           type: "query",
-          iface: "tgAccount",
+          iface: "tgTask",
           method: "update",
           args: {
             id: data.id,
             ..._data,
           },
         });
-        console.log("update", _data);
         // Если ошибка сохранения
         if (response.type === "error") {
           return {
@@ -149,10 +146,10 @@ class Account {
         }
         // Если всё ОК
         else if (response.type === "answer") {
-          const Account = response.args;
+          const task = response.args;
           return {
             success: true,
-            Account,
+            task,
           };
         }
       }
@@ -162,13 +159,13 @@ class Account {
   async delete(personId) {
     const response = await this.$q.ws.sendRequest({
       type: "query",
-      iface: "tgAccount",
+      iface: "tgTask",
       method: "delete",
       args: {
         id: personId,
       },
     });
-    console.log(response);
+
     // Если ошибка удаления
     if (response.type === "error") {
       return {
@@ -193,61 +190,86 @@ class Account {
     }
   }
 
-  async activate(accountId) {
-    console.log(accountId);
+  async taskChanelList(task_id) {
     const response = await this.$q.ws.sendRequest({
       type: "query",
-      iface: "tgAccount",
-      method: "activate",
+      iface: "tgTask",
+      method: "getChannelList",
       args: {
-        accountId: accountId,
+        id: task_id,
       },
     });
-    console.log(response);
-    // Если ошибка удаления
+
+    // Если ошибка сохранения
     if (response.type === "error") {
       return {
         success: false,
         message: response.args.message || "Ошибка",
       };
     }
-    // Если получен ответ от login
+    // Если всё ОК
     else if (response.type === "answer") {
-      const answer = response.args;
+      const task = response.args;
       return {
         success: true,
-        answer,
+        task,
+      };
+    }
+  }
+  async chanelTaskList(channel_id) {
+    const response = await this.$q.ws.sendRequest({
+      type: "query",
+      iface: "tgTask",
+      method: "getChannelList",
+      args: {
+        channel_id: channel_id,
+      },
+    });
+
+    // Если ошибка сохранения
+    if (response.type === "error") {
+      return {
+        success: false,
+        message: response.args.message || "Ошибка",
+      };
+    }
+    // Если всё ОК
+    else if (response.type === "answer") {
+      const Account = response.args;
+      return {
+        success: true,
+        Account,
       };
     }
   }
 
-  async signIn(accountId, phoneCode) {
+  async addTaskToChannel(channel_id, task_id) {
     const response = await this.$q.ws.sendRequest({
       type: "query",
-      iface: "tgAccount",
-      method: "signIn",
+      iface: "tgTask",
+      method: "addChannel",
       args: {
-        accountId: accountId,
-        phoneCode: phoneCode,
+        task_id: task_id,
+        channel_id: channel_id,
       },
     });
     console.log(response);
-    // Если ошибка удаления
+    // Если ошибка сохранения
     if (response.type === "error") {
       return {
         success: false,
         message: response.args.message || "Ошибка",
       };
     }
-    // Если получен ответ от login
+    // Если всё ОК
     else if (response.type === "answer") {
-      const answer = response.args;
+      const task = response.args;
       return {
         success: true,
-        answer,
+        task,
       };
     }
   }
 }
 
-export default Account;
+export default Task;

@@ -7,31 +7,24 @@
 
             <div class="q-dialog__title">
               {{
-                dialog.method === "add"
-                  ? "Новый канал "
-                  : "Изменить канал"
-              }}
+    dialog.method === "add"
+      ? "Новый канал "
+      : "Изменить канал"
+  }}
             </div>
           </div>
           <q-btn icon="close" flat round dense v-close-popup />
         </q-card-section>
         <q-card-section class="q-dialog__body">
-           <!-- Описание -->
-           <div class="q-mb-md">
+          <!-- Описание -->
+          <div class="q-mb-md">
             <div class="label">
               {{ Chanel.fields.description.label }}
               {{ Chanel.fields.description.required ? "*" : "" }}
             </div>
-            <q-input
-              outlined
-              bg-color="white"
-              hide-bottom-space
-              v-model="dialog.data.description"
-              :min="Chanel.fields.description.min"
-              :max="Chanel.fields.description.max"
-              :required="Chanel.fields.description.required"
-              :rules="[(val) => Chanel.fields.description.rules(val)]"
-            />
+            <q-input outlined bg-color="white" hide-bottom-space v-model="dialog.data.description"
+              :min="Chanel.fields.description.min" :max="Chanel.fields.description.max"
+              :required="Chanel.fields.description.required" :rules="[(val) => Chanel.fields.description.rules(val)]" />
           </div>
 
           <!-- Адресс -->
@@ -40,45 +33,27 @@
               {{ Chanel.fields.url.label }}
               {{ Chanel.fields.url.required ? "*" : "" }}
             </div>
-            <q-input
-              outlined
-              bg-color="white"
-              hide-bottom-space
-              v-model="dialog.data.url"
-              :mask="Chanel.fields.url.mask"
-              unmasked-value
-              :min="Chanel.fields.url.min"
-              :max="Chanel.fields.url.max"
-              :required="Chanel.fields.url.required"
-              :rules="[(val) => Chanel.fields.url.rules(val)]"
-            >
+            <q-input outlined bg-color="white" hide-bottom-space v-model="dialog.data.url"
+              :mask="Chanel.fields.url.mask" unmasked-value :min="Chanel.fields.url.min" :max="Chanel.fields.url.max"
+              :required="Chanel.fields.url.required" :rules="[(val) => Chanel.fields.url.rules(val)]">
 
             </q-input>
           </div>
+          <!-- Список тасков на канале -->
+          <div class="q-mb-md" v-if="dialog.method === 'update'">
+            <div class="label">
+              Список тасков на канале
+            </div>
+            <q-select outlined bg-color="white" hide-bottom-space v-model="model" :options="options" readonly>
+              
+            </q-select>
+          </div>
         </q-card-section>
         <q-card-section class="q-dialog__footer">
-          <q-btn
-            unelevated
-            color="negative"
-            no-caps
-            label="Удалить"
-            @click="onRemove"
-            v-if="dialog.method === 'update'"
-          />
-          <q-btn
-            class="q-btn--outline-muted"
-            outline
-            no-caps
-            label="Отмена"
-            v-close-popup
-          />
-          <q-btn
-            unelevated
-            color="primary"
-            no-caps
-            type="submit"
-            label="Сохранить"
-          />
+          <q-btn unelevated color="negative" no-caps label="Удалить" @click="onRemove"
+            v-if="dialog.method === 'update'" />
+          <q-btn class="q-btn--outline-muted" outline no-caps label="Отмена" v-close-popup />
+          <q-btn unelevated color="primary" no-caps type="submit" label="Сохранить" />
         </q-card-section>
       </q-form>
     </q-card>
@@ -96,8 +71,8 @@ export default defineComponent({
   props: ["dialog"],
 
   emits: {
-    onSave: null,
-    onRemove: null,
+    onSaveChanel: null,
+    onRemoveChanel: null,
   },
 
   setup() {
@@ -118,16 +93,17 @@ export default defineComponent({
         this.dialog.dataWas
       );
       this.processing = false;
-      this.$emit("onSave", result);
+      console.log(result);
+      this.$emit("onSaveChanel", result);
     },
 
     async onRemove() {
       if (this.processing) return;
       this.processing = true;
       const result = await this.Chanel.delete(this.dialog.data.id);
-      console.log(result);
+
       this.processing = false;
-      this.$emit("onRemove", result);
+      this.$emit("onRemoveChanel", result);
     },
   },
 });
