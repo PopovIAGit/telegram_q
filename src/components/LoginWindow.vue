@@ -179,8 +179,8 @@ export default defineComponent({
     return {
       User,
       // Form fields
-      login: ref("Root"),
-      password: ref("root"),
+      login: ref(""),
+      password: ref(""),
       remember: ref(false),
       // Show password
       showPassword: ref(false),
