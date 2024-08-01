@@ -18,48 +18,51 @@
             />
             <q-btn flat round dense icon="add" @click="showAccountAdd" />
           </q-toolbar>
-          <q-list bordered separator v-if="showAccount">
-            <q-item
-              v-for="tgAccount in listOfTgAccounts"
-              :key="tgAccount.id"
-              clickable
-              v-ripple
-              class="drawer-left__menu"
-            >
-              <q-item-section>
-                <q-item-label>{{ tgAccount.id }}</q-item-label>
-              </q-item-section>
-              <q-item-section>
-                <q-item-label>{{ tgAccount.phone }}</q-item-label>
-                <q-item-label caption lines="1">{{
-                  tgAccount.description
-                }}</q-item-label>
-              </q-item-section>
-              <q-item-section>
-                <q-item-label>
-                  <q-icon
-                    :name="
-                      tgAccount.active !== 0
-                        ? 'radio_button_checked'
-                        : 'radio_button_unchecked'
-                    "
-                    :color="tgAccount.active !== 0 ? 'green' : 'grey'"
-                  />
-                </q-item-label>
-              </q-item-section>
-              <q-item-section>
-                <q-item-label>
-                  <q-btn
-                    flat
-                    round
-                    dense
-                    icon="edit"
-                    @click="showAccountUpdate(tgAccount)"
-                  />
-                </q-item-label>
-              </q-item-section>
-            </q-item>
-          </q-list>
+
+          <q-scroll-area style="height: 300px; max-width: 100%">
+            <q-list bordered separator v-if="showAccount">
+              <q-item
+                v-for="tgAccount in listOfTgAccounts"
+                :key="tgAccount.id"
+                clickable
+                v-ripple
+                class="drawer-left__menu"
+              >
+                <q-item-section>
+                  <q-item-label>{{ tgAccount.id }}</q-item-label>
+                </q-item-section>
+                <q-item-section>
+                  <q-item-label>{{ tgAccount.phone }}</q-item-label>
+                  <q-item-label caption lines="1">{{
+                    tgAccount.description
+                  }}</q-item-label>
+                </q-item-section>
+                <q-item-section>
+                  <q-item-label>
+                    <q-icon
+                      :name="
+                        tgAccount.active !== 0
+                          ? 'radio_button_checked'
+                          : 'radio_button_unchecked'
+                      "
+                      :color="tgAccount.active !== 0 ? 'green' : 'grey'"
+                    />
+                  </q-item-label>
+                </q-item-section>
+                <q-item-section>
+                  <q-item-label>
+                    <q-btn
+                      flat
+                      round
+                      dense
+                      icon="edit"
+                      @click="showAccountUpdate(tgAccount)"
+                    />
+                  </q-item-label>
+                </q-item-section>
+              </q-item>
+            </q-list>
+          </q-scroll-area>
         </div>
         <!-- каналы -->
         <div class="q-pa-sm col-lg-6 col-md-12 col-xs-12">
@@ -74,56 +77,58 @@
             />
             <q-btn flat round dense icon="add" @click="showChanelAdd" />
           </q-toolbar>
-          <q-list bordered separator v-if="showChannel">
-            <q-item
-              v-for="tgChannel in listOfTgChanals"
-              :key="tgChannel.id"
-              clickable
-              v-ripple
-              class="drawer-left__menu"
-            >
-              <q-item-section>
-                <q-item-label>{{
-                  tgChannel && tgChannel.id ? tgChannel.id : "N/A"
-                }}</q-item-label>
-              </q-item-section>
-              <q-item-section>
-                <q-item-label>{{
-                  tgChannel && tgChannel.url ? tgChannel.url : "N/A"
-                }}</q-item-label>
-                <q-item-label caption lines="1">{{
-                  tgChannel && tgChannel.description
-                    ? tgChannel.description
-                    : "N/A"
-                }}</q-item-label>
-              </q-item-section>
-              <q-item-section>
-                <q-item-label>
-                  <q-icon
-                    :name="
-                      tgChannel && tgChannel.active !== 0
-                        ? 'radio_button_checked'
-                        : 'radio_button_unchecked'
-                    "
-                    :color="
-                      tgChannel && tgChannel.active !== 0 ? 'green' : 'grey'
-                    "
-                  />
-                </q-item-label>
-              </q-item-section>
-              <q-item-section>
-                <q-item-label>
-                  <q-btn
-                    flat
-                    round
-                    dense
-                    icon="edit"
-                    @click="showChanelUpdate(tgChannel)"
-                  />
-                </q-item-label>
-              </q-item-section>
-            </q-item>
-          </q-list>
+          <q-scroll-area style="height: 300px; max-width: 100%">
+            <q-list bordered separator v-if="showChannel">
+              <q-item
+                v-for="tgChannel in listOfTgChanals"
+                :key="tgChannel.id"
+                clickable
+                v-ripple
+                class="drawer-left__menu"
+              >
+                <q-item-section>
+                  <q-item-label>{{
+                    tgChannel && tgChannel.id ? tgChannel.id : "N/A"
+                  }}</q-item-label>
+                </q-item-section>
+                <q-item-section>
+                  <q-item-label>{{
+                    tgChannel && tgChannel.url ? tgChannel.url : "N/A"
+                  }}</q-item-label>
+                  <q-item-label caption lines="1">{{
+                    tgChannel && tgChannel.description
+                      ? tgChannel.description
+                      : "N/A"
+                  }}</q-item-label>
+                </q-item-section>
+                <q-item-section>
+                  <q-item-label>
+                    <q-icon
+                      :name="
+                        tgChannel && tgChannel.active !== 0
+                          ? 'radio_button_checked'
+                          : 'radio_button_unchecked'
+                      "
+                      :color="
+                        tgChannel && tgChannel.active !== 0 ? 'green' : 'grey'
+                      "
+                    />
+                  </q-item-label>
+                </q-item-section>
+                <q-item-section>
+                  <q-item-label>
+                    <q-btn
+                      flat
+                      round
+                      dense
+                      icon="edit"
+                      @click="showChanelUpdate(tgChannel)"
+                    />
+                  </q-item-label>
+                </q-item-section>
+              </q-item>
+            </q-list>
+          </q-scroll-area>
         </div>
         <!-- Задачи -->
         <div class="q-pa-sm col-lg-6 col-md-12 col-xs-12">
@@ -138,52 +143,54 @@
             />
             <q-btn flat round dense icon="add" @click="showTaskAdd" />
           </q-toolbar>
-          <q-list bordered separator v-if="showTask">
-            <q-item
-              v-for="tgTask in listOfTasks"
-              :key="tgTask.id"
-              clickable
-              v-ripple
-              class="drawer-left__menu"
-            >
-              <q-item-section>
-                <q-item-label>{{
-                  tgTask && tgTask.id ? tgTask.id : "N/A"
-                }}</q-item-label>
-              </q-item-section>
-              <q-item-section>
-                <q-item-label>{{
-                  tgTask && tgTask.message ? tgTask.message : "N/A"
-                }}</q-item-label>
-                <q-item-label caption lines="1">{{
-                  tgTask && tgTask.description ? tgTask.description : "N/A"
-                }}</q-item-label>
-              </q-item-section>
-              <q-item-section>
-                <q-item-label>
-                  <q-icon
-                    :name="
-                      tgTask && tgTask.active !== 0
-                        ? 'radio_button_checked'
-                        : 'radio_button_unchecked'
-                    "
-                    :color="tgTask && tgTask.active !== 0 ? 'green' : 'grey'"
-                  />
-                </q-item-label>
-              </q-item-section>
-              <q-item-section>
-                <q-item-label>
-                  <q-btn
-                    flat
-                    round
-                    dense
-                    icon="edit"
-                    @click="showTaskUpdate(tgTask)"
-                  />
-                </q-item-label>
-              </q-item-section>
-            </q-item>
-          </q-list>
+          <q-scroll-area style="height: 300px; max-width: 100%">
+            <q-list bordered separator v-if="showTask">
+              <q-item
+                v-for="tgTask in listOfTasks"
+                :key="tgTask.id"
+                clickable
+                v-ripple
+                class="drawer-left__menu"
+              >
+                <q-item-section>
+                  <q-item-label>{{
+                    tgTask && tgTask.id ? tgTask.id : "N/A"
+                  }}</q-item-label>
+                </q-item-section>
+                <q-item-section>
+                  <q-item-label>{{
+                    tgTask && tgTask.message ? tgTask.message : "N/A"
+                  }}</q-item-label>
+                  <q-item-label caption lines="1">{{
+                    tgTask && tgTask.description ? tgTask.description : "N/A"
+                  }}</q-item-label>
+                </q-item-section>
+                <q-item-section>
+                  <q-item-label>
+                    <q-icon
+                      :name="
+                        tgTask && tgTask.active !== 0
+                          ? 'radio_button_checked'
+                          : 'radio_button_unchecked'
+                      "
+                      :color="tgTask && tgTask.active !== 0 ? 'green' : 'grey'"
+                    />
+                  </q-item-label>
+                </q-item-section>
+                <q-item-section>
+                  <q-item-label>
+                    <q-btn
+                      flat
+                      round
+                      dense
+                      icon="edit"
+                      @click="showTaskUpdate(tgTask)"
+                    />
+                  </q-item-label>
+                </q-item-section>
+              </q-item>
+            </q-list>
+          </q-scroll-area>
         </div>
       </div>
     </div>
