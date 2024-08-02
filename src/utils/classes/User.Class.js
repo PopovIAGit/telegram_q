@@ -158,7 +158,7 @@ class User {
    * @return {Promise<{success: boolean, message: string}|{success: boolean, user: *}|{success: boolean}>}
    */
   async login(data) {
-    console.log(data);
+
     // Логин
     const response = await this.$q.ws.sendRequest({
       type: "query",
@@ -169,7 +169,7 @@ class User {
         password: data.password,
       },
     });
-    console.log(response);
+
     // Если ошибка логина
     if (response.type === "error") {
       // На всякий случай удаляем токен из localStorage
@@ -185,7 +185,7 @@ class User {
     }
     // Если получен ответ от login
     else if (response.type === "answer") {
-      console.log(response);
+
       // Если в ответе по каким-то причинам нет данных пользователя
       if (!response.args || !response.args.id || !response.args.token) {
         return {
