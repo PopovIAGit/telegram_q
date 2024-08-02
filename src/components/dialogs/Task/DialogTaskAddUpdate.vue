@@ -159,13 +159,14 @@ export default defineComponent({
       const result = await this.Task.taskChanelList(this.dialog.data.id);
       this.ListAddChanels = result.task.rows;
       console.log(this.ListAddChanels);
+
       return this.ListAddChanels;
     },
     async onSubmit() {
       if (this.dialog.method === "add") {
         this.dialog.data.userId = 1;
       }
-      console.log(this.dialog);
+
       if (this.processing) return;
       this.processing = true;
       const result = await this.Task.save(
@@ -178,7 +179,6 @@ export default defineComponent({
           this.dialog.data.chanelId.value,
           this.dialog.data.id
         );
-        console.log("123", result2);
       }
 
       this.processing = false;
@@ -199,7 +199,7 @@ export default defineComponent({
         this.dialog.data.chanelId.value,
         this.dialog.data.id
       );
-      console.log("123", result);
+
       this.processing = false;
       this.onGetListAddChanels();
     },
