@@ -515,7 +515,7 @@ export default defineComponent({
       };
     },
     showTaskUpdate(Task) {
-      const excludeFields = ["id", "isDeleted", "active"];
+      const excludeFields = ["isDeleted", "active"];
       const data = {};
       Object.keys(this.dialogTaskAddUpdateDefault.data).forEach((key) => {
         if (!excludeFields.includes(key)) {

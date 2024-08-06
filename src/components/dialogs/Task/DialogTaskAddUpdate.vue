@@ -61,7 +61,12 @@
               hide-bottom-space
               v-model="dialog.data.chanelId"
               :required="Task.fields.chanelId.required"
-              :options="filteredOptions"
+              :options="
+                this.$q.appStore.listOfTgChanals.map((item) => ({
+                  label: item.description,
+                  value: item.id,
+                }))
+              "
             >
             </q-select>
           </div>
@@ -69,12 +74,16 @@
           <div class="q-mb-md" v-if="dialog.method === 'update'">
             <div class="label">Лист подключенных каналов</div>
             <q-list bordered separator>
-              <q-item
-                v-for="tgChannel in onGetListAddChanels()"
-                :key="tgChannel.id"
-                v-ripple
-              >
-                <q-item-section>{{ tgChannel.channel_id }}</q-item-section>
+              <q-item v-for="item in taskChanelList" :key="item.id" v-ripple>
+                <q-item-section>
+                  <q-item-label>
+                    {{
+                      this.$q.appStore.listOfTgChanals.find(
+                        (tgChannel) => tgChannel.id === item.channel_id
+                      ).description
+                    }}
+                  </q-item-label>
+                </q-item-section>
               </q-item>
             </q-list>
           </div>
@@ -135,9 +144,14 @@ export default defineComponent({
 
     return {
       Task,
-      ListAddChanels: ref([]),
+      taskChanelList: ref([]),
     };
   },
+
+  mounted() {
+    this.onGetListAddChanels();
+  },
+
   computed: {
     filteredOptions() {
       return this.$q.appStore.listOfTgChanals
@@ -156,11 +170,25 @@ export default defineComponent({
 
   methods: {
     async onGetListAddChanels() {
-      const result = await this.Task.taskChanelList(this.dialog.data.id);
-      this.ListAddChanels = result.task.rows;
-      console.log(this.ListAddChanels);
+      let data = [];
+      console.log(this.dialog.data.id);
 
-      return this.ListAddChanels;
+      const result = await this.Task.taskChanelList(this.dialog.data.id);
+      if (!result.success) {
+        data = [];
+        this.$q.dialogStore.set({
+          show: true,
+          title: "Ошибка",
+          text: result.message,
+          ok: {
+            color: "red",
+          },
+        });
+      } else if (result.success && result.task) {
+        data = result.task.rows;
+        console.log(result);
+      }
+      this.taskChanelList = data;
     },
     async onSubmit() {
       if (this.dialog.method === "add") {
