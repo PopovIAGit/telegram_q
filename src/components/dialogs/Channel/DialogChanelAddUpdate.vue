@@ -52,15 +52,15 @@
           <!-- Список тасков на канале -->
           <div class="q-mb-md" v-if="dialog.method === 'update'">
             <div class="label">Список тасков на канале</div>
-            <q-list
+            <q-select
               outlined
               bg-color="white"
               hide-bottom-space
-              v-model="model"
+              v-model="selectedOption"
               :options="options"
-              readonly
-            >
-            </q-list>
+              label="подключенные таски"
+              :loading="isLoading"
+            />
           </div>
         </q-card-section>
         <q-card-section class="q-dialog__footer">
@@ -96,6 +96,7 @@
 import { defineComponent, ref } from "vue";
 
 import ChanelClass from "src/utils/classes/Chanel.Class";
+import TaskClass from "src/utils/classes/Task.Class";
 
 export default defineComponent({
   name: "DialogChanelAddUpdate",
@@ -109,12 +110,50 @@ export default defineComponent({
 
   setup() {
     const Chanel = new ChanelClass();
+    const Task = new TaskClass();
     return {
       Chanel,
+      Task,
+      selectedOption: null,
+      options: [],
+      isLoading: false,
     };
   },
 
+  async beforeMount() {
+    this.isLoading = true;
+    try {
+      this.options = await this.onGetChanelTaskList();
+    } catch (error) {
+      console.log(error);
+      // Handle the error here
+    } finally {
+      this.isLoading = false;
+    }
+  },
+
   methods: {
+    async onGetChanelTaskList() {
+      const result = await this.Task.chanelTaskList(this.dialog.data.id);
+      console.log("Когда запрашиваем таски которые есть на канале", result);
+
+      if (!result.success) {
+        this.$q.dialogStore.set({
+          show: true,
+          title: "Ошибка",
+          text: result.message,
+          ok: {
+            color: "red",
+          },
+        });
+        return [];
+      } else {
+        return result.task.rows.map((item) => ({
+          label: item.id,
+          value: item.id,
+        }));
+      }
+    },
     async onSubmit() {
       if (this.processing) return;
       this.processing = true;

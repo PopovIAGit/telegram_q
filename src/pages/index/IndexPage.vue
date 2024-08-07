@@ -436,7 +436,7 @@ export default defineComponent({
       };
     },
     showChanelUpdate(Chenal) {
-      const excludeFields = ["id", "isDeleted", "active"];
+      const excludeFields = ["isDeleted", "active"];
       const data = {};
       Object.keys(this.dialogChanelAddUpdateDefault.data).forEach((key) => {
         if (!excludeFields.includes(key)) {

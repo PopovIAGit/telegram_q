@@ -71,10 +71,14 @@
             </q-select>
           </div>
           <!-- chanelAddList -->
-          <div class="q-mb-md" v-if="dialog.method === 'update'">
+          <!-- <div class="q-mb-md" v-if="dialog.method === 'update'">
             <div class="label">Лист подключенных каналов</div>
             <q-list bordered separator>
-              <q-item v-for="item in taskChanelList" :key="item.id" v-ripple>
+              <q-item
+                v-for="item in onGetListAddChanels()"
+                :key="item.id"
+                v-ripple
+              >
                 <q-item-section>
                   <q-item-label>
                     {{
@@ -86,6 +90,18 @@
                 </q-item-section>
               </q-item>
             </q-list>
+          </div> -->
+          <div class="q-mb-md" v-if="dialog.method === 'update'">
+            <div class="label">Лист подключенных каналов</div>
+            <q-select
+              outlined
+              bg-color="white"
+              hide-bottom-space
+              v-model="selectedOption"
+              :options="options"
+              label="подключенные каналы"
+              :loading="isLoading"
+            />
           </div>
         </q-card-section>
         <q-card-section class="q-dialog__footer">
@@ -144,12 +160,22 @@ export default defineComponent({
 
     return {
       Task,
-      taskChanelList: ref([]),
+      selectedOption: ref(null),
+      options: ref([]),
+      isLoading: ref(false),
     };
   },
 
-  mounted() {
-    this.onGetListAddChanels();
+  async mounted() {
+    this.isLoading = true;
+    try {
+      this.options = await this.onGetListAddChanels();
+    } catch (error) {
+      console.log(error);
+      // Handle the error here
+    } finally {
+      this.isLoading = false;
+    }
   },
 
   computed: {
@@ -170,12 +196,9 @@ export default defineComponent({
 
   methods: {
     async onGetListAddChanels() {
-      let data = [];
-      console.log(this.dialog.data.id);
-
       const result = await this.Task.taskChanelList(this.dialog.data.id);
+      console.log("Когда запрашиваем каналы которые есть на таске", result);
       if (!result.success) {
-        data = [];
         this.$q.dialogStore.set({
           show: true,
           title: "Ошибка",
@@ -184,11 +207,13 @@ export default defineComponent({
             color: "red",
           },
         });
-      } else if (result.success && result.task) {
-        data = result.task.rows;
-        console.log(result);
+        return [];
+      } else {
+        return result.task.rows.map((item) => ({
+          label: item.id,
+          value: item.id,
+        }));
       }
-      this.taskChanelList = data;
     },
     async onSubmit() {
       if (this.dialog.method === "add") {

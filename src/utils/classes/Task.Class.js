@@ -235,10 +235,10 @@ class Task {
     }
     // Если всё ОК
     else if (response.type === "answer") {
-      const Account = response.args;
+      const task = response.args;
       return {
         success: true,
-        Account,
+        task,
       };
     }
   }
