@@ -70,37 +70,18 @@
             >
             </q-select>
           </div>
-          <!-- chanelAddList -->
-          <!-- <div class="q-mb-md" v-if="dialog.method === 'update'">
-            <div class="label">Лист подключенных каналов</div>
-            <q-list bordered separator>
-              <q-item
-                v-for="item in onGetListAddChanels()"
-                :key="item.id"
-                v-ripple
-              >
-                <q-item-section>
-                  <q-item-label>
-                    {{
-                      this.$q.appStore.listOfTgChanals.find(
-                        (tgChannel) => tgChannel.id === item.channel_id
-                      ).description
-                    }}
-                  </q-item-label>
-                </q-item-section>
-              </q-item>
-            </q-list>
-          </div> -->
           <div class="q-mb-md" v-if="dialog.method === 'update'">
             <div class="label">Лист подключенных каналов</div>
             <q-select
               outlined
+              lazy-rules
               bg-color="white"
               hide-bottom-space
               v-model="selectedOption"
               :options="options"
               label="подключенные каналы"
               :loading="isLoading"
+              @focus="onPopupShow()"
             />
           </div>
         </q-card-section>
@@ -166,18 +147,6 @@ export default defineComponent({
     };
   },
 
-  async mounted() {
-    this.isLoading = true;
-    try {
-      this.options = await this.onGetListAddChanels();
-    } catch (error) {
-      console.log(error);
-      // Handle the error here
-    } finally {
-      this.isLoading = false;
-    }
-  },
-
   computed: {
     filteredOptions() {
       return this.$q.appStore.listOfTgChanals
@@ -195,6 +164,17 @@ export default defineComponent({
   },
 
   methods: {
+    async onPopupShow() {
+      this.isLoading = true;
+      try {
+        this.options = await this.onGetListAddChanels();
+      } catch (error) {
+        console.log(error);
+        // Handle the error here
+      } finally {
+        this.isLoading = false;
+      }
+    },
     async onGetListAddChanels() {
       const result = await this.Task.taskChanelList(this.dialog.data.id);
       console.log("Когда запрашиваем каналы которые есть на таске", result);

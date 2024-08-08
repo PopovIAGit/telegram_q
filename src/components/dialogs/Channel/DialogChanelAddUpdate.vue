@@ -60,6 +60,7 @@
               :options="options"
               label="подключенные таски"
               :loading="isLoading"
+              @focus="onPopupShow()"
             />
           </div>
         </q-card-section>
@@ -114,25 +115,24 @@ export default defineComponent({
     return {
       Chanel,
       Task,
-      selectedOption: null,
-      options: [],
-      isLoading: false,
+      selectedOption: ref(null),
+      options: ref([]),
+      isLoading: ref(false),
     };
   },
 
-  async beforeMount() {
-    this.isLoading = true;
-    try {
-      this.options = await this.onGetChanelTaskList();
-    } catch (error) {
-      console.log(error);
-      // Handle the error here
-    } finally {
-      this.isLoading = false;
-    }
-  },
-
   methods: {
+    async onPopupShow() {
+      this.isLoading = true;
+      try {
+        this.options = await this.onGetChanelTaskList();
+      } catch (error) {
+        console.log(error);
+        // Handle the error here
+      } finally {
+        this.isLoading = false;
+      }
+    },
     async onGetChanelTaskList() {
       const result = await this.Task.chanelTaskList(this.dialog.data.id);
       console.log("Когда запрашиваем таски которые есть на канале", result);
