@@ -212,7 +212,14 @@
   </q-page>
 </template>
 
+
+
 <script>
+// TODO: Добавить OwnerId = not null
+// TODO: Перезагразка страницы не приводит к авторизации
+// TODO: Активация аккаунта в отдельном модальном окне с закрытием
+// TODO: Реактивное состояние активации аккаунта + причесать верстку списков
+
 import { defineComponent, ref } from "vue";
 
 import AccountClass from "src/utils/classes/Account.Class";
