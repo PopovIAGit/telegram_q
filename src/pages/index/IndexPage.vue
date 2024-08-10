@@ -27,6 +27,47 @@
                 v-ripple
                 class="drawer-left__menu"
               >
+                <!-- модальное окно -->
+                <div class="q-pa-md q-gutter-sm">
+                  <q-dialog v-model="inception">
+                    <q-card>
+                      <q-card-section>
+                        <div class="text-h6">Введите код активации</div>
+                      </q-card-section>
+
+                      <q-card-section class="q-pa-md">
+                        <div class="q-mb-md">
+                          Введите код пришедший на Телефон
+                        </div>
+
+                        <q-input
+                          mask="#####"
+                          v-model="code"
+                          outlined
+                          bg-color="white"
+                          hide-bottom-space
+                        ></q-input>
+                      </q-card-section>
+
+                      <q-card-actions align="right">
+                        <q-btn
+                          class="q-btn--outline-muted"
+                          outline
+                          no-caps
+                          label="Отмена"
+                          v-close-popup
+                        />
+                        <q-btn
+                          unelevated
+                          color="primary"
+                          no-caps
+                          label="SIGN IN"
+                          @click="onSignIn(tgAccount.id, code)"
+                        />
+                      </q-card-actions>
+                    </q-card>
+                  </q-dialog>
+                </div>
                 <q-item-section>
                   <q-item-label>{{ tgAccount.id }}</q-item-label>
                 </q-item-section>
@@ -274,6 +315,8 @@ export default defineComponent({
       dialogChanelAddUpdate: ref({}),
       dialogTaskAddUpdateDefault,
       dialogTaskAddUpdate: ref({}),
+      code: ref(),
+      inception: ref(false),
     };
   },
 
@@ -436,23 +479,13 @@ export default defineComponent({
     },
     showAccountActive(Account) {
       console.log(Account);
-
-      this.$q.dialogStore.set({
-        show: true,
-        title: "Ошибка",
-        text: "В разработке",
-        ok: {
-          color: "red",
-        },
-        cancel: {
-          color: "green",
-        },
-      });
+      // this.onActivate(Account.id);
+      this.inception = true;
     },
     async onActivate(id) {
       if (this.processing) return;
       this.processing = true;
-      const result = await this.Account.activate(this.dialog.data.id);
+      const result = await this.Account.activate(id);
       this.processing = false;
 
       if (result) {
@@ -462,15 +495,18 @@ export default defineComponent({
     },
 
     async onSignIn(id, code) {
-      if (this.processing) return;
-      this.processing = true;
-      const result = await this.Account.signIn(id, code);
-      this.processing = false;
-      if (result) {
-        console.log(result);
-        this.isActive = false;
-        this.code = "";
-      }
+      console.log(id, code);
+      this.inception = false;
+
+      // if (this.processing) return;
+      // this.processing = true;
+      // const result = await this.Account.signIn(id, code);
+      // this.processing = false;
+      // if (result) {
+      //   console.log(result);
+      //   this.isActive = false;
+      //   this.code = "";
+      // }
     },
     // Chanel
     showChanelAdd() {
@@ -630,18 +666,6 @@ export default defineComponent({
         this.getData();
       }
     },
-    // async testPass() {
-    //   const response1 = await this.$q.ws.sendRequest({
-    //     type: "query",
-    //     iface: "user",
-    //     method: "update",
-    //     args: {
-    //       id: 1,
-    //       password: "qwe123",
-    //     },
-    //   });
-    //   console.log(response1);
-    // },
   },
 });
 </script>
