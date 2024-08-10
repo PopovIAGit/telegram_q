@@ -4,12 +4,9 @@
       <q-form @submit="onSubmit">
         <q-card-section class="q-dialog__header">
           <div class="q-dialog__header-content">
-
             <div class="q-dialog__title">
               {{
-                dialog.method === "add"
-                  ? "Новый аккаунт "
-                  : "Изменить аккаунт"
+                dialog.method === "add" ? "Новый аккаунт " : "Изменить аккаунт"
               }}
             </div>
           </div>
@@ -59,20 +56,18 @@
           </div>
           <!-- Код подтверждения -->
           <div class="q-mb-md" v-if="isActive">
-            <div class="label">
-               Sign Up Code *
-            </div>
+            <div class="label">Sign Up Code *</div>
             <q-input
               outlined
               bg-color="white"
               hide-bottom-space
-              v-model= "code"
-              mask=#####
+              v-model="code"
+              mask="#####"
               unmasked-value
-              min=5
-              max=5
-              required=true
-              :rules="[(val) => val!==null && val.length === 5]"
+              min="5"
+              max="5"
+              required="true"
+              :rules="[(val) => val !== null && val.length === 5]"
             >
               <template v-slot:prepend>
                 <q-icon name="lock" />
@@ -81,7 +76,7 @@
           </div>
         </q-card-section>
         <q-card-section class="q-dialog__footer">
-          <q-btn
+          <!-- <q-btn
             unelevated
             no-caps
             label="sign up"
@@ -94,7 +89,7 @@
             label="active"
             @click="onActivate"
             v-if="dialog.method === 'update'"
-          />
+          /> -->
           <q-btn
             unelevated
             color="negative"
@@ -149,7 +144,6 @@ export default defineComponent({
   },
 
   methods: {
-
     async onSubmit() {
       if (this.processing) return;
       this.processing = true;
@@ -197,7 +191,7 @@ export default defineComponent({
     onClose() {
       this.code = "";
       this.isActive = false;
-    }
+    },
   },
 });
 </script>

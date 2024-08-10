@@ -158,7 +158,6 @@ class User {
    * @return {Promise<{success: boolean, message: string}|{success: boolean, user: *}|{success: boolean}>}
    */
   async login(data) {
-
     // Логин
     const response = await this.$q.ws.sendRequest({
       type: "query",
@@ -185,7 +184,6 @@ class User {
     }
     // Если получен ответ от login
     else if (response.type === "answer") {
-
       // Если в ответе по каким-то причинам нет данных пользователя
       if (!response.args || !response.args.id || !response.args.token) {
         return {
@@ -234,9 +232,11 @@ class User {
    */
   async auth() {
     let token = localStorage.getItem("token");
+    console.log("token", token);
     if (token) console.log(token.length);
     // Если нет токена в localStorage или он некорректный
     if (!token || token.length !== 36) {
+      console.log("Нет токена в localStorage или он некорректный");
       localStorage.removeItem("token");
       this.$q.appStore.set({
         user: null,
@@ -251,11 +251,11 @@ class User {
       iface: "user",
       method: "loginWithToken",
       args: {
-        person: {
-          token,
-        },
+        token,
       },
     });
+
+    console.log("loginWithToken", response);
     // Если ошибка авторизации
     if (response.type === "error") {
       // На всякий случай удаляем токен из localStorage

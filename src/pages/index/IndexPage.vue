@@ -24,7 +24,6 @@
               <q-item
                 v-for="tgAccount in listOfTgAccounts"
                 :key="tgAccount.id"
-                clickable
                 v-ripple
                 class="drawer-left__menu"
               >
@@ -38,7 +37,7 @@
                   }}</q-item-label>
                 </q-item-section>
                 <q-item-section>
-                  <q-item-label>
+                  <q-item-label v-if="tgAccount.active">
                     <q-icon
                       :name="
                         tgAccount.active !== 0
@@ -47,6 +46,18 @@
                       "
                       :color="tgAccount.active !== 0 ? 'green' : 'grey'"
                     />
+                  </q-item-label>
+                  <q-item-label v-else>
+                    <q-btn
+                      flat
+                      round
+                      dense
+                      icon="verified"
+                      @click="showAccountActive(tgAccount)"
+                      ><q-tooltip color="bg-accent"
+                        >Активировать</q-tooltip
+                      ></q-btn
+                    >
                   </q-item-label>
                 </q-item-section>
                 <q-item-section>
@@ -57,7 +68,10 @@
                       dense
                       icon="edit"
                       @click="showAccountUpdate(tgAccount)"
-                    />
+                      ><q-tooltip color="bg-accent"
+                        >Редактировать</q-tooltip
+                      ></q-btn
+                    >
                   </q-item-label>
                 </q-item-section>
               </q-item>
@@ -82,7 +96,6 @@
               <q-item
                 v-for="tgChannel in listOfTgChanals"
                 :key="tgChannel.id"
-                clickable
                 v-ripple
                 class="drawer-left__menu"
               >
@@ -103,7 +116,7 @@
                 </q-item-section>
                 <q-item-section>
                   <q-item-label>
-                    <q-icon
+                    <!-- <q-icon
                       :name="
                         tgChannel && tgChannel.active !== 0
                           ? 'radio_button_checked'
@@ -112,7 +125,7 @@
                       :color="
                         tgChannel && tgChannel.active !== 0 ? 'green' : 'grey'
                       "
-                    />
+                    /> -->
                   </q-item-label>
                 </q-item-section>
                 <q-item-section>
@@ -148,7 +161,6 @@
               <q-item
                 v-for="tgTask in listOfTasks"
                 :key="tgTask.id"
-                clickable
                 v-ripple
                 class="drawer-left__menu"
               >
@@ -167,14 +179,14 @@
                 </q-item-section>
                 <q-item-section>
                   <q-item-label>
-                    <q-icon
+                    <!-- <q-icon
                       :name="
                         tgTask && tgTask.active !== 0
                           ? 'radio_button_checked'
                           : 'radio_button_unchecked'
                       "
                       :color="tgTask && tgTask.active !== 0 ? 'green' : 'grey'"
-                    />
+                    /> -->
                   </q-item-label>
                 </q-item-section>
                 <q-item-section>
@@ -216,7 +228,7 @@
 
 <script>
 // TODO: Добавить OwnerId = not null
-// TODO: Перезагразка страницы не приводит к авторизации
+// TODO: Перезагразка страницы не приводит к авторизации - ready
 // TODO: Активация аккаунта в отдельном модальном окне с закрытием
 // TODO: Реактивное состояние активации аккаунта + причесать верстку списков
 
@@ -420,6 +432,44 @@ export default defineComponent({
         });
         this.dialogAccountAddUpdate.show = false;
         this.getData();
+      }
+    },
+    showAccountActive(Account) {
+      console.log(Account);
+
+      this.$q.dialogStore.set({
+        show: true,
+        title: "Ошибка",
+        text: "В разработке",
+        ok: {
+          color: "red",
+        },
+        cancel: {
+          color: "green",
+        },
+      });
+    },
+    async onActivate(id) {
+      if (this.processing) return;
+      this.processing = true;
+      const result = await this.Account.activate(this.dialog.data.id);
+      this.processing = false;
+
+      if (result) {
+        console.log("активирован");
+        this.isActive = true;
+      }
+    },
+
+    async onSignIn(id, code) {
+      if (this.processing) return;
+      this.processing = true;
+      const result = await this.Account.signIn(id, code);
+      this.processing = false;
+      if (result) {
+        console.log(result);
+        this.isActive = false;
+        this.code = "";
       }
     },
     // Chanel
