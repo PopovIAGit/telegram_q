@@ -523,6 +523,7 @@ export default defineComponent({
       } else {
         this.code = null;
         this.inception = false;
+        this.getData();
       }
     },
     // Chanel
