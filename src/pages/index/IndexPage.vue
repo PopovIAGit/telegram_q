@@ -95,10 +95,9 @@
                       dense
                       icon="verified"
                       @click="showAccountActive(tgAccount)"
-                      ><q-tooltip color="bg-accent"
-                        >Активировать</q-tooltip
-                      ></q-btn
                     >
+                      <q-tooltip color="bg-accent">Активировать</q-tooltip>
+                    </q-btn>
                   </q-item-label>
                 </q-item-section>
                 <q-item-section>
@@ -177,7 +176,10 @@
                       dense
                       icon="edit"
                       @click="showChanelUpdate(tgChannel)"
-                    />
+                      ><q-tooltip color="bg-accent"
+                        >Редактировать</q-tooltip
+                      ></q-btn
+                    >
                   </q-item-label>
                 </q-item-section>
               </q-item>
@@ -238,7 +240,10 @@
                       dense
                       icon="edit"
                       @click="showTaskUpdate(tgTask)"
-                    />
+                      ><q-tooltip color="bg-accent"
+                        >Редактировать</q-tooltip
+                      ></q-btn
+                    >
                   </q-item-label>
                 </q-item-section>
               </q-item>
@@ -270,8 +275,8 @@
 <script>
 // TODO: Добавить OwnerId = not null
 // TODO: Перезагразка страницы не приводит к авторизации - ready
-// TODO: Активация аккаунта в отдельном модальном окне с закрытием
-// TODO: Реактивное состояние активации аккаунта + причесать верстку списков
+// TODO: Активация аккаунта в отдельном модальном окне с закрытием - ready
+// TODO: Реактивное состояние активации аккаунта + причесать верстку списков - ready
 
 import { defineComponent, ref } from "vue";
 
