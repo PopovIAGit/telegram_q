@@ -478,8 +478,7 @@ export default defineComponent({
       }
     },
     showAccountActive(Account) {
-      console.log(Account);
-      // this.onActivate(Account.id);
+      this.onActivate(Account.id);
       this.inception = true;
     },
     async onActivate(id) {
@@ -488,25 +487,38 @@ export default defineComponent({
       const result = await this.Account.activate(id);
       this.processing = false;
 
-      if (result) {
-        console.log("активирован");
-        this.isActive = true;
+      if (!result.success) {
+        this.inception = false;
+        this.$q.dialogStore.set({
+          show: true,
+          title: "Ошибка",
+          text: result.message,
+          ok: {
+            color: "red",
+          },
+        });
       }
     },
 
     async onSignIn(id, code) {
-      console.log(id, code);
-      this.inception = false;
-
-      // if (this.processing) return;
-      // this.processing = true;
-      // const result = await this.Account.signIn(id, code);
-      // this.processing = false;
-      // if (result) {
-      //   console.log(result);
-      //   this.isActive = false;
-      //   this.code = "";
-      // }
+      if (this.processing) return;
+      this.processing = true;
+      const result = await this.Account.signIn(id, code);
+      this.processing = false;
+      if (!result.success) {
+        this.inception = false;
+        this.$q.dialogStore.set({
+          show: true,
+          title: "Ошибка",
+          text: result.message,
+          ok: {
+            color: "red",
+          },
+        });
+      } else {
+        this.code = null;
+        this.inception = false;
+      }
     },
     // Chanel
     showChanelAdd() {
