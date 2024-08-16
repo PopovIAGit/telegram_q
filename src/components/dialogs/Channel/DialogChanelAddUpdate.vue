@@ -157,6 +157,10 @@ export default defineComponent({
     async onSubmit() {
       if (this.processing) return;
       this.processing = true;
+      if (this.dialog.method === "add") {
+        this.dialog.data.owner_id = this.$q.appStore.user.id;
+      }
+
       const result = await this.Chanel.save(
         this.dialog.method,
         this.dialog.data,

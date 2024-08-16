@@ -53,6 +53,14 @@ class Account {
           return typeof val === "boolean";
         },
       },
+      owner_id: {
+        label: "owner_id",
+        type: "number",
+        default: false,
+        rules: (val) => {
+          return typeof val && val !== null && typeof val === "number";
+        },
+      },
     };
 
     // Dialog add/update

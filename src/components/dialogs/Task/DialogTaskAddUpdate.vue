@@ -197,7 +197,8 @@ export default defineComponent({
     },
     async onSubmit() {
       if (this.dialog.method === "add") {
-        this.dialog.data.userId = 1;
+        this.dialog.data.owner_id = this.$q.appStore.user.id;
+        this.dialog.data.userId = this.$q.appStore.user.id;
       }
 
       if (this.processing) return;
