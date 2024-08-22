@@ -232,14 +232,20 @@
                 </q-item-section>
                 <q-item-section>
                   <q-item-label>
-                    <!-- <q-icon
-                      :name="
-                        tgTask && tgTask.active !== 0
-                          ? 'radio_button_checked'
-                          : 'radio_button_unchecked'
-                      "
-                      :color="tgTask && tgTask.active !== 0 ? 'green' : 'grey'"
-                    /> -->
+                    <q-btn flat round dense icon="link"
+                      ><q-tooltip color="bg-accent"
+                        >Подключить канал</q-tooltip
+                      ></q-btn
+                    >
+                  </q-item-label>
+                </q-item-section>
+                <q-item-section>
+                  <q-item-label>
+                    <q-btn flat round dense icon="timer"
+                      ><q-tooltip color="bg-accent"
+                        >Расписание</q-tooltip
+                      ></q-btn
+                    >
                   </q-item-label>
                 </q-item-section>
                 <q-item-section>

@@ -62,10 +62,11 @@
               v-model="dialog.data.chanelId"
               :required="Task.fields.chanelId.required"
               :options="
-                this.$q.appStore.listOfTgChanals.map((item) => ({
-                  label: item.description,
-                  value: item.id,
-                }))
+                filteredOptions
+                // this.$q.appStore.listOfTgChanals.map((item) => ({
+                //   label: item.description,
+                //   value: item.id,
+                // }))
               "
             >
             </q-select>
@@ -144,18 +145,18 @@ export default defineComponent({
       selectedOption: ref(null),
       options: ref([]),
       isLoading: ref(false),
+      ListAddChanels: ref([]),
     };
   },
 
   computed: {
     filteredOptions() {
       return this.$q.appStore.listOfTgChanals
-        .filter(
-          (item) =>
-            !this.ListAddChanels.some(
-              (tgChannel) => tgChannel.channel_id === item.id
-            )
-        )
+        .filter((item) => {
+          return !this.ListAddChanels.some(
+            (tgChannel) => tgChannel.channel_id === item.id
+          );
+        })
         .map((item) => ({
           label: item.description,
           value: item.id,
@@ -177,7 +178,6 @@ export default defineComponent({
     },
     async onGetListAddChanels() {
       const result = await this.Task.taskChanelList(this.dialog.data.id);
-      console.log("Когда запрашиваем каналы которые есть на таске", result);
       if (!result.success) {
         this.$q.dialogStore.set({
           show: true,
@@ -189,16 +189,19 @@ export default defineComponent({
         });
         return [];
       } else {
-        console.log(this.$q.appStore.listOfTgChanals);
+        this.ListAddChanels = result.task.rows;
+        console.log("ListAddChanels", this.ListAddChanels);
 
-        const value = this.$q.appStore.listOfTgChanals.find(
-          (channel) => channel.id == this.dialog.data.id
-        );
-        console.log(value);
-        return result.task.rows.map((item) => ({
-          label: item.id,
-          value: value,
-        }));
+        const filteredObjects = result.task.rows.map((item) => {
+          const channel = this.$q.appStore.listOfTgChanals.find(
+            (channel) => channel.id === item.channel_id
+          );
+          return {
+            label: channel ? channel.description : "",
+            value: item.id,
+          };
+        });
+        return filteredObjects;
       }
     },
     async onSubmit() {
