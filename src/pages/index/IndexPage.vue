@@ -27,7 +27,7 @@
                 v-ripple
                 class="drawer-left__menu"
               >
-                <!-- модальное окно -->
+                <!-- модальное окно аккаунта -->
                 <div class="q-pa-md q-gutter-sm">
                   <q-dialog v-model="inception">
                     <q-card>
@@ -217,6 +217,89 @@
                 v-ripple
                 class="drawer-left__menu"
               >
+                <!-- модальное окно добавления таска -->
+                <div class="q-pa-md q-gutter-sm">
+                  <q-dialog v-model="inception_task">
+                    <q-card>
+                      <q-card-section>
+                        <div class="text-h6">Введите код активации</div>
+                      </q-card-section>
+
+                      <q-card-section class="q-pa-md">
+                        <div class="q-mb-md">
+                          Введите код пришедший на Телефон
+                        </div>
+
+                        <q-input
+                          mask="#####"
+                          v-model="code"
+                          outlined
+                          bg-color="white"
+                          hide-bottom-space
+                        ></q-input>
+                      </q-card-section>
+
+                      <q-card-actions align="right">
+                        <q-btn
+                          class="q-btn--outline-muted"
+                          outline
+                          no-caps
+                          label="Отмена"
+                          v-close-popup
+                        />
+                        <q-btn
+                          unelevated
+                          color="primary"
+                          no-caps
+                          label="Отправить"
+                          @click="onSignIn(tgAccount.id, code)"
+                        />
+                      </q-card-actions>
+                    </q-card>
+                  </q-dialog>
+                </div>
+
+                <div class="q-pa-md q-gutter-sm">
+                  <q-dialog v-model="inception_clock">
+                    <q-card>
+                      <q-card-section>
+                        <div class="text-h6">Введите код активации</div>
+                      </q-card-section>
+
+                      <q-card-section class="q-pa-md">
+                        <div class="q-mb-md">
+                          Введите код пришедший на Телефон
+                        </div>
+
+                        <q-input
+                          mask="#####"
+                          v-model="code"
+                          outlined
+                          bg-color="white"
+                          hide-bottom-space
+                        ></q-input>
+                      </q-card-section>
+
+                      <q-card-actions align="right">
+                        <q-btn
+                          class="q-btn--outline-muted"
+                          outline
+                          no-caps
+                          label="Отмена"
+                          v-close-popup
+                        />
+                        <q-btn
+                          unelevated
+                          color="primary"
+                          no-caps
+                          label="Отправить"
+                          @click="onSignIn(tgAccount.id, code)"
+                        />
+                      </q-card-actions>
+                    </q-card>
+                  </q-dialog>
+                </div>
+
                 <q-item-section>
                   <q-item-label>{{
                     tgTask && tgTask.id ? tgTask.id : "N/A"
@@ -400,6 +483,8 @@ export default defineComponent({
       dialogTaskAddUpdate: ref({}),
       code: ref(),
       inception: ref(false),
+      inception_task: ref(false),
+      inception_clock: ref(false),
       taskLog: ref([]),
     };
   },
