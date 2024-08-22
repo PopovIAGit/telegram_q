@@ -189,9 +189,15 @@ export default defineComponent({
         });
         return [];
       } else {
+        console.log(this.$q.appStore.listOfTgChanals);
+
+        const value = this.$q.appStore.listOfTgChanals.find(
+          (channel) => channel.id == this.dialog.data.id
+        );
+        console.log(value);
         return result.task.rows.map((item) => ({
           label: item.id,
-          value: item.id,
+          value: value,
         }));
       }
     },

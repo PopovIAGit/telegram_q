@@ -61,7 +61,7 @@
                           unelevated
                           color="primary"
                           no-caps
-                          label="SIGN IN"
+                          label="Отправить"
                           @click="onSignIn(tgAccount.id, code)"
                         />
                       </q-card-actions>
@@ -79,14 +79,24 @@
                 </q-item-section>
                 <q-item-section>
                   <q-item-label v-if="tgAccount.active">
-                    <q-icon
+                    <!-- <q-icon
                       :name="
                         tgAccount.active !== 0
                           ? 'radio_button_checked'
                           : 'radio_button_unchecked'
                       "
                       :color="tgAccount.active !== 0 ? 'green' : 'grey'"
-                    />
+                    /> -->
+                    <q-btn
+                      flat
+                      round
+                      dense
+                      icon="verified"
+                      disabled
+                      :color="tgAccount.active !== 0 ? 'green' : 'grey'"
+                    >
+                      <q-tooltip color="bg-accent">Активирован</q-tooltip>
+                    </q-btn>
                   </q-item-label>
                   <q-item-label v-else>
                     <q-btn
@@ -250,6 +260,66 @@
             </q-list>
           </q-scroll-area>
         </div>
+
+        <!-- Log -->
+        <div class="q-pa-sm col-lg-6 col-md-12 col-xs-12">
+          <q-toolbar class="bg-primary text-white">
+            <q-toolbar-title>Log</q-toolbar-title>
+            <q-btn
+              flat
+              round
+              dense
+              :icon="showTaskLog !== true ? 'visibility_off' : 'visibility'"
+              @click="showTaskLog = !showTaskLog"
+            />
+            <q-btn flat round dense icon="add" @click="showTaskAdd" />
+          </q-toolbar>
+          <q-scroll-area style="height: 300px; max-width: 100%">
+            <q-list bordered separator v-if="showTaskLog">
+              <q-item
+                v-for="tgTask in taskLog"
+                :key="tgTask.id"
+                v-ripple
+                class="drawer-left__menu"
+              >
+                <q-item-section>
+                  <q-item-label>{{ tgTask.id }}</q-item-label>
+                </q-item-section>
+                <q-item-section>
+                  <q-item-label>
+                    Task: id {{ tgTask.task_id }} , описание:
+                    {{
+                      this.listOfTasks.find((task) => task.id == tgTask.task_id)
+                        .description
+                    }}
+                  </q-item-label>
+
+                  <q-item-label caption lines="1"
+                    >Channel: id {{ tgTask.channel_id }} , описание:
+                    {{
+                      this.listOfTgChanals.find(
+                        (channel) => channel.id == tgTask.channel_id
+                      ).description
+                    }}</q-item-label
+                  >
+                  <q-item-label caption lines="1"
+                    >Account: id {{ tgTask.account_id }} , описание:
+                    {{
+                      this.listOfTgAccounts.find(
+                        (account) => account.id == tgTask.account_id
+                      ).description
+                    }}</q-item-label
+                  >
+                </q-item-section>
+                <q-item-section>
+                  <q-item-label
+                    >Дата: {{ formatDate(tgTask.date, "ru") }}</q-item-label
+                  >
+                </q-item-section>
+              </q-item>
+            </q-list>
+          </q-scroll-area>
+        </div>
       </div>
     </div>
     <dialog-account-add-update
@@ -273,12 +343,13 @@
 
 
 <script>
-// TODO: Добавить OwnerId = not null
-// TODO: Перезагразка страницы не приводит к авторизации - ready
-// TODO: Активация аккаунта в отдельном модальном окне с закрытием - ready
-// TODO: Реактивное состояние активации аккаунта + причесать верстку списков - ready
+// TODO:1.  В заданиях при подключении канала не отображать уже подключённые;
+// TODO:2.  Не понятно, что канал подключился к заданию;
+// TODO:3.  Вывести отдельным окном или таблицей уже подключенные каналы, и предусмотреть отключение канала от задания (в api я добавлю);
+// TODO:5.  Добавить расписание.
 
 import { defineComponent, ref } from "vue";
+import { date } from "quasar";
 
 import AccountClass from "src/utils/classes/Account.Class";
 import ChanelClass from "src/utils/classes/Chanel.Class";
@@ -311,6 +382,7 @@ export default defineComponent({
       showAccount: ref(true),
       showChannel: ref(true),
       showTask: ref(true),
+      showTaskLog: ref(true),
       Account,
       Chanel,
       Task,
@@ -322,6 +394,7 @@ export default defineComponent({
       dialogTaskAddUpdate: ref({}),
       code: ref(),
       inception: ref(false),
+      taskLog: ref([]),
     };
   },
 
@@ -405,6 +478,25 @@ export default defineComponent({
         this.listOfTasks = responseTasks.args.rows;
         this.$q.appStore.set({ taskList: this.listOfTasks });
       }
+
+      const resultTaskLog = await this.Task.getTaskLog();
+      if (resultTaskLog.success) {
+        this.taskLog = resultTaskLog.taskLog.rows;
+      }
+
+      const responseUser = await this.$q.ws.sendRequest({
+        type: "query",
+        iface: "user",
+        method: "getList",
+        args: {},
+      });
+
+      console.log("userList", responseUser);
+    },
+    formatDate(dateString, locale) {
+      return date.formatDate(dateString, "DD-MM-YYYY HH:mm:ss", {
+        locale,
+      });
     },
     // Account
     showAccountAdd() {

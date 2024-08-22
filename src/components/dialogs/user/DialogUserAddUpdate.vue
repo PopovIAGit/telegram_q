@@ -19,94 +19,19 @@
           <!-- Имя -->
           <div class="q-mb-md">
             <div class="label">
-              {{ User.fields.name.label }}
-              {{ User.fields.name.required ? "*" : "" }}
+              {{ User.fields.userName.label }}
+              {{ User.fields.userName.required ? "*" : "" }}
             </div>
             <q-input
               outlined
               bg-color="white"
               hide-bottom-space
-              v-model="dialog.data.name"
-              :min="User.fields.name.min"
-              :max="User.fields.name.max"
-              :required="User.fields.name.required"
-              :rules="[(val) => User.fields.name.rules(val)]"
+              v-model="dialog.data.userName"
+              :min="User.fields.userName.min"
+              :max="User.fields.userName.max"
+              :required="User.fields.userName.required"
+              :rules="[(val) => User.fields.userName.rules(val)]"
             />
-          </div>
-          <!-- Фамилия -->
-          <div class="q-mb-md">
-            <div class="label">
-              {{ User.fields.surname.label }}
-              {{ User.fields.surname.required ? "*" : "" }}
-            </div>
-            <q-input
-              outlined
-              bg-color="white"
-              hide-bottom-space
-              v-model="dialog.data.surname"
-              :min="User.fields.surname.min"
-              :max="User.fields.surname.max"
-              :required="User.fields.surname.required"
-              :rules="[(val) => User.fields.surname.rules(val)]"
-            />
-          </div>
-          <!-- Отчество -->
-          <div class="q-mb-md">
-            <div class="label">
-              {{ User.fields.patronymic.label }}
-              {{ User.fields.patronymic.required ? "*" : "" }}
-            </div>
-            <q-input
-              outlined
-              bg-color="white"
-              hide-bottom-space
-              v-model="dialog.data.patronymic"
-              :min="User.fields.patronymic.min"
-              :max="User.fields.patronymic.max"
-              :required="User.fields.patronymic.required"
-              :rules="[(val) => User.fields.patronymic.rules(val)]"
-            />
-          </div>
-          <!-- Email -->
-          <div class="q-mb-md">
-            <div class="label">
-              {{ User.fields.email.label }}
-              {{ User.fields.email.required ? "*" : "" }}
-            </div>
-            <q-input
-              outlined
-              bg-color="white"
-              hide-bottom-space
-              v-model="dialog.data.email"
-              :min="User.fields.email.min"
-              :max="User.fields.email.max"
-              :required="User.fields.email.required"
-              :rules="[(val) => User.fields.email.rules(val)]"
-            />
-          </div>
-          <!-- Телефон -->
-          <div class="q-mb-md">
-            <div class="label">
-              {{ User.fields.phone.label }}
-              {{ User.fields.phone.required ? "*" : "" }}
-            </div>
-            <q-input
-              outlined
-              bg-color="white"
-              hide-bottom-space
-              v-model="dialog.data.phone"
-              prefix="+7"
-              :mask="User.fields.phone.mask"
-              unmasked-value
-              :min="User.fields.phone.min"
-              :max="User.fields.phone.max"
-              :required="User.fields.phone.required"
-              :rules="[(val) => User.fields.phone.rules(val)]"
-            >
-              <template v-slot:prepend>
-                <q-icon name="phone" />
-              </template>
-            </q-input>
           </div>
           <!-- Пароль -->
           <div class="q-mb-md" v-if="dialog.method === 'add'">
@@ -169,35 +94,11 @@
               </template>
             </q-input>
           </div>
-          <!-- Роль -->
-          <div class="q-mb-md" v-if="this.$q.appStore.user.roleId < 3">
-            <div class="label">
-              {{ User.fields.roleId.label }}
-              {{ User.fields.roleId.required ? "*" : "" }}
-            </div>
-            <q-select
-              outlined
-              bg-color="white"
-              hide-bottom-space
-              v-model="dialog.data.roleId"
-              :options="this.$q.helperTablesStore.roles"
-              option-label="name"
-              option-value="id"
-              map-options
-              emit-value
-              :rules="[(val) => User.fields.roleId.rules(val)]"
-            >
-              <template v-slot:no-option>
-                <q-item>
-                  <q-item-section class="text-italic text-grey">
-                    No options slot
-                  </q-item-section>
-                </q-item>
-              </template>
-            </q-select>
-          </div>
           <!-- Удален -->
-          <div class="q-mb-md" v-if="dialog.dataWas && dialog.dataWas.isDeleted === true">
+          <div
+            class="q-mb-md"
+            v-if="dialog.dataWas && dialog.dataWas.isDeleted === true"
+          >
             <div class="label">
               {{ User.fields.isDeleted.label }}
               {{ User.fields.isDeleted.required ? "*" : "" }}
@@ -222,6 +123,21 @@
                 </q-item>
               </template>
             </q-select>
+          </div>
+
+          <!-- Имя -->
+          <div class="q-mb-md">
+            <div class="label">
+              {{ User.fields.working.label }}
+              {{ User.fields.working.required ? "*" : "" }}
+            </div>
+            <q-checkbox
+              outlined
+              bg-color="white"
+              hide-bottom-space
+              v-model="dialog.data.working"
+              :toggle="this.User.setWorking(this.dialog.data.working)"
+            />
           </div>
         </q-card-section>
         <q-card-section class="q-dialog__footer">

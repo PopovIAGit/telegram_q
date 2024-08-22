@@ -125,12 +125,12 @@
           outlined
           bg-color="white"
           hide-bottom-space
-          v-model="password"
+          v-model="password2"
           :type="showPassword ? 'text' : 'password'"
-          :min="User.fields.password.min"
-          :max="User.fields.password.max"
-          :required="User.fields.password.required"
-          :rules="[(val) => User.fields.password.rules(val)]"
+          :min="User.fields.password2.min"
+          :max="User.fields.password2.max"
+          :required="User.fields.password2.required"
+          :rules="[(val) => User.fields.password2.rules(val)]"
         >
           <template v-slot:prepend>
             <q-icon name="lock" />

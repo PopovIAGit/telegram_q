@@ -113,10 +113,10 @@ class Account {
       }
       // Если всё ОК
       else if (response.type === "answer") {
-        const user = response.args;
+        const Account = response.args;
         return {
           success: true,
-          user,
+          Account,
         };
       }
     }

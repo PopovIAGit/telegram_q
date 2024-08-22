@@ -15,7 +15,7 @@ class User {
           return val !== null && typeof val === "number";
         },
       },
-      name: {
+      userName: {
         label: "Имя",
         type: "string",
         default: "",
@@ -24,36 +24,6 @@ class User {
         required: true,
         rules: (val) => {
           return val && val.length >= 2 && val.length <= 30;
-        },
-      },
-      surname: {
-        label: "Фамилия",
-        type: "string",
-        default: "",
-        min: 2,
-        max: 30,
-        rules: (val) => {
-          return val && val.length >= 2 && val.length <= 30;
-        },
-      },
-      patronymic: {
-        label: "Отчество",
-        type: "string",
-        default: "",
-        min: 2,
-        max: 30,
-        rules: (val) => {
-          return val && val.length >= 2 && val.length <= 30;
-        },
-      },
-      email: {
-        label: "Email",
-        type: "string",
-        default: "",
-        min: 5,
-        max: 100,
-        rules: (val) => {
-          return /^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,3})+$/.test(val);
         },
       },
       login: {
@@ -106,14 +76,6 @@ class User {
           return val && val.length === 36;
         },
       },
-      online: {
-        label: "Онлайн",
-        type: "boolean",
-        default: false,
-        rules: (val) => {
-          return typeof val === "boolean";
-        },
-      },
       active: {
         label: "Активен",
         type: "boolean",
@@ -124,6 +86,14 @@ class User {
       },
       isDeleted: {
         label: "Удален",
+        type: "boolean",
+        default: false,
+        rules: (val) => {
+          return typeof val === "boolean";
+        },
+      },
+      working: {
+        label: "Активен",
         type: "boolean",
         default: false,
         rules: (val) => {
@@ -389,75 +359,54 @@ class User {
     }
   }
 
-  async remove(personId) {
+  async getList() {
     const response = await this.$q.ws.sendRequest({
       type: "query",
       iface: "user",
-      method: "remove",
-      args: {
-        person: {
-          id: personId,
-        },
-      },
+      method: "getList",
+      args: {},
     });
 
-    // Если ошибка удаления
     if (response.type === "error") {
       return {
         success: false,
         message: response.args.message || "Ошибка",
       };
     }
-    // Если получен ответ от login
-    else if (response.type === "answer") {
-      // Если в ответе по каким-то причинам нет данных пользователя
-      if (!response.args || !response.args.id || !response.args.token) {
-        return {
-          success: false,
-        };
-      }
-      // Если всё ОК
-      else {
-        return {
-          success: true,
-        };
-      }
+    if (response.type === "answer") {
+      const users = response.args;
+      return {
+        success: true,
+        users,
+      };
     }
   }
 
-  async delete(personId) {
+  async setWorking(active) {
     const response = await this.$q.ws.sendRequest({
       type: "query",
       iface: "user",
-      method: "delete",
+      method: "setWorking",
       args: {
-        person: {
-          id: personId,
-        },
+        working: active,
       },
     });
+    console.log(active, "setWorking", response);
 
-    // Если ошибка удаления
+    // Если ошибка сохранения
     if (response.type === "error") {
       return {
         success: false,
         message: response.args.message || "Ошибка",
       };
     }
-    // Если получен ответ от login
+    // Если всё ОК
     else if (response.type === "answer") {
-      // Если в ответе по каким-то причинам нет данных пользователя
-      if (!response.args || !response.args.id || !response.args.token) {
-        return {
-          success: false,
-        };
-      }
-      // Если всё ОК
-      else {
-        return {
-          success: true,
-        };
-      }
+      const user = response.args;
+      return {
+        success: true,
+        user,
+      };
     }
   }
 }
