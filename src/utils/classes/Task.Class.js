@@ -174,6 +174,8 @@ class Task {
       },
     });
 
+    console.log(response);
+
     // Если ошибка удаления
     if (response.type === "error") {
       return {
@@ -183,28 +185,23 @@ class Task {
     }
     // Если получен ответ от login
     else if (response.type === "answer") {
-      // Если в ответе по каким-то причинам нет данных пользователя
-      if (!response.args || !response.args.id || !response.args.token) {
-        return {
-          success: false,
-        };
-      }
       // Если всё ОК
-      else {
-        return {
-          success: true,
-        };
-      }
+
+      return {
+        success: true,
+      };
     }
   }
 
-  async taskChanelList(task_id) {
+  async taskChanelList(id) {
     const response = await this.$q.ws.sendRequest({
       type: "query",
       iface: "tgTask",
       method: "getChannelList",
       args: {
-        id: task_id,
+        where: {
+          task_id: id,
+        },
       },
     });
 
@@ -230,7 +227,9 @@ class Task {
       iface: "tgTask",
       method: "getChannelList",
       args: {
-        channel_id: channel_id,
+        where: {
+          channel_id: channel_id,
+        },
       },
     });
 

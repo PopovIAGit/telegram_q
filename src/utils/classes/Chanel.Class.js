@@ -181,18 +181,9 @@ class Chanel {
     }
     // Если получен ответ от login
     else if (response.type === "answer") {
-      // Если в ответе по каким-то причинам нет данных пользователя
-      if (!response.args || !response.args.id || !response.args.token) {
-        return {
-          success: false,
-        };
-      }
-      // Если всё ОК
-      else {
-        return {
-          success: true,
-        };
-      }
+      return {
+        success: true,
+      };
     }
   }
 }

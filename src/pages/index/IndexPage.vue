@@ -22,7 +22,9 @@
           <q-scroll-area style="height: 300px; max-width: 100%">
             <q-list bordered separator v-if="showAccount">
               <q-item
-                v-for="tgAccount in listOfTgAccounts"
+                v-for="tgAccount in listOfTgAccounts.filter(
+                  (tgAccount) => tgAccount.is_deleted === 0
+                )"
                 :key="tgAccount.id"
                 v-ripple
                 class="drawer-left__menu"
@@ -144,7 +146,9 @@
           <q-scroll-area style="height: 300px; max-width: 100%">
             <q-list bordered separator v-if="showChannel">
               <q-item
-                v-for="tgChannel in listOfTgChanals"
+                v-for="tgChannel in listOfTgChanals.filter(
+                  (tgChannel) => tgChannel.is_deleted === 0
+                )"
                 :key="tgChannel.id"
                 v-ripple
                 class="drawer-left__menu"
@@ -212,31 +216,49 @@
           <q-scroll-area style="height: 300px; max-width: 100%">
             <q-list bordered separator v-if="showTask">
               <q-item
-                v-for="tgTask in listOfTasks"
+                v-for="tgTask in listOfTasks.filter(
+                  (tgTask) => tgTask.is_deleted === 0
+                )"
                 :key="tgTask.id"
                 v-ripple
                 class="drawer-left__menu"
               >
-                <!-- модальное окно добавления таска -->
+                <!-- модальное окно добавления таска к каналу-->
                 <div class="q-pa-md q-gutter-sm">
-                  <q-dialog v-model="inception_task">
+                  <q-dialog
+                    v-model="inception_task"
+                    @before-hide="beforeHideTaskLinkDialog"
+                  >
                     <q-card>
                       <q-card-section>
-                        <div class="text-h6">Введите код активации</div>
+                        <div class="text-h6">Подключение таска к каналу</div>
                       </q-card-section>
 
                       <q-card-section class="q-pa-md">
+                        <!-- chanelId -->
                         <div class="q-mb-md">
-                          Введите код пришедший на Телефон
+                          <div class="label">Каналы для подключения</div>
+                          <q-select
+                            outlined
+                            bg-color="white"
+                            hide-bottom-space
+                            v-model="this.vmodel_chanelToAddInTask"
+                            :options="this.options_chanelToAddInTask"
+                          >
+                          </q-select>
                         </div>
-
-                        <q-input
-                          mask="#####"
-                          v-model="code"
-                          outlined
-                          bg-color="white"
-                          hide-bottom-space
-                        ></q-input>
+                        <div class="q-mb-md">
+                          <div class="label">подключенные каналы</div>
+                          <q-select
+                            outlined
+                            lazy-rules
+                            bg-color="white"
+                            hide-bottom-space
+                            v-model="this.vmodel_chanelsAddedToTask"
+                            :options="this.options_chanelsAddedToTask"
+                            :loading="this.task_isLoading"
+                          />
+                        </div>
                       </q-card-section>
 
                       <q-card-actions align="right">
@@ -251,33 +273,34 @@
                           unelevated
                           color="primary"
                           no-caps
-                          label="Отправить"
-                          @click="onSignIn(tgAccount.id, code)"
+                          label="Добавить канал к таску"
+                          @click="onAddChanelToTask(this.select_task)"
+                        />
+                        <q-btn
+                          unelevated
+                          color="negative"
+                          no-caps
+                          label="Удалить канал с таска"
+                          @click="
+                            onRemoveChanelFromTask(
+                              this.vmodel_chanelsAddedToTask.value
+                            )
+                          "
                         />
                       </q-card-actions>
                     </q-card>
                   </q-dialog>
                 </div>
-
+                <!-- модальное окно добавления расписания -->
                 <div class="q-pa-md q-gutter-sm">
                   <q-dialog v-model="inception_clock">
                     <q-card>
                       <q-card-section>
-                        <div class="text-h6">Введите код активации</div>
+                        <div class="text-h6">Заголовок</div>
                       </q-card-section>
 
                       <q-card-section class="q-pa-md">
-                        <div class="q-mb-md">
-                          Введите код пришедший на Телефон
-                        </div>
-
-                        <q-input
-                          mask="#####"
-                          v-model="code"
-                          outlined
-                          bg-color="white"
-                          hide-bottom-space
-                        ></q-input>
+                        <div class="q-mb-md">Заготовка для расписания</div>
                       </q-card-section>
 
                       <q-card-actions align="right">
@@ -293,7 +316,6 @@
                           color="primary"
                           no-caps
                           label="Отправить"
-                          @click="onSignIn(tgAccount.id, code)"
                         />
                       </q-card-actions>
                     </q-card>
@@ -313,24 +335,37 @@
                     tgTask && tgTask.description ? tgTask.description : "N/A"
                   }}</q-item-label>
                 </q-item-section>
+                <!-- кнопка подключения -->
                 <q-item-section>
                   <q-item-label>
-                    <q-btn flat round dense icon="link"
+                    <q-btn
+                      flat
+                      round
+                      dense
+                      icon="link"
+                      @click="showTaskLink(tgTask)"
                       ><q-tooltip color="bg-accent"
                         >Подключить канал</q-tooltip
                       ></q-btn
                     >
                   </q-item-label>
                 </q-item-section>
+                <!-- кнопка расписание -->
                 <q-item-section>
                   <q-item-label>
-                    <q-btn flat round dense icon="timer"
+                    <q-btn
+                      flat
+                      round
+                      dense
+                      icon="timer"
+                      @click="showTaskClock(tgTask)"
                       ><q-tooltip color="bg-accent"
                         >Расписание</q-tooltip
                       ></q-btn
                     >
                   </q-item-label>
                 </q-item-section>
+                <!-- кнопка редактировать -->
                 <q-item-section>
                   <q-item-label>
                     <q-btn
@@ -349,7 +384,6 @@
             </q-list>
           </q-scroll-area>
         </div>
-
         <!-- Log -->
         <div class="q-pa-sm col-lg-6 col-md-12 col-xs-12">
           <q-toolbar class="bg-primary text-white">
@@ -486,6 +520,13 @@ export default defineComponent({
       inception_task: ref(false),
       inception_clock: ref(false),
       taskLog: ref([]),
+
+      vmodel_chanelToAddInTask: ref(null),
+      task_isLoading: ref(false),
+      vmodel_chanelsAddedToTask: ref(null),
+      options_chanelsAddedToTask: ref([]),
+      options_chanelToAddInTask: ref([]),
+      select_task: ref(null),
     };
   },
 
@@ -575,21 +616,16 @@ export default defineComponent({
         this.taskLog = resultTaskLog.taskLog.rows;
       }
 
-      const responseUser = await this.$q.ws.sendRequest({
-        type: "query",
-        iface: "user",
-        method: "getList",
-        args: {},
-      });
-
-      console.log("userList", responseUser);
+      console.log(this.listOfTgAccounts);
+      console.log(this.listOfTasks);
+      console.log(this.listOfTgChanals);
     },
     formatDate(dateString, locale) {
       return date.formatDate(dateString, "DD-MM-YYYY HH:mm:ss", {
         locale,
       });
     },
-    // Account
+    // Account---------------------------------------------------------------------------------------------
     showAccountAdd() {
       const excludeFields = ["id", "isDeleted", "active"];
       const data = {};
@@ -709,7 +745,7 @@ export default defineComponent({
         this.getData();
       }
     },
-    // Chanel
+    // Chanel--------------------------------------------------------------------------------------
     showChanelAdd() {
       const excludeFields = ["id", "isDeleted", "active"];
       const data = {};
@@ -788,7 +824,7 @@ export default defineComponent({
         this.getData();
       }
     },
-    // task
+    // task--------------------------------------------------------------------------------------
     showTaskAdd() {
       const excludeFields = ["id", "isDeleted", "active"];
       const data = {};
@@ -866,6 +902,114 @@ export default defineComponent({
         this.dialogTaskAddUpdate.show = false;
         this.getData();
       }
+    },
+
+    // Подключение тасков к каналам -------------------------------------------------------------
+    // показываем модальное окно добавление таска к каналу и готовим данные для списков
+    async showTaskLink(tgTask) {
+      this.inception_task = true;
+      this.task_isLoading = true;
+      this.select_task = tgTask;
+      const options = await this.onGetListAddChanels(tgTask.id);
+
+      const filteredObjects = options.map((item) => {
+        const channel = this.$q.appStore.listOfTgChanals.find(
+          (channel) => channel.id === item.channel_id
+        );
+        return {
+          label: channel ? channel.description : "",
+          value: item.id,
+        };
+      });
+      this.options_chanelsAddedToTask = filteredObjects;
+
+      this.options_chanelToAddInTask = this.$q.appStore.listOfTgChanals
+        .filter((item) => {
+          return !options.some((tgChannel) => tgChannel.channel_id === item.id);
+        })
+        .map((item) => ({
+          label: item.description,
+          value: item.id,
+        }));
+
+      this.task_isLoading = false;
+    },
+    // получаем список каналов подключенных в задачу
+    async onGetListAddChanels(id) {
+      const result = await this.Task.taskChanelList(id);
+      console.log("Когда запрашиваем таски которые есть на канале", result);
+
+      if (!result.success) {
+        this.$q.dialogStore.set({
+          show: true,
+          title: "Ошибка",
+          text: result.message,
+          ok: {
+            color: "red",
+          },
+        });
+        return [];
+      } else {
+        return result.task.rows;
+      }
+    },
+
+    async onAddChanelToTask(data) {
+      if (this.vmodel_chanelToAddInTask === null) return;
+      if (this.processing) return;
+      this.processing = true;
+      const result = await this.Task.addTaskToChannel(
+        this.vmodel_chanelToAddInTask.value,
+        data.id
+      );
+
+      if (!result.success) {
+        this.$q.dialogStore.set({
+          show: true,
+          title: "Ошибка",
+          text: result.message,
+          ok: {
+            color: "red",
+          },
+        });
+      } else {
+        this.inception_task = false;
+      }
+
+      this.processing = false;
+    },
+
+    async onRemoveChanelFromTask(data) {
+      if (this.vmodel_chanelsAddedToTask === null) return;
+      if (this.processing) return;
+      this.processing = true;
+
+      const result = await this.Task.removeTaskFromChannel(data);
+
+      if (!result.success) {
+        this.$q.dialogStore.set({
+          show: true,
+          title: "Ошибка",
+          text: result.message,
+          ok: {
+            color: "red",
+          },
+        });
+      } else {
+        this.inception_task = false;
+      }
+      this.processing = false;
+    },
+
+    beforeHideTaskLinkDialog() {
+      this.vmodel_chanelToAddInTask = null;
+      this.vmodel_chanelsAddedToTask = null;
+      this.select_task = null;
+    },
+
+    // Расписание----------------------------------------------------------------
+    showTaskClock(tgTask) {
+      this.inception_clock = true;
     },
   },
 });

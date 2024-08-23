@@ -49,52 +49,8 @@
             >
             </q-input>
           </div>
-          <!-- chanelId -->
-          <div class="q-mb-md">
-            <div class="label">
-              {{ Task.fields.chanelId.label }}
-              {{ Task.fields.chanelId.required ? "*" : "" }}
-            </div>
-            <q-select
-              outlined
-              bg-color="white"
-              hide-bottom-space
-              v-model="dialog.data.chanelId"
-              :required="Task.fields.chanelId.required"
-              :options="
-                filteredOptions
-                // this.$q.appStore.listOfTgChanals.map((item) => ({
-                //   label: item.description,
-                //   value: item.id,
-                // }))
-              "
-            >
-            </q-select>
-          </div>
-          <div class="q-mb-md" v-if="dialog.method === 'update'">
-            <div class="label">Лист подключенных каналов</div>
-            <q-select
-              outlined
-              lazy-rules
-              bg-color="white"
-              hide-bottom-space
-              v-model="selectedOption"
-              :options="options"
-              label="подключенные каналы"
-              :loading="isLoading"
-              @focus="onPopupShow()"
-            />
-          </div>
         </q-card-section>
         <q-card-section class="q-dialog__footer">
-          <q-btn
-            unelevated
-            color="primary"
-            no-caps
-            @click="onAdd"
-            label="Добавить канал к таску"
-            v-if="dialog.method === 'update'"
-          />
           <q-btn
             unelevated
             color="negative"
@@ -149,61 +105,7 @@ export default defineComponent({
     };
   },
 
-  computed: {
-    filteredOptions() {
-      return this.$q.appStore.listOfTgChanals
-        .filter((item) => {
-          return !this.ListAddChanels.some(
-            (tgChannel) => tgChannel.channel_id === item.id
-          );
-        })
-        .map((item) => ({
-          label: item.description,
-          value: item.id,
-        }));
-    },
-  },
-
   methods: {
-    async onPopupShow() {
-      this.isLoading = true;
-      try {
-        this.options = await this.onGetListAddChanels();
-      } catch (error) {
-        console.log(error);
-        // Handle the error here
-      } finally {
-        this.isLoading = false;
-      }
-    },
-    async onGetListAddChanels() {
-      const result = await this.Task.taskChanelList(this.dialog.data.id);
-      if (!result.success) {
-        this.$q.dialogStore.set({
-          show: true,
-          title: "Ошибка",
-          text: result.message,
-          ok: {
-            color: "red",
-          },
-        });
-        return [];
-      } else {
-        this.ListAddChanels = result.task.rows;
-        console.log("ListAddChanels", this.ListAddChanels);
-
-        const filteredObjects = result.task.rows.map((item) => {
-          const channel = this.$q.appStore.listOfTgChanals.find(
-            (channel) => channel.id === item.channel_id
-          );
-          return {
-            label: channel ? channel.description : "",
-            value: item.id,
-          };
-        });
-        return filteredObjects;
-      }
-    },
     async onSubmit() {
       if (this.dialog.method === "add") {
         this.dialog.data.owner_id = this.$q.appStore.user.id;
@@ -234,17 +136,6 @@ export default defineComponent({
       const result = await this.Task.delete(this.dialog.data.id);
       this.processing = false;
       this.$emit("onRemove", result);
-    },
-    async onAdd() {
-      if (this.processing) return;
-      this.processing = true;
-      const result = await this.Task.addTaskToChannel(
-        this.dialog.data.chanelId.value,
-        this.dialog.data.id
-      );
-
-      this.processing = false;
-      this.onGetListAddChanels();
     },
   },
 });
