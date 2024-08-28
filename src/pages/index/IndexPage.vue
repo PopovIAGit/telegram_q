@@ -384,6 +384,188 @@
             </q-list>
           </q-scroll-area>
         </div>
+        <!-- Расписание -->
+        <div class="q-pa-sm col-lg-6 col-md-12 col-xs-12">
+          <q-toolbar class="bg-primary text-white">
+            <q-toolbar-title>Расписание</q-toolbar-title>
+            <q-btn
+              flat
+              round
+              dense
+              :icon="showSchedule !== true ? 'visibility_off' : 'visibility'"
+              @click="showSchedule = !showSchedule"
+            />
+            <q-btn flat round dense icon="add" @click="showScheduleAdd" />
+          </q-toolbar>
+          <q-scroll-area style="height: 300px; max-width: 100%">
+            <q-list bordered separator v-if="showTask">
+              <q-item
+                v-for="Schedule in listOfSchedules"
+                :key="Schedule.id"
+                v-ripple
+                class="drawer-left__menu"
+              >
+                <!-- модальное окно добавления таска к каналу-->
+                <div class="q-pa-md q-gutter-sm">
+                  <q-dialog
+                    v-model="inception_task"
+                    @before-hide="beforeHideTaskLinkDialog"
+                  >
+                    <q-card>
+                      <q-card-section>
+                        <div class="text-h6">Подключение таска к каналу</div>
+                      </q-card-section>
+
+                      <q-card-section class="q-pa-md">
+                        <!-- chanelId -->
+                        <div class="q-mb-md">
+                          <div class="label">Каналы для подключения</div>
+                          <q-select
+                            outlined
+                            bg-color="white"
+                            hide-bottom-space
+                            v-model="this.vmodel_chanelToAddInTask"
+                            :options="this.options_chanelToAddInTask"
+                          >
+                          </q-select>
+                        </div>
+                        <div class="q-mb-md">
+                          <div class="label">подключенные каналы</div>
+                          <q-select
+                            outlined
+                            lazy-rules
+                            bg-color="white"
+                            hide-bottom-space
+                            v-model="this.vmodel_chanelsAddedToTask"
+                            :options="this.options_chanelsAddedToTask"
+                            :loading="this.task_isLoading"
+                          />
+                        </div>
+                      </q-card-section>
+
+                      <q-card-actions align="right">
+                        <q-btn
+                          class="q-btn--outline-muted"
+                          outline
+                          no-caps
+                          label="Отмена"
+                          v-close-popup
+                        />
+                        <q-btn
+                          unelevated
+                          color="primary"
+                          no-caps
+                          label="Добавить канал к таску"
+                          @click="onAddChanelToTask(this.select_task)"
+                        />
+                        <q-btn
+                          unelevated
+                          color="negative"
+                          no-caps
+                          label="Удалить канал с таска"
+                          @click="
+                            onRemoveChanelFromTask(
+                              this.vmodel_chanelsAddedToTask.value
+                            )
+                          "
+                        />
+                      </q-card-actions>
+                    </q-card>
+                  </q-dialog>
+                </div>
+                <!-- модальное окно добавления расписания -->
+                <div class="q-pa-md q-gutter-sm">
+                  <q-dialog v-model="inception_clock">
+                    <q-card>
+                      <q-card-section>
+                        <div class="text-h6">Заголовок</div>
+                      </q-card-section>
+
+                      <q-card-section class="q-pa-md">
+                        <div class="q-mb-md">Заготовка для расписания</div>
+                      </q-card-section>
+
+                      <q-card-actions align="right">
+                        <q-btn
+                          class="q-btn--outline-muted"
+                          outline
+                          no-caps
+                          label="Отмена"
+                          v-close-popup
+                        />
+                        <q-btn
+                          unelevated
+                          color="primary"
+                          no-caps
+                          label="Отправить"
+                        />
+                      </q-card-actions>
+                    </q-card>
+                  </q-dialog>
+                </div>
+
+                <q-item-section>
+                  <q-item-label>{{
+                    tgTask && tgTask.id ? tgTask.id : "N/A"
+                  }}</q-item-label>
+                </q-item-section>
+                <q-item-section>
+                  <q-item-label>{{
+                    tgTask && tgTask.message ? tgTask.message : "N/A"
+                  }}</q-item-label>
+                  <q-item-label caption lines="1">{{
+                    tgTask && tgTask.description ? tgTask.description : "N/A"
+                  }}</q-item-label>
+                </q-item-section>
+                <!-- кнопка подключения -->
+                <q-item-section>
+                  <q-item-label>
+                    <q-btn
+                      flat
+                      round
+                      dense
+                      icon="link"
+                      @click="showTaskLink(tgTask)"
+                      ><q-tooltip color="bg-accent"
+                        >Подключить канал</q-tooltip
+                      ></q-btn
+                    >
+                  </q-item-label>
+                </q-item-section>
+                <!-- кнопка расписание -->
+                <q-item-section>
+                  <q-item-label>
+                    <q-btn
+                      flat
+                      round
+                      dense
+                      icon="timer"
+                      @click="showTaskClock(tgTask)"
+                      ><q-tooltip color="bg-accent"
+                        >Расписание</q-tooltip
+                      ></q-btn
+                    >
+                  </q-item-label>
+                </q-item-section>
+                <!-- кнопка редактировать -->
+                <q-item-section>
+                  <q-item-label>
+                    <q-btn
+                      flat
+                      round
+                      dense
+                      icon="edit"
+                      @click="showTaskUpdate(tgTask)"
+                      ><q-tooltip color="bg-accent"
+                        >Редактировать</q-tooltip
+                      ></q-btn
+                    >
+                  </q-item-label>
+                </q-item-section>
+              </q-item>
+            </q-list>
+          </q-scroll-area>
+        </div>
         <!-- Log -->
         <div class="q-pa-sm col-lg-6 col-md-12 col-xs-12">
           <q-toolbar class="bg-primary text-white">
@@ -450,7 +632,7 @@
       @onSave="onAccountSave"
       @onRemove="onAccountRemove"
     />
-    <dialog-chanel-add-update
+    <dialog-chanel-add-updatepik
       :dialog="dialogChanelAddUpdate"
       @onSaveChanel="onChanelSave"
       @onRemoveChanel="onChanelRemove"
@@ -477,9 +659,11 @@ import { date } from "quasar";
 import AccountClass from "src/utils/classes/Account.Class";
 import ChanelClass from "src/utils/classes/Chanel.Class";
 import TaskClass from "src/utils/classes/Task.Class";
+import ScheduleClass from "src/utils/classes/Schedule.Class";
 import DialogAccountAddUpdate from "components/dialogs/Account/DialogAccountAddUpdate";
 import DialogChanelAddUpdate from "components/dialogs/Channel/DialogChanelAddUpdate";
 import DialogTaskAddUpdate from "components/dialogs/Task/DialogTaskAddUpdate";
+import DialogScheduleAddUpdate from "components/dialogs/Schedule/DialogScheduleAddUpdate";
 import { useRoute } from "vue-router";
 
 export default defineComponent({
@@ -488,51 +672,63 @@ export default defineComponent({
     DialogAccountAddUpdate,
     DialogChanelAddUpdate,
     DialogTaskAddUpdate,
+    DialogScheduleAddUpdate,
   },
   setup() {
     const Account = new AccountClass();
     const Chanel = new ChanelClass();
     const Task = new TaskClass();
+    const Schedule = new ScheduleClass();
 
     const dialogAccountAddUpdateDefault = Account.dialogAddUpdateDefault;
     const dialogChanelAddUpdateDefault = Chanel.dialogAddUpdateDefault;
     const dialogTaskAddUpdateDefault = Task.dialogAddUpdateDefault;
+    const dialogScheduleAddUpdateDefault = Schedule.dialogAddUpdateDefault;
 
     return {
+      //списки
       listOfTgAccounts: ref([]),
       listOfTgChanals: ref([]),
       listOfTasks: ref([]),
+      listOfSchedules: ref([]),
+      // скрытие пунктов меню
       showAccount: ref(true),
       showChannel: ref(true),
       showTask: ref(true),
       showTaskLog: ref(true),
+      showSchedule: ref(true),
+      // экземпляры классов
       Account,
       Chanel,
       Task,
+      Schedule,
+      // диалоги
       dialogAccountAddUpdateDefault,
       dialogAccountAddUpdate: ref({}),
       dialogChanelAddUpdateDefault,
       dialogChanelAddUpdate: ref({}),
       dialogTaskAddUpdateDefault,
       dialogTaskAddUpdate: ref({}),
-      code: ref(),
+      dialogScheduleAddUpdateDefault,
+      dialogScheduleAddUpdate: ref({}),
+      // вспомогательные диалоги
       inception: ref(false),
       inception_task: ref(false),
-      inception_clock: ref(false),
+      inception_Schedule: ref(false),
+      // вспомогательные переменные
       taskLog: ref([]),
-
       vmodel_chanelToAddInTask: ref(null),
       task_isLoading: ref(false),
       vmodel_chanelsAddedToTask: ref(null),
       options_chanelsAddedToTask: ref([]),
       options_chanelToAddInTask: ref([]),
       select_task: ref(null),
+      code: ref(),
     };
   },
 
   async beforeMount() {
     this.getData();
-    // this.testPass();
   },
 
   methods: {
@@ -610,15 +806,37 @@ export default defineComponent({
         this.listOfTasks = responseTasks.args.rows;
         this.$q.appStore.set({ taskList: this.listOfTasks });
       }
-
+      // получение лог задач
       const resultTaskLog = await this.Task.getTaskLog();
       if (resultTaskLog.success) {
         this.taskLog = resultTaskLog.taskLog.rows;
+      } else {
+        this.$q.dialogStore.set({
+          show: true,
+          title: "Ошибка",
+          text: resultTaskLog.message,
+          ok: {
+            color: "red",
+          },
+        });
+        this.taskLog = [];
       }
-
-      console.log(this.listOfTgAccounts);
-      console.log(this.listOfTasks);
-      console.log(this.listOfTgChanals);
+      // получение списка расписаний
+      const resultSchedules = await this.Schedule.getScheduleList();
+      if (resultSchedules.success) {
+        this.listOfSchedules = resultSchedules.schedule.rows;
+      } else {
+        this.$q.dialogStore.set({
+          show: true,
+          title: "Ошибка",
+          text: resultSchedules.message,
+          ok: {
+            color: "red",
+          },
+        });
+        this.listOfSchedules = [];
+      }
+      console.log("listOfSchedules", this.listOfSchedules);
     },
     formatDate(dateString, locale) {
       return date.formatDate(dateString, "DD-MM-YYYY HH:mm:ss", {
@@ -723,7 +941,6 @@ export default defineComponent({
         });
       }
     },
-
     async onSignIn(id, code) {
       if (this.processing) return;
       this.processing = true;
@@ -1008,8 +1225,27 @@ export default defineComponent({
     },
 
     // Расписание----------------------------------------------------------------
+    showSheduleAdd() {
+      const excludeFields = ["id", "isDeleted", "active"];
+      const data = {};
+      Object.keys(this.dialogTaskAddUpdateDefault.data).forEach((key) => {
+        if (!excludeFields.includes(key)) {
+          data[key] = this.dialogTaskAddUpdateDefault.data[key];
+        }
+      });
+
+      this.dialogTaskAddUpdate = {
+        show: true,
+        method: "add",
+        onHide: () =>
+          (this.dialogTaskAddUpdate = structuredClone(
+            this.dialogTaskAddUpdateDefault
+          )),
+        data,
+      };
+    },
     showTaskClock(tgTask) {
-      this.inception_clock = true;
+      this.inception_Schedule = true;
     },
   },
 });
