@@ -19,6 +19,7 @@
             </div>
             <q-input
               outlined
+              hint="Описание должно быть от 2 до 3000 символов"
               bg-color="white"
               hide-bottom-space
               v-model="dialog.data.description"
@@ -34,10 +35,15 @@
               {{ Schedule.fields.weeksDay.label }}
               {{ Schedule.fields.weeksDay.required ? "*" : "" }}
             </div>
-            <q-input
+            <q-select
               outlined
+              hint="можно выбрать несколько дней"
               bg-color="white"
+              multiple
+              map-options
               hide-bottom-space
+              :options="weekDaysOptions"
+              option-value="value"
               v-model="dialog.data.weeksDay"
               :min="Schedule.fields.weeksDay.min"
               :max="Schedule.fields.weeksDay.max"
@@ -52,15 +58,36 @@
               {{ Schedule.fields.workingTime.required ? "*" : "" }}
             </div>
             <q-input
+              mask="time"
+              :rules="['time']"
               outlined
               bg-color="white"
               hide-bottom-space
               v-model="dialog.data.workingTime"
-              :min="Schedule.fields.workingTime.min"
-              :max="Schedule.fields.workingTime.max"
               :required="Schedule.fields.workingTime.required"
-              :rules="[(val) => Schedule.fields.workingTime.rules(val)]"
-            />
+              format24h
+            >
+              <template v-slot:append>
+                <q-icon name="access_time" class="cursor-pointer">
+                  <q-popup-proxy
+                    cover
+                    transition-show="scale"
+                    transition-hide="scale"
+                  >
+                    <q-time v-model="dialog.data.workingTime">
+                      <div class="row items-center justify-end">
+                        <q-btn
+                          v-close-popup
+                          label="Close"
+                          color="primary"
+                          flat
+                        />
+                      </div>
+                    </q-time>
+                  </q-popup-proxy>
+                </q-icon>
+              </template>
+            </q-input>
           </div>
           <!-- Частота -->
           <div class="q-mb-md">
@@ -73,6 +100,7 @@
               type="number"
               bg-color="white"
               hide-bottom-space
+              hint="Частота в секундах"
               v-model="dialog.data.frequency"
               :min="Schedule.fields.frequency.min"
               :max="Schedule.fields.frequency.max"
@@ -129,6 +157,15 @@ export default defineComponent({
 
     return {
       Schedule,
+      weekDaysOptions: ref([
+        { label: "Понедельник", value: 1 },
+        { label: "Вторник", value: 2 },
+        { label: "Среда", value: 3 },
+        { label: "Четверг", value: 4 },
+        { label: "Пятница", value: 5 },
+        { label: "Суббота", value: 6 },
+        { label: "Воскресенье", value: 7 },
+      ]),
     };
   },
 
@@ -141,6 +178,7 @@ export default defineComponent({
       if (this.processing) return;
       this.processing = true;
 
+      this.dialog.data.frequency = Number(this.dialog.data.frequency * 1000);
       console.log("dialog.data", this.dialog.data);
 
       // const result = await this.Schedule.save(
