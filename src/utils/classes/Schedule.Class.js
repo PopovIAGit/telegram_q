@@ -30,8 +30,10 @@ class Schedule {
         type: "number",
         default: undefined,
         required: true,
+        min: 0,
+        max: 7,
         rules: (val) => {
-          return val !== null && typeof val === "number";
+          return val !== null && val !== undefined;
         },
       },
       workingTime: {
@@ -46,12 +48,14 @@ class Schedule {
         },
       },
       frequency: {
-        label: "Частота",
+        label: "Частота сообщений",
         type: "number",
         default: undefined,
         required: true,
+        min: 1,
+        max: 36000,
         rules: (val) => {
-          return val !== null && typeof val === "number";
+          return val !== null && val !== undefined;
         },
       },
       owner_id: {
@@ -104,7 +108,8 @@ class Schedule {
     // Если add
     if (method === "add" && data) {
       const _data = structuredClone(data);
-      delete _data.password2;
+      console.log(_data);
+
       const response = await this.$q.ws.sendRequest({
         type: "query",
         iface: "schedule",
@@ -269,10 +274,10 @@ class Schedule {
       };
     }
     if (response.type === "answer") {
-      const schedules = response.args;
+      const schedule = response.args;
       return {
         success: true,
-        schedules,
+        schedule,
       };
     }
   }

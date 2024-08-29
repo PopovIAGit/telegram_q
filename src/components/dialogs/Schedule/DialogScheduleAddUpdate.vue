@@ -14,40 +14,71 @@
           <!-- Описание -->
           <div class="q-mb-md">
             <div class="label">
-              {{ Task.fields.description.label }}
-              {{ Task.fields.description.required ? "*" : "" }}
+              {{ Schedule.fields.description.label }}
+              {{ Schedule.fields.description.required ? "*" : "" }}
             </div>
             <q-input
               outlined
               bg-color="white"
               hide-bottom-space
               v-model="dialog.data.description"
-              :min="Task.fields.description.min"
-              :max="Task.fields.description.max"
-              :required="Task.fields.description.required"
-              :rules="[(val) => Task.fields.description.rules(val)]"
+              :min="Schedule.fields.description.min"
+              :max="Schedule.fields.description.max"
+              :required="Schedule.fields.description.required"
+              :rules="[(val) => Schedule.fields.description.rules(val)]"
             />
           </div>
-
-          <!-- message -->
+          <!-- Дни недели -->
           <div class="q-mb-md">
             <div class="label">
-              {{ Task.fields.message.label }}
-              {{ Task.fields.message.required ? "*" : "" }}
+              {{ Schedule.fields.weeksDay.label }}
+              {{ Schedule.fields.weeksDay.required ? "*" : "" }}
             </div>
             <q-input
               outlined
               bg-color="white"
               hide-bottom-space
-              v-model="dialog.data.message"
-              :mask="Task.fields.message.mask"
-              unmasked-value
-              :min="Task.fields.message.min"
-              :max="Task.fields.message.max"
-              :required="Task.fields.message.required"
-              :rules="[(val) => Task.fields.message.rules(val)]"
-            >
-            </q-input>
+              v-model="dialog.data.weeksDay"
+              :min="Schedule.fields.weeksDay.min"
+              :max="Schedule.fields.weeksDay.max"
+              :required="Schedule.fields.weeksDay.required"
+              :rules="[(val) => Schedule.fields.weeksDay.rules(val)]"
+            />
+          </div>
+          <!-- Время работы -->
+          <div class="q-mb-md">
+            <div class="label">
+              {{ Schedule.fields.workingTime.label }}
+              {{ Schedule.fields.workingTime.required ? "*" : "" }}
+            </div>
+            <q-input
+              outlined
+              bg-color="white"
+              hide-bottom-space
+              v-model="dialog.data.workingTime"
+              :min="Schedule.fields.workingTime.min"
+              :max="Schedule.fields.workingTime.max"
+              :required="Schedule.fields.workingTime.required"
+              :rules="[(val) => Schedule.fields.workingTime.rules(val)]"
+            />
+          </div>
+          <!-- Частота -->
+          <div class="q-mb-md">
+            <div class="label">
+              {{ Schedule.fields.frequency.label }}
+              {{ Schedule.fields.frequency.required ? "*" : "" }}
+            </div>
+            <q-input
+              outlined
+              type="number"
+              bg-color="white"
+              hide-bottom-space
+              v-model="dialog.data.frequency"
+              :min="Schedule.fields.frequency.min"
+              :max="Schedule.fields.frequency.max"
+              :required="Schedule.fields.frequency.required"
+              :rules="[(val) => Schedule.fields.frequency.rules(val)]"
+            />
           </div>
         </q-card-section>
         <q-card-section class="q-dialog__footer">
@@ -98,10 +129,6 @@ export default defineComponent({
 
     return {
       Schedule,
-      selectedOption: ref(null),
-      options: ref([]),
-      isLoading: ref(false),
-      ListAddChanels: ref([]),
     };
   },
 
@@ -109,23 +136,18 @@ export default defineComponent({
     async onSubmit() {
       if (this.dialog.method === "add") {
         this.dialog.data.owner_id = this.$q.appStore.user.id;
-        this.dialog.data.userId = this.$q.appStore.user.id;
       }
 
       if (this.processing) return;
       this.processing = true;
-      const result = await this.Task.save(
-        this.dialog.method,
-        this.dialog.data,
-        this.dialog.dataWas
-      );
-      if (this.dialog.data.chanelId) {
-        const result2 = await this.Task.addTaskToChannel(
-          this.dialog.data.chanelId.value,
-          this.dialog.data.id
-        );
-      }
 
+      console.log("dialog.data", this.dialog.data);
+
+      // const result = await this.Schedule.save(
+      //   this.dialog.method,
+      //   this.dialog.data,
+      //   this.dialog.dataWas
+      // );
       this.processing = false;
       this.$emit("onSave", result);
     },
@@ -133,7 +155,7 @@ export default defineComponent({
     async onRemove() {
       if (this.processing) return;
       this.processing = true;
-      const result = await this.Task.delete(this.dialog.data.id);
+      const result = await this.Schedule.delete(this.dialog.data.id);
       this.processing = false;
       this.$emit("onRemove", result);
     },

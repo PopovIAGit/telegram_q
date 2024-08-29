@@ -395,7 +395,7 @@
               :icon="showSchedule !== true ? 'visibility_off' : 'visibility'"
               @click="showSchedule = !showSchedule"
             />
-            <q-btn flat round dense icon="add" @click="showScheduleAdd" />
+            <q-btn flat round dense icon="add" @click="showSheduleAdd" />
           </q-toolbar>
           <q-scroll-area style="height: 300px; max-width: 100%">
             <q-list bordered separator v-if="showTask">
@@ -506,15 +506,17 @@
 
                 <q-item-section>
                   <q-item-label>{{
-                    tgTask && tgTask.id ? tgTask.id : "N/A"
+                    Schedule && Schedule.id ? Schedule.id : "N/A"
                   }}</q-item-label>
                 </q-item-section>
                 <q-item-section>
                   <q-item-label>{{
-                    tgTask && tgTask.message ? tgTask.message : "N/A"
+                    Schedule && Schedule.message ? Schedule.message : "N/A"
                   }}</q-item-label>
                   <q-item-label caption lines="1">{{
-                    tgTask && tgTask.description ? tgTask.description : "N/A"
+                    Schedule && Schedule.description
+                      ? Schedule.description
+                      : "N/A"
                   }}</q-item-label>
                 </q-item-section>
                 <!-- кнопка подключения -->
@@ -555,7 +557,7 @@
                       round
                       dense
                       icon="edit"
-                      @click="showTaskUpdate(tgTask)"
+                      @click="showSheduleUpdate(Schedule)"
                       ><q-tooltip color="bg-accent"
                         >Редактировать</q-tooltip
                       ></q-btn
@@ -641,6 +643,11 @@
       :dialog="dialogTaskAddUpdate"
       @onSave="onTaskSave"
       @onRemove="onTaskRemove"
+    />
+    <dialog-schedule-add-update
+      :dialog="dialogScheduleAddUpdate"
+      @onSave="onSheduleSave"
+      @onRemove="onSheduleRemove"
     />
   </q-page>
 </template>
@@ -1228,21 +1235,80 @@ export default defineComponent({
     showSheduleAdd() {
       const excludeFields = ["id", "isDeleted", "active"];
       const data = {};
-      Object.keys(this.dialogTaskAddUpdateDefault.data).forEach((key) => {
+      Object.keys(this.dialogScheduleAddUpdateDefault.data).forEach((key) => {
         if (!excludeFields.includes(key)) {
-          data[key] = this.dialogTaskAddUpdateDefault.data[key];
+          data[key] = this.dialogScheduleAddUpdateDefault.data[key];
         }
       });
 
-      this.dialogTaskAddUpdate = {
+      this.dialogScheduleAddUpdate = {
         show: true,
         method: "add",
         onHide: () =>
-          (this.dialogTaskAddUpdate = structuredClone(
-            this.dialogTaskAddUpdateDefault
+          (this.dialogScheduleAddUpdate = structuredClone(
+            this.dialogScheduleAddUpdateDefault
           )),
         data,
       };
+    },
+    showSheduleUpdate(Shedule) {
+      const excludeFields = ["isDeleted", "active"];
+      const data = {};
+      Object.keys(this.dialogSheduleAddUpdateDefault.data).forEach((key) => {
+        if (!excludeFields.includes(key)) {
+          data[key] = this.dialogSheduleAddUpdateDefault.data[key];
+        }
+      });
+
+      this.dialogScheduleAddUpdate = {
+        show: true,
+        method: "update",
+        onHide: () =>
+          (this.dialogSheduleAddUpdate = structuredClone(
+            this.dialogSheduleAddUpdateDefault
+          )),
+        dataWas: structuredClone(Shedule),
+        data: structuredClone(Shedule),
+      };
+    },
+    onSheduleSave(result) {
+      console.log(result);
+      if (!result.success) {
+        this.$q.dialogStore.set({
+          show: true,
+          title: "Ошибка",
+          text: result.message,
+          ok: {
+            color: "red",
+          },
+        });
+      } else if (result.success && result.schedule) {
+        this.$q.dialogStore.set({
+          show: true,
+          title: "Расписание сохронено",
+        });
+        this.dialogSheduleAddUpdate.show = false;
+        this.getData();
+      }
+    },
+    onSheduleRemove(result) {
+      if (!result.success) {
+        this.$q.dialogStore.set({
+          show: true,
+          title: "Ошибка",
+          text: result.message,
+          ok: {
+            color: "red",
+          },
+        });
+      } else if (result.success) {
+        this.$q.dialogStore.set({
+          show: true,
+          title: "Расписание удалено",
+        });
+        this.dialogSheduleAddUpdate.show = false;
+        this.getData();
+      }
     },
     showTaskClock(tgTask) {
       this.inception_Schedule = true;
