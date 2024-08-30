@@ -1,5 +1,10 @@
 <template>
-  <q-dialog v-model="dialog.show" @hide="dialog.onHide">
+  <q-dialog
+    v-model="dialog.show"
+    @hide="dialog.onHide"
+    @before-hide="onBeforeHide"
+    @before-show="onBeforeShow"
+  >
     <q-card style="width: 600px; max-width: 100%">
       <q-form @submit="onSubmit">
         <q-card-section class="q-dialog__header">
@@ -48,7 +53,7 @@
               hide-bottom-space
               :options="weekDaysOptions"
               option-value="value"
-              v-model="dialog.data.weeksDay"
+              v-model="weeksDay"
               :min="Schedule.fields.weeksDay.min"
               :max="Schedule.fields.weeksDay.max"
               :required="Schedule.fields.weeksDay.required"
@@ -224,13 +229,14 @@ export default defineComponent({
       this.processing = true;
 
       this.dialog.data.frequency = Number(this.frequency * 1000);
-      console.log("dialog.data", this.dialog.data);
+      this.dialog.data.weeksDay = this.weeksDay.map((day) => day.value);
+      this.dialog.data.workingTime = [this.timeStart, this.timeEnd];
 
-      // const result = await this.Schedule.save(
-      //   this.dialog.method,
-      //   this.dialog.data,
-      //   this.dialog.dataWas
-      // );
+      const result = await this.Schedule.save(
+        this.dialog.method,
+        this.dialog.data,
+        this.dialog.dataWas
+      );
       this.processing = false;
       this.$emit("onSave", result);
     },
@@ -241,6 +247,30 @@ export default defineComponent({
       const result = await this.Schedule.delete(this.dialog.data.id);
       this.processing = false;
       this.$emit("onRemove", result);
+    },
+
+    onBeforeHide() {
+      this.weeksDay = [];
+      this.timeStart = null;
+      this.timeEnd = null;
+      this.frequency = null;
+    },
+
+    onBeforeShow() {
+      if (this.dialog.method === "update") {
+        this.weeksDay = this.dialog.data.weeksDay.map((day) => {
+          return { label: this.weekDaysOptions[day - 1].label, value: day };
+        });
+        this.timeStart = this.dialog.data.workingTime[0]
+          .split(":")
+          .slice(0, 2)
+          .join(":");
+        this.timeEnd = this.dialog.data.workingTime[1]
+          .split(":")
+          .slice(0, 2)
+          .join(":");
+        this.frequency = this.dialog.data.frequency / 1000;
+      }
     },
   },
 });

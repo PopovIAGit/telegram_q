@@ -259,12 +259,16 @@ class Schedule {
     }
   }
 
-  async getTaskList() {
+  async getTaskList(schedule_id) {
     const response = await this.$q.ws.sendRequest({
       type: "query",
       iface: "schedule",
       method: "getTaskList",
-      args: {},
+      args: {
+        where: {
+          schedule_id: schedule_id,
+        },
+      },
     });
 
     if (response.type === "error") {
@@ -282,15 +286,13 @@ class Schedule {
     }
   }
 
-  async removeTask(scheduleId) {
+  async removeTask(schedule_id) {
     const response = await this.$q.ws.sendRequest({
       type: "query",
       iface: "schedule",
       method: "removeTask",
       args: {
-        where: {
-          id: scheduleId,
-        },
+        id: schedule_id,
       },
     });
     console.log(response);
