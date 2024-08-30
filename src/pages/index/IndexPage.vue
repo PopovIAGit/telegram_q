@@ -293,7 +293,7 @@
                 </div>
                 <!-- модальное окно добавления расписания -->
                 <div class="q-pa-md q-gutter-sm">
-                  <q-dialog v-model="inception_clock">
+                  <q-dialog v-model="inception_Schedule">
                     <q-card>
                       <q-card-section>
                         <div class="text-h6">Заголовок</div>
@@ -475,7 +475,7 @@
                 </div>
                 <!-- модальное окно добавления расписания -->
                 <div class="q-pa-md q-gutter-sm">
-                  <q-dialog v-model="inception_clock">
+                  <q-dialog v-model="inception_Schedule">
                     <q-card>
                       <q-card-section>
                         <div class="text-h6">Заголовок</div>
@@ -634,7 +634,7 @@
       @onSave="onAccountSave"
       @onRemove="onAccountRemove"
     />
-    <dialog-chanel-add-updatepik
+    <dialog-chanel-add-update
       :dialog="dialogChanelAddUpdate"
       @onSaveChanel="onChanelSave"
       @onRemoveChanel="onChanelRemove"
@@ -740,13 +740,13 @@ export default defineComponent({
 
   methods: {
     async getData() {
+      // получение списка аккаунтов
       const responseTgAccounts = await this.$q.ws.sendRequest({
         type: "query",
         iface: "tgAccount",
         method: "getList",
         args: {},
       });
-
       if (responseTgAccounts.type === "error") {
         this.$q.dialogStore.set({
           show: true,
@@ -765,7 +765,7 @@ export default defineComponent({
         });
         this.$q.appStore.set({ accountList: this.listOfTgAccounts });
       }
-
+      // получение списка каналов
       const responseTgChannel = await this.$q.ws.sendRequest({
         type: "query",
         iface: "tgChannel",
@@ -793,7 +793,7 @@ export default defineComponent({
         });
         this.$q.appStore.set({ listOfTgChanals: this.listOfTgChanals });
       }
-
+      // получение списка задач
       const responseTasks = await this.$q.ws.sendRequest({
         type: "query",
         iface: "tgTask",
@@ -829,9 +829,9 @@ export default defineComponent({
         this.taskLog = [];
       }
       // получение списка расписаний
-      const resultSchedules = await this.Schedule.getScheduleList();
+      const resultSchedules = await this.Schedule.getList();
       if (resultSchedules.success) {
-        this.listOfSchedules = resultSchedules.schedule.rows;
+        this.listOfSchedules = resultSchedules.schedules.rows || [];
       } else {
         this.$q.dialogStore.set({
           show: true,
@@ -843,7 +843,6 @@ export default defineComponent({
         });
         this.listOfSchedules = [];
       }
-      console.log("listOfSchedules", this.listOfSchedules);
     },
     formatDate(dateString, locale) {
       return date.formatDate(dateString, "DD-MM-YYYY HH:mm:ss", {

@@ -231,7 +231,7 @@ class Schedule {
     }
   }
 
-  async addTask(scheduleId, taskId) {
+  async addTaskToSchedule(scheduleId, taskId) {
     const response = await this.$q.ws.sendRequest({
       type: "query",
       iface: "schedule",

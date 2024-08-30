@@ -5,7 +5,11 @@
         <q-card-section class="q-dialog__header">
           <div class="q-dialog__header-content">
             <div class="q-dialog__title">
-              {{ dialog.method === "add" ? "Новый таск " : "Изменить таск" }}
+              {{
+                dialog.method === "add"
+                  ? "Новыое расписание "
+                  : "Изменение расписания"
+              }}
             </div>
           </div>
           <q-btn icon="close" flat round dense v-close-popup />
@@ -37,7 +41,7 @@
             </div>
             <q-select
               outlined
-              hint="можно выбрать несколько дней"
+              hint="Можно выбрать несколько дней"
               bg-color="white"
               multiple
               map-options
@@ -57,37 +61,74 @@
               {{ Schedule.fields.workingTime.label }}
               {{ Schedule.fields.workingTime.required ? "*" : "" }}
             </div>
-            <q-input
-              mask="time"
-              :rules="['time']"
-              outlined
-              bg-color="white"
-              hide-bottom-space
-              v-model="dialog.data.workingTime"
-              :required="Schedule.fields.workingTime.required"
-              format24h
-            >
-              <template v-slot:append>
-                <q-icon name="access_time" class="cursor-pointer">
-                  <q-popup-proxy
-                    cover
-                    transition-show="scale"
-                    transition-hide="scale"
-                  >
-                    <q-time v-model="dialog.data.workingTime">
-                      <div class="row items-center justify-end">
-                        <q-btn
-                          v-close-popup
-                          label="Close"
-                          color="primary"
-                          flat
-                        />
-                      </div>
-                    </q-time>
-                  </q-popup-proxy>
-                </q-icon>
-              </template>
-            </q-input>
+            <div class="row">
+              <div class="col q-pr-md">
+                <q-input
+                  mask="time"
+                  :rules="['time']"
+                  outlined
+                  bg-color="white"
+                  hide-bottom-space
+                  v-model="timeStart"
+                  :required="Schedule.fields.workingTime.required"
+                  hint="Время начала работы"
+                >
+                  <template v-slot:append>
+                    <q-icon name="access_time" class="cursor-pointer">
+                      <q-popup-proxy
+                        cover
+                        transition-show="scale"
+                        transition-hide="scale"
+                      >
+                        <q-time v-model="timeStart" format24h>
+                          <div class="row items-center justify-end">
+                            <q-btn
+                              v-close-popup
+                              label="Закрыть"
+                              color="primary"
+                              flat
+                            />
+                          </div>
+                        </q-time>
+                      </q-popup-proxy>
+                    </q-icon>
+                  </template>
+                </q-input>
+              </div>
+              <div class="col">
+                <q-input
+                  mask="time"
+                  :rules="['time']"
+                  outlined
+                  bg-color="white"
+                  hide-bottom-space
+                  v-model="timeEnd"
+                  :required="Schedule.fields.workingTime.required"
+                  hint="Время окончания работы"
+                >
+                  <template v-slot:append>
+                    <q-icon name="access_time" class="cursor-pointer">
+                      <q-popup-proxy
+                        cover
+                        transition-show="scale"
+                        transition-hide="scale"
+                      >
+                        <q-time v-model="timeEnd" format24h>
+                          <div class="row items-center justify-end">
+                            <q-btn
+                              v-close-popup
+                              label="Закрыть"
+                              color="primary"
+                              flat
+                            />
+                          </div>
+                        </q-time>
+                      </q-popup-proxy>
+                    </q-icon>
+                  </template>
+                </q-input>
+              </div>
+            </div>
           </div>
           <!-- Частота -->
           <div class="q-mb-md">
@@ -100,8 +141,8 @@
               type="number"
               bg-color="white"
               hide-bottom-space
-              hint="Частота в секундах"
-              v-model="dialog.data.frequency"
+              hint="Частота выполнения в секундах"
+              v-model="frequency"
               :min="Schedule.fields.frequency.min"
               :max="Schedule.fields.frequency.max"
               :required="Schedule.fields.frequency.required"
@@ -157,6 +198,10 @@ export default defineComponent({
 
     return {
       Schedule,
+      weeksDay: ref([]),
+      timeStart: ref(null),
+      timeEnd: ref(null),
+      frequency: ref(null),
       weekDaysOptions: ref([
         { label: "Понедельник", value: 1 },
         { label: "Вторник", value: 2 },
@@ -178,7 +223,7 @@ export default defineComponent({
       if (this.processing) return;
       this.processing = true;
 
-      this.dialog.data.frequency = Number(this.dialog.data.frequency * 1000);
+      this.dialog.data.frequency = Number(this.frequency * 1000);
       console.log("dialog.data", this.dialog.data);
 
       // const result = await this.Schedule.save(
