@@ -77,7 +77,7 @@ class User {
         },
       },
       active: {
-        label: "Активен",
+        label: "Включить бота",
         type: "boolean",
         default: false,
         rules: (val) => {
@@ -202,7 +202,7 @@ class User {
    */
   async auth() {
     let token = localStorage.getItem("token");
-    console.log("token", token);
+
     if (token) console.log(token.length);
     // Если нет токена в localStorage или он некорректный
     if (!token || token.length !== 36) {
@@ -225,7 +225,6 @@ class User {
       },
     });
 
-    console.log("loginWithToken", response);
     // Если ошибка авторизации
     if (response.type === "error") {
       // На всякий случай удаляем токен из localStorage
@@ -391,7 +390,6 @@ class User {
         working: active,
       },
     });
-    console.log(active, "setWorking", response);
 
     // Если ошибка сохранения
     if (response.type === "error") {

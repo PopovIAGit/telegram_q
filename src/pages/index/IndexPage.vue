@@ -3,10 +3,10 @@
     <div class="container">
       <h1>Главная</h1>
       <div
-        class="q-pa-md fit row wrap justify- between items-stretch content-stretch full-width"
+        class="q-py-md fit row wrap justify-between items-stretch content-stretch full-width"
       >
         <!-- аккаунты -->
-        <div class="q-pa-sm col-lg-6 col-md-12 col-xs-12">
+        <div class="q-py-sm col-lg-6 col-md-12 col-xs-12">
           <q-toolbar class="bg-primary text-white">
             <q-toolbar-title>Aкаутны</q-toolbar-title>
             <q-btn
@@ -30,7 +30,7 @@
                 class="drawer-left__menu"
               >
                 <!-- модальное окно аккаунта -->
-                <div class="q-pa-md q-gutter-sm">
+                <div>
                   <q-dialog v-model="inception">
                     <q-card>
                       <q-card-section>
@@ -48,6 +48,7 @@
                           outlined
                           bg-color="white"
                           hide-bottom-space
+                          hint="Код активации"
                         ></q-input>
                       </q-card-section>
 
@@ -65,21 +66,22 @@
                           no-caps
                           label="Отправить"
                           @click="onSignIn(tgAccount.id, code)"
+                          hint="Отправить код активации"
                         />
                       </q-card-actions>
                     </q-card>
                   </q-dialog>
                 </div>
-                <q-item-section>
+                <q-item-section class="col-1">
                   <q-item-label>{{ tgAccount.id }}</q-item-label>
                 </q-item-section>
-                <q-item-section>
+                <q-item-section class="col-8">
                   <q-item-label>{{ tgAccount.phone }}</q-item-label>
                   <q-item-label caption lines="1">{{
                     tgAccount.description
                   }}</q-item-label>
                 </q-item-section>
-                <q-item-section>
+                <q-item-section class="col">
                   <q-item-label v-if="tgAccount.active">
                     <!-- <q-icon
                       :name="
@@ -112,7 +114,7 @@
                     </q-btn>
                   </q-item-label>
                 </q-item-section>
-                <q-item-section>
+                <q-item-section class="col">
                   <q-item-label>
                     <q-btn
                       flat
@@ -131,7 +133,7 @@
           </q-scroll-area>
         </div>
         <!-- каналы -->
-        <div class="q-pa-sm col-lg-6 col-md-12 col-xs-12">
+        <div class="q-py-sm col-lg-6 col-md-12 col-xs-12">
           <q-toolbar class="bg-primary text-white">
             <q-toolbar-title>Каналы</q-toolbar-title>
             <q-btn
@@ -153,12 +155,12 @@
                 v-ripple
                 class="drawer-left__menu"
               >
-                <q-item-section>
+                <q-item-section class="col-1">
                   <q-item-label>{{
                     tgChannel && tgChannel.id ? tgChannel.id : "N/A"
                   }}</q-item-label>
                 </q-item-section>
-                <q-item-section>
+                <q-item-section class="col-8">
                   <q-item-label>{{
                     tgChannel && tgChannel.url ? tgChannel.url : "N/A"
                   }}</q-item-label>
@@ -168,21 +170,8 @@
                       : "N/A"
                   }}</q-item-label>
                 </q-item-section>
-                <q-item-section>
-                  <q-item-label>
-                    <!-- <q-icon
-                      :name="
-                        tgChannel && tgChannel.active !== 0
-                          ? 'radio_button_checked'
-                          : 'radio_button_unchecked'
-                      "
-                      :color="
-                        tgChannel && tgChannel.active !== 0 ? 'green' : 'grey'
-                      "
-                    /> -->
-                  </q-item-label>
-                </q-item-section>
-                <q-item-section>
+                <q-item-section class="col"> </q-item-section>
+                <q-item-section class="col">
                   <q-item-label>
                     <q-btn
                       flat
@@ -201,7 +190,7 @@
           </q-scroll-area>
         </div>
         <!-- Задачи -->
-        <div class="q-pa-sm col-lg-6 col-md-12 col-xs-12">
+        <div class="q-py-sm col-lg-6 col-md-12 col-xs-12">
           <q-toolbar class="bg-primary text-white">
             <q-toolbar-title>Задачи</q-toolbar-title>
             <q-btn
@@ -224,7 +213,7 @@
                 class="drawer-left__menu"
               >
                 <!-- модальное окно добавления таска к каналу-->
-                <div class="q-pa-md q-gutter-sm">
+                <div>
                   <q-dialog
                     v-model="inception_task"
                     @before-hide="beforeHideTaskLinkDialog"
@@ -244,6 +233,7 @@
                             hide-bottom-space
                             v-model="this.vmodel_chanelToAddInTask"
                             :options="this.options_chanelToAddInTask"
+                            hint="Канал для подключения к задаче"
                           >
                           </q-select>
                         </div>
@@ -257,11 +247,27 @@
                             v-model="this.vmodel_chanelsAddedToTask"
                             :options="this.options_chanelsAddedToTask"
                             :loading="this.task_isLoading"
+                            hint="Каналы, подключенные к задаче"
                           />
                         </div>
                       </q-card-section>
 
                       <q-card-actions align="right">
+                        <q-btn
+                          unelevated
+                          color="negative"
+                          no-caps
+                          label="Удалить"
+                          @click="
+                            onRemoveChanelFromTask(
+                              this.vmodel_chanelsAddedToTask.value
+                            )
+                          "
+                        >
+                          <q-tooltip class="bg-primary"
+                            >Удалить канал из задачи</q-tooltip
+                          >
+                        </q-btn>
                         <q-btn
                           class="q-btn--outline-muted"
                           outline
@@ -273,31 +279,24 @@
                           unelevated
                           color="primary"
                           no-caps
-                          label="Добавить канал к таску"
+                          label="Добавить"
                           @click="onAddChanelToTask(this.select_task)"
-                        />
-                        <q-btn
-                          unelevated
-                          color="negative"
-                          no-caps
-                          label="Удалить канал с таска"
-                          @click="
-                            onRemoveChanelFromTask(
-                              this.vmodel_chanelsAddedToTask.value
-                            )
-                          "
-                        />
+                        >
+                          <q-tooltip class="bg-primary"
+                            >Для добавления выберите канал</q-tooltip
+                          >
+                        </q-btn>
                       </q-card-actions>
                     </q-card>
                   </q-dialog>
                 </div>
 
-                <q-item-section>
+                <q-item-section class="col-1">
                   <q-item-label>{{
                     tgTask && tgTask.id ? tgTask.id : "N/A"
                   }}</q-item-label>
                 </q-item-section>
-                <q-item-section>
+                <q-item-section class="col-8">
                   <q-item-label>{{
                     tgTask && tgTask.message ? tgTask.message : "N/A"
                   }}</q-item-label>
@@ -306,7 +305,7 @@
                   }}</q-item-label>
                 </q-item-section>
                 <!-- кнопка подключения -->
-                <q-item-section>
+                <q-item-section class="col">
                   <q-item-label>
                     <q-btn
                       flat
@@ -321,7 +320,7 @@
                   </q-item-label>
                 </q-item-section>
                 <!-- кнопка редактировать -->
-                <q-item-section>
+                <q-item-section class="col">
                   <q-item-label>
                     <q-btn
                       flat
@@ -340,7 +339,7 @@
           </q-scroll-area>
         </div>
         <!-- Расписание -->
-        <div class="q-pa-sm col-lg-6 col-md-12 col-xs-12">
+        <div class="q-py-sm col-lg-6 col-md-12 col-xs-12">
           <q-toolbar class="bg-primary text-white">
             <q-toolbar-title>Расписание</q-toolbar-title>
             <q-btn
@@ -365,7 +364,7 @@
                 class="drawer-left__menu"
               >
                 <!-- модальное окно добавления расписания к таску-->
-                <div class="q-pa-md q-gutter-sm">
+                <div>
                   <q-dialog
                     v-model="inception_Schedule_task"
                     @@before-hide="beforeHideShedule"
@@ -387,6 +386,7 @@
                             hide-bottom-space
                             v-model="this.vmodel_taskToAddInSchedule"
                             :options="this.options_taskToAddInSchedule"
+                            hint="Задача для подключения к расписанию"
                           >
                           </q-select>
                         </div>
@@ -400,11 +400,27 @@
                             v-model="this.vmodel_tasksAddedToSchedule"
                             :options="this.options_tasksAddedToSchedule"
                             :loading="this.schedule_isLoading"
+                            hint="Задачи, подключенные к расписанию"
                           />
                         </div>
                       </q-card-section>
 
                       <q-card-actions align="right">
+                        <q-btn
+                          unelevated
+                          color="negative"
+                          no-caps
+                          label="Удалить"
+                          @click="
+                            onRemoveTaskFromShedule(
+                              this.vmodel_tasksAddedToSchedule.value
+                            )
+                          "
+                        >
+                          <q-tooltip class="bg-primary"
+                            >Удалить расписание с задачи</q-tooltip
+                          >
+                        </q-btn>
                         <q-btn
                           class="q-btn--outline-muted"
                           outline
@@ -418,23 +434,8 @@
                           no-caps
                           label="Добавить"
                           @click="onAddTaskToShedule(this.select_schedule)"
-                          ><q-tooltip class="bg-accent"
+                          ><q-tooltip class="bg-primary"
                             >Добавить расписание к задачи</q-tooltip
-                          >
-                        </q-btn>
-                        <q-btn
-                          unelevated
-                          color="negative"
-                          no-caps
-                          label="Удалить"
-                          @click="
-                            onRemoveTaskFromShedule(
-                              this.vmodel_tasksAddedToSchedule.value
-                            )
-                          "
-                        >
-                          <q-tooltip class="bg-accent"
-                            >Удалить расписание с задачи</q-tooltip
                           >
                         </q-btn>
                       </q-card-actions>
@@ -442,12 +443,12 @@
                   </q-dialog>
                 </div>
 
-                <q-item-section>
+                <q-item-section class="col-1">
                   <q-item-label>{{
                     Schedule && Schedule.id ? Schedule.id : "N/A"
                   }}</q-item-label>
                 </q-item-section>
-                <q-item-section>
+                <q-item-section class="col-8">
                   <q-item-label>{{
                     Schedule && Schedule.description
                       ? Schedule.description
@@ -455,7 +456,7 @@
                   }}</q-item-label>
                 </q-item-section>
                 <!-- кнопка подключения -->
-                <q-item-section>
+                <q-item-section class="col">
                   <q-item-label>
                     <q-btn
                       flat
@@ -464,14 +465,13 @@
                       icon="timer"
                       @click="showScheduleClock(Schedule)"
                       ><q-tooltip color="bg-accent"
-                        >Подключить таск к расписанию</q-tooltip
+                        >Подключить задачу к расписанию</q-tooltip
                       ></q-btn
                     >
                   </q-item-label>
                 </q-item-section>
-
                 <!-- кнопка редактировать -->
-                <q-item-section>
+                <q-item-section class="col">
                   <q-item-label>
                     <q-btn
                       flat
@@ -490,7 +490,7 @@
           </q-scroll-area>
         </div>
         <!-- Log -->
-        <div class="q-pa-sm col-lg-6 col-md-12 col-xs-12">
+        <div class="q-py-sm col-lg-6 col-md-12 col-xs-12">
           <q-toolbar class="bg-primary text-white">
             <q-toolbar-title>Log</q-toolbar-title>
             <q-btn
@@ -539,7 +539,7 @@
                     }}</q-item-label
                   >
                 </q-item-section>
-                <q-item-section class="col-2">
+                <q-item-section class="col">
                   <q-item-label
                     >Дата: {{ formatDate(tgTask.date, "ru") }}</q-item-label
                   >
@@ -1256,8 +1256,6 @@ export default defineComponent({
       this.select_schedule = Schedule;
       const options = await this.onGetListAddTasksToShedule(Schedule.id);
 
-      console.log("полученные связи", options);
-
       this.options_taskToAddInSchedule = this.$q.appStore.taskList
         .filter((item) => {
           return (
@@ -1342,7 +1340,6 @@ export default defineComponent({
       this.processing = true;
 
       const result = await this.Schedule.removeTask(data);
-      console.log(result);
 
       if (!result.success) {
         this.$q.dialogStore.set({

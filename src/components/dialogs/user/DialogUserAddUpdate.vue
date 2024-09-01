@@ -136,6 +136,7 @@
               bg-color="white"
               hide-bottom-space
               v-model="dialog.data.working"
+              label="Нажми для начала работы"
               :toggle="this.User.setWorking(this.dialog.data.working)"
             />
           </div>

@@ -5,7 +5,9 @@
         <q-card-section class="q-dialog__header">
           <div class="q-dialog__header-content">
             <div class="q-dialog__title">
-              {{ dialog.method === "add" ? "Новый таск " : "Изменить таск" }}
+              {{
+                dialog.method === "add" ? "Новая задача " : "Изменить задачу"
+              }}
             </div>
           </div>
           <q-btn icon="close" flat round dense v-close-popup />
@@ -26,6 +28,7 @@
               :max="Task.fields.description.max"
               :required="Task.fields.description.required"
               :rules="[(val) => Task.fields.description.rules(val)]"
+              hint="Описание задачи"
             />
           </div>
 
@@ -46,6 +49,7 @@
               :max="Task.fields.message.max"
               :required="Task.fields.message.required"
               :rules="[(val) => Task.fields.message.rules(val)]"
+              hint="Сообщение для отправки"
             >
             </q-input>
           </div>
@@ -58,7 +62,9 @@
             label="Удалить"
             @click="onRemove"
             v-if="dialog.method === 'update'"
-          />
+          >
+            <q-tooltip class="bg-negative">Удалить задачу</q-tooltip></q-btn
+          >
           <q-btn
             class="q-btn--outline-muted"
             outline
@@ -72,7 +78,14 @@
             no-caps
             type="submit"
             label="Сохранить"
-          />
+          >
+            <q-tooltip class="bg-primary" v-if="dialog.method === 'add'"
+              >Создать новую задачу</q-tooltip
+            >
+            <q-tooltip class="bg-primary" v-else-if="dialog.method === 'update'"
+              >Изменить задачу</q-tooltip
+            >
+          </q-btn>
         </q-card-section>
       </q-form>
     </q-card>

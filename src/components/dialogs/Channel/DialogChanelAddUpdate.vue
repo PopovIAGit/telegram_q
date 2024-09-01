@@ -26,6 +26,7 @@
               :max="Chanel.fields.description.max"
               :required="Chanel.fields.description.required"
               :rules="[(val) => Chanel.fields.description.rules(val)]"
+              hint="Описание канала"
             />
           </div>
 
@@ -46,19 +47,20 @@
               :max="Chanel.fields.url.max"
               :required="Chanel.fields.url.required"
               :rules="[(val) => Chanel.fields.url.rules(val)]"
+              hint="Адресс канала"
             >
             </q-input>
           </div>
           <!-- Список тасков на канале -->
           <div class="q-mb-md" v-if="dialog.method === 'update'">
-            <div class="label">Список тасков на канале</div>
+            <div class="label">Список задач на канале</div>
             <q-select
               outlined
               bg-color="white"
               hide-bottom-space
               v-model="selectedOption"
               :options="options"
-              label="подключенные таски"
+              label="подключенные задачи"
               :loading="isLoading"
               @focus="onPopupShow()"
             />
@@ -72,7 +74,9 @@
             label="Удалить"
             @click="onRemove"
             v-if="dialog.method === 'update'"
-          />
+          >
+            <q-tooltip class="bg-negative">Удалить канал</q-tooltip></q-btn
+          >
           <q-btn
             class="q-btn--outline-muted"
             outline
@@ -86,7 +90,13 @@
             no-caps
             type="submit"
             label="Сохранить"
-          />
+            ><q-tooltip class="bg-primary" v-if="dialog.method === 'add'"
+              >Создать новый канал</q-tooltip
+            >
+            <q-tooltip class="bg-primary" v-else-if="dialog.method === 'update'"
+              >Изменить канал</q-tooltip
+            >
+          </q-btn>
         </q-card-section>
       </q-form>
     </q-card>
@@ -135,7 +145,6 @@ export default defineComponent({
     },
     async onGetChanelTaskList() {
       const result = await this.Task.chanelTaskList(this.dialog.data.id);
-      console.log("Когда запрашиваем таски которые есть на канале", result);
 
       if (!result.success) {
         this.$q.dialogStore.set({
@@ -167,7 +176,6 @@ export default defineComponent({
         this.dialog.dataWas
       );
       this.processing = false;
-      console.log(result);
       this.$emit("onSaveChanel", result);
     },
 

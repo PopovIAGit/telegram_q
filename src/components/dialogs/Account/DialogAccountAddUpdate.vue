@@ -28,6 +28,7 @@
               :max="Account.fields.description.max"
               :required="Account.fields.description.required"
               :rules="[(val) => Account.fields.description.rules(val)]"
+              hint="Описание аккаунта"
             />
           </div>
 
@@ -48,6 +49,7 @@
               :max="Account.fields.phone.max"
               :required="Account.fields.phone.required"
               :rules="[(val) => Account.fields.phone.rules(val)]"
+              hint="Телефон аккаунта"
             >
               <template v-slot:prepend>
                 <q-icon name="phone" />
@@ -68,6 +70,7 @@
               max="5"
               required="true"
               :rules="[(val) => val !== null && val.length === 5]"
+              hint="Код подтверждения приходит на телефон"
             >
               <template v-slot:prepend>
                 <q-icon name="lock" />
@@ -76,20 +79,6 @@
           </div>
         </q-card-section>
         <q-card-section class="q-dialog__footer">
-          <!-- <q-btn
-            unelevated
-            no-caps
-            label="sign up"
-            @click="onSignIn"
-            v-if="dialog.method === 'update' && isActive === true"
-          />
-            <q-btn
-            unelevated
-            no-caps
-            label="active"
-            @click="onActivate"
-            v-if="dialog.method === 'update'"
-          /> -->
           <q-btn
             unelevated
             color="negative"
@@ -97,7 +86,8 @@
             label="Удалить"
             @click="onRemove"
             v-if="dialog.method === 'update'"
-          />
+            ><q-tooltip class="bg-negative">Удалить аккаунт</q-tooltip></q-btn
+          >
           <q-btn
             class="q-btn--outline-muted"
             outline
@@ -112,7 +102,13 @@
             no-caps
             type="submit"
             label="Сохранить"
-          />
+            ><q-tooltip class="bg-primary" v-if="dialog.method === 'add'"
+              >Создать новый аккаунт</q-tooltip
+            >
+            <q-tooltip class="bg-primary" v-else-if="dialog.method === 'update'"
+              >Изменить аккаунт</q-tooltip
+            ></q-btn
+          >
         </q-card-section>
       </q-form>
     </q-card>
@@ -174,7 +170,6 @@ export default defineComponent({
       this.processing = false;
 
       if (result) {
-        console.log("активирован");
         this.isActive = true;
       }
     },
@@ -185,7 +180,6 @@ export default defineComponent({
       const result = await this.Account.signIn(this.dialog.data.id, this.code);
       this.processing = false;
       if (result) {
-        console.log(result);
         this.isActive = false;
         this.code = "";
       }

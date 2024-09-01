@@ -103,7 +103,7 @@ class Account {
           ..._data,
         },
       });
-      console.log("add", response);
+
       // Если ошибка сохранения
       if (response.type === "error") {
         return {
@@ -147,7 +147,7 @@ class Account {
             ..._data,
           },
         });
-        console.log("update", _data);
+
         // Если ошибка сохранения
         if (response.type === "error") {
           return {
@@ -176,7 +176,7 @@ class Account {
         id: personId,
       },
     });
-    console.log(response);
+
     // Если ошибка удаления
     if (response.type === "error") {
       return {
@@ -195,7 +195,6 @@ class Account {
   }
 
   async activate(accountId) {
-    console.log(accountId);
     const response = await this.$q.ws.sendRequest({
       type: "query",
       iface: "tgAccount",
@@ -204,7 +203,7 @@ class Account {
         accountId: accountId,
       },
     });
-    console.log(response);
+
     // Если ошибка удаления
     if (response.type === "error") {
       return {
@@ -232,7 +231,7 @@ class Account {
         phoneCode: phoneCode,
       },
     });
-    console.log(response);
+
     // Если ошибка удаления
     if (response.type === "error") {
       return {

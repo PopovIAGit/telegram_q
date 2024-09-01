@@ -108,7 +108,7 @@ class Schedule {
     // Если add
     if (method === "add" && data) {
       const _data = structuredClone(data);
-      console.log(_data);
+
 
       const response = await this.$q.ws.sendRequest({
         type: "query",
@@ -241,7 +241,7 @@ class Schedule {
         task_id: taskId,
       },
     });
-    console.log(response);
+
     // Если ошибка
     if (response.type === "error") {
       return {
@@ -295,7 +295,7 @@ class Schedule {
         id: schedule_id,
       },
     });
-    console.log(response);
+
     // Если ошибка
     if (response.type === "error") {
       return {

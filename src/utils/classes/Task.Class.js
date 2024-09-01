@@ -174,8 +174,6 @@ class Task {
       },
     });
 
-    console.log(response);
-
     // Если ошибка удаления
     if (response.type === "error") {
       return {
@@ -260,7 +258,7 @@ class Task {
         channel_id: channel_id,
       },
     });
-    console.log(response);
+
     // Если ошибка сохранения
     if (response.type === "error") {
       return {
@@ -287,7 +285,7 @@ class Task {
         id: task_id,
       },
     });
-    console.log(response);
+
     // Если ошибка сохранения
     if (response.type === "error") {
       return {
