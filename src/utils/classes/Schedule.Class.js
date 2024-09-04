@@ -109,7 +109,6 @@ class Schedule {
     if (method === "add" && data) {
       const _data = structuredClone(data);
 
-
       const response = await this.$q.ws.sendRequest({
         type: "query",
         iface: "schedule",
@@ -186,9 +185,7 @@ class Schedule {
       iface: "schedule",
       method: "delete",
       args: {
-        where: {
-          id: scheduleId,
-        },
+        id: scheduleId,
       },
     });
 
@@ -232,6 +229,8 @@ class Schedule {
   }
 
   async addTaskToSchedule(scheduleId, taskId) {
+    console.log(scheduleId, taskId);
+
     const response = await this.$q.ws.sendRequest({
       type: "query",
       iface: "schedule",
@@ -241,6 +240,8 @@ class Schedule {
         task_id: taskId,
       },
     });
+
+    console.log(response);
 
     // Если ошибка
     if (response.type === "error") {
@@ -286,15 +287,17 @@ class Schedule {
     }
   }
 
-  async removeTask(schedule_id) {
+  async removeTask(id) {
     const response = await this.$q.ws.sendRequest({
       type: "query",
       iface: "schedule",
       method: "removeTask",
       args: {
-        id: schedule_id,
+        id: id,
       },
     });
+
+    console.log(response);
 
     // Если ошибка
     if (response.type === "error") {

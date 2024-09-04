@@ -6,7 +6,7 @@
         class="q-py-md fit row wrap justify-between items-stretch content-stretch full-width"
       >
         <!-- аккаунты -->
-        <div class="q-py-sm col-lg-6 col-md-12 col-xs-12">
+        <div class="q-pa-sm col-lg-6 col-md-12 col-xs-12">
           <q-toolbar class="bg-primary text-white">
             <q-toolbar-title>Aкаутны</q-toolbar-title>
             <q-btn
@@ -133,7 +133,7 @@
           </q-scroll-area>
         </div>
         <!-- каналы -->
-        <div class="q-py-sm col-lg-6 col-md-12 col-xs-12">
+        <div class="q-pa-sm col-lg-6 col-md-12 col-xs-12">
           <q-toolbar class="bg-primary text-white">
             <q-toolbar-title>Каналы</q-toolbar-title>
             <q-btn
@@ -190,7 +190,7 @@
           </q-scroll-area>
         </div>
         <!-- Задачи -->
-        <div class="q-py-sm col-lg-6 col-md-12 col-xs-12">
+        <div class="q-pa-sm col-lg-6 col-md-12 col-xs-12">
           <q-toolbar class="bg-primary text-white">
             <q-toolbar-title>Задачи</q-toolbar-title>
             <q-btn
@@ -339,7 +339,7 @@
           </q-scroll-area>
         </div>
         <!-- Расписание -->
-        <div class="q-py-sm col-lg-6 col-md-12 col-xs-12">
+        <div class="q-pa-sm col-lg-6 col-md-12 col-xs-12">
           <q-toolbar class="bg-primary text-white">
             <q-toolbar-title>Расписание</q-toolbar-title>
             <q-btn
@@ -367,7 +367,7 @@
                 <div>
                   <q-dialog
                     v-model="inception_Schedule_task"
-                    @@before-hide="beforeHideShedule"
+                    @before-hide="beforeHideShedule"
                   >
                     <q-card>
                       <q-card-section>
@@ -490,7 +490,7 @@
           </q-scroll-area>
         </div>
         <!-- Log -->
-        <div class="q-py-sm col-lg-6 col-md-12 col-xs-12">
+        <div class="q-pa-sm col-lg-6 col-md-12 col-xs-12">
           <q-toolbar class="bg-primary text-white">
             <q-toolbar-title>Log</q-toolbar-title>
             <q-btn
@@ -661,6 +661,7 @@ export default defineComponent({
       options_tasksAddedToSchedule: ref([]),
       options_taskToAddInSchedule: ref([]),
       select_schedule: ref(null),
+      listOfSchedulesAndTasks: ref([]),
     };
   },
 
@@ -1254,13 +1255,18 @@ export default defineComponent({
 
       this.schedule_isLoading = true;
       this.select_schedule = Schedule;
-      const options = await this.onGetListAddTasksToShedule(Schedule.id);
+      this.listOfSchedulesAndTasks = await this.onGetListAddTasksToShedule(
+        Schedule.id
+      );
 
       this.options_taskToAddInSchedule = this.$q.appStore.taskList
         .filter((item) => {
           return (
             item.is_deleted === 0 &&
-            (!options || !options.some((task) => task.task_id === item.id))
+            (!this.listOfSchedulesAndTasks ||
+              !this.listOfSchedulesAndTasks.some(
+                (task) => task.task_id === item.id
+              ))
           );
         })
         .map((item) => ({
@@ -1271,8 +1277,8 @@ export default defineComponent({
       this.schedule_isLoading = false;
 
       const filteredObjects =
-        options && options.length > 0
-          ? options
+        this.listOfSchedulesAndTasks && this.listOfSchedulesAndTasks.length > 0
+          ? this.listOfSchedulesAndTasks
               .map((item) => {
                 const task = this.$q.appStore.taskList.find(
                   (task) => task.id === item.task_id
@@ -1293,6 +1299,7 @@ export default defineComponent({
     },
     async onGetListAddTasksToShedule(id) {
       const result = await this.Schedule.getTaskList(id);
+      console.log("onGetListAddTasksToShedule", result);
 
       if (!result.success) {
         this.$q.dialogStore.set({
@@ -1314,8 +1321,8 @@ export default defineComponent({
       if (this.processing) return;
       this.processing = true;
       const result = await this.Schedule.addTaskToSchedule(
-        this.vmodel_taskToAddInSchedule.value,
-        data.id
+        data.id,
+        this.vmodel_taskToAddInSchedule.value
       );
 
       if (!result.success) {
@@ -1334,12 +1341,21 @@ export default defineComponent({
       this.processing = false;
     },
 
-    async onRemoveTaskFromShedule(data) {
+    async onRemoveTaskFromShedule(task_id) {
+      const foundObject = this.listOfSchedulesAndTasks.find((item) => {
+        return (
+          item.schedule_id === this.select_schedule.id &&
+          item.task_id === task_id
+        );
+      });
+
+      if (!foundObject) return;
+
       if (this.vmodel_tasksAddedToSchedule === null) return;
       if (this.processing) return;
       this.processing = true;
 
-      const result = await this.Schedule.removeTask(data);
+      const result = await this.Schedule.removeTask(foundObject.id);
 
       if (!result.success) {
         this.$q.dialogStore.set({
