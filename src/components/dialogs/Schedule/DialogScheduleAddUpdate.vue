@@ -146,7 +146,7 @@
               type="number"
               bg-color="white"
               hide-bottom-space
-              hint="Частота выполнения в секундах"
+              hint="Частота выполнения в минутах"
               v-model="frequency"
               :min="Schedule.fields.frequency.min"
               :max="Schedule.fields.frequency.max"
@@ -228,7 +228,7 @@ export default defineComponent({
       if (this.processing) return;
       this.processing = true;
 
-      this.dialog.data.frequency = Number(this.frequency * 1000);
+      this.dialog.data.frequency = Number(this.frequency * 1000 * 60);
       this.dialog.data.weeksDay = this.weeksDay.map((day) => day.value);
       this.dialog.data.workingTime = [this.timeStart, this.timeEnd];
 
