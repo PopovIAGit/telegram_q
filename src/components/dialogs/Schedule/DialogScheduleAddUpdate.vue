@@ -269,7 +269,7 @@ export default defineComponent({
           .split(":")
           .slice(0, 2)
           .join(":");
-        this.frequency = this.dialog.data.frequency / 1000;
+        this.frequency = this.dialog.data.frequency / (1000 * 60);
       }
     },
   },
