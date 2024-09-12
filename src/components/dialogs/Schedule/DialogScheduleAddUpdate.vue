@@ -146,10 +146,11 @@
               outlined
               hint="Можно выбрать несколько дней"
               bg-color="white"
-              map-options
               hide-bottom-space
               :options="timezoneOptions"
               option-value="value"
+              emit-value
+              map-options
               v-model="timezone"
               :min="Schedule.fields.timezone.min"
               :max="Schedule.fields.timezone.max"
@@ -284,7 +285,7 @@ export default defineComponent({
       this.dialog.data.workingTime = [
         this.timeStart,
         this.timeEnd,
-        this.timezone.value,
+        this.timezone,
       ];
 
       console.log(this.dialog.data.workingTime);
