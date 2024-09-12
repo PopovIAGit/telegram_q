@@ -311,6 +311,7 @@ export default defineComponent({
       this.timeStart = null;
       this.timeEnd = null;
       this.frequency = null;
+      this.timezone = null;
     },
 
     /**
@@ -333,7 +334,9 @@ export default defineComponent({
           .slice(0, 2)
           .join(":");
         this.frequency = this.dialog.data.frequency / (1000 * 60); // переводим в минуты
-        this.timezone.value = this.dialog.data.workingTime[2];
+        console.log(this.dialog.data);
+
+        this.timezone = this.dialog.data.timeZone;
       }
     },
   },
