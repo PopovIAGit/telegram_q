@@ -313,6 +313,12 @@ export default defineComponent({
       this.frequency = null;
     },
 
+    /**
+     * Initializes the component data before showing the dialog.
+     * If the dialog method is "update", it sets the weeksDay, timeStart, timeEnd, frequency, and timezone values based on the dialog data.
+     *
+     * @return {void}
+     */
     onBeforeShow() {
       if (this.dialog.method === "update") {
         this.weeksDay = this.dialog.data.weeksDay.map((day) => {
