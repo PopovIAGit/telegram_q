@@ -500,7 +500,6 @@
               :icon="showTaskLog !== true ? 'visibility_off' : 'visibility'"
               @click="showTaskLog = !showTaskLog"
             />
-            <q-btn flat round dense icon="add" @click="showTaskAdd" />
           </q-toolbar>
           <q-scroll-area style="height: 300px; max-width: 100%">
             <q-list bordered separator v-if="showTaskLog">

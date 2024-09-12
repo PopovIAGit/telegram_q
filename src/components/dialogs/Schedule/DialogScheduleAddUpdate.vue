@@ -135,6 +135,29 @@
               </div>
             </div>
           </div>
+          <!-- Часовой пояс -->
+          <div class="q-mb-md">
+            <div class="label">
+              {{ Schedule.fields.timezone.label }}
+              {{ Schedule.fields.timezone.required ? "*" : "" }}
+            </div>
+
+            <q-select
+              outlined
+              hint="Можно выбрать несколько дней"
+              bg-color="white"
+              map-options
+              hide-bottom-space
+              :options="timezoneOptions"
+              option-value="value"
+              v-model="timezone"
+              :min="Schedule.fields.timezone.min"
+              :max="Schedule.fields.timezone.max"
+              :required="Schedule.fields.timezone.required"
+              :rules="[(val) => Schedule.fields.timezone.rules(val)]"
+            />
+          </div>
+
           <!-- Частота -->
           <div class="q-mb-md">
             <div class="label">
@@ -207,6 +230,7 @@ export default defineComponent({
       timeStart: ref(null),
       timeEnd: ref(null),
       frequency: ref(null),
+      timezone: ref(null),
       weekDaysOptions: ref([
         { label: "Понедельник", value: 1 },
         { label: "Вторник", value: 2 },
@@ -215,6 +239,33 @@ export default defineComponent({
         { label: "Пятница", value: 5 },
         { label: "Суббота", value: 6 },
         { label: "Воскресенье", value: 7 },
+      ]),
+      timezoneOptions: ref([
+        { label: "UTC-12 (Бейкер, Гонолулу)", value: "-1200" },
+        { label: "UTC-11 (Самоа, Паго-Паго)", value: "-1100" },
+        { label: "UTC-10 (Гавайи, Гонолулу)", value: "-1000" },
+        { label: "UTC-9 (Аляска, Анкоридж)", value: "-0900" },
+        { label: "UTC-8 (Лос-Анджелес, Сан-Франциско)", value: "-0800" },
+        { label: "UTC-7 (Денвер, Финикс)", value: "-0700" },
+        { label: "UTC-6 (Чикаго, Мексико)", value: "-0600" },
+        { label: "UTC-5 (Нью-Йорк, Вашингтон)", value: "-0500" },
+        { label: "UTC-4 (Канада, Кито)", value: "-0400" },
+        { label: "UTC-3 (Буэнос-Айрес, Сантьяго)", value: "-0300" },
+        { label: "UTC-2 (Южная Атлантика)", value: "-0200" },
+        { label: "UTC-1 (Азорские острова, Кабо-Верде)", value: "-0100" },
+        { label: "UTC+0 (Лондон, Париж)", value: "+0000" },
+        { label: "UTC+1 (Берлин, Рим)", value: "+0100" },
+        { label: "UTC+2 (Афины, Стамбул)", value: "+0200" },
+        { label: "UTC+3 (Москва, Санкт-Петербург)", value: "+0300" },
+        { label: "UTC+4 (Азербайджан, Грузия)", value: "+0400" },
+        { label: "UTC+5 (Пакистан, Узбекистан)", value: "+0500" },
+        { label: "UTC+6 (Бангладеш, Казахстан)", value: "+0600" },
+        { label: "UTC+7 (Бангкок, Джакарта)", value: "+0700" },
+        { label: "UTC+8 (Пекин, Гонконг)", value: "+0800" },
+        { label: "UTC+9 (Сеул, Токио)", value: "+0900" },
+        { label: "UTC+10 (Сидней, Мельбурн)", value: "+1000" },
+        { label: "UTC+11 (Соломоновы Острова)", value: "+1100" },
+        { label: "UTC+12 (Фиджи, Кирибати)", value: "+1200" },
       ]),
     };
   },
@@ -230,7 +281,13 @@ export default defineComponent({
 
       this.dialog.data.frequency = Number(this.frequency * 1000 * 60);
       this.dialog.data.weeksDay = this.weeksDay.map((day) => day.value);
-      this.dialog.data.workingTime = [this.timeStart, this.timeEnd];
+      this.dialog.data.workingTime = [
+        this.timeStart,
+        this.timeEnd,
+        this.timezone.value,
+      ];
+
+      console.log(this.dialog.data.workingTime);
 
       const result = await this.Schedule.save(
         this.dialog.method,
@@ -270,6 +327,7 @@ export default defineComponent({
           .slice(0, 2)
           .join(":");
         this.frequency = this.dialog.data.frequency / (1000 * 60); // переводим в минуты
+        this.timezone.value = this.dialog.data.workingTime[2];
       }
     },
   },
