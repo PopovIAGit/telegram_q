@@ -730,6 +730,8 @@ export default defineComponent({
         method: "getList",
         args: {},
       });
+      console.log("responseTasks", responseTasks);
+
       if (responseTasks.type === "error") {
         this.$q.dialogStore.set({
           show: true,

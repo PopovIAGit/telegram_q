@@ -60,6 +60,14 @@ class Task {
           return typeof val && val !== null && typeof val === "number";
         },
       },
+      file: {
+        label: "файл",
+        type: "string",
+        default: "",
+        rules: (val) => {
+          return val && val.length >= 2 && val.length <= 30000;
+        },
+      },
     };
 
     // Dialog add/update

@@ -53,6 +53,41 @@
             >
             </q-input>
           </div>
+          <div class="q-mb-md">
+            <div class="label">Загруженный файл</div>
+            <template v-if="!dialog.data.file">
+              <div
+                style="
+                  display: flex;
+                  align-items: center;
+                  justify-content: center;
+                  background: #eee;
+                  padding: 20px;
+                  height: 20px;
+                "
+              >
+                <q-icon name="o_image" style="font-size: 50px; color: #aaa" />
+              </div>
+            </template>
+            <template v-else>
+              <img
+                v-if="dialog.data.file"
+                :src="dialog.data.file"
+                alt=""
+                style="width: 50%; display: block"
+              />
+            </template>
+          </div>
+          <!-- file add -->
+          <div class="q-mb-md">
+            <div class="label">Загрузка файла</div>
+            <q-file
+              outlined
+              v-model="this.file"
+              hint="Загрузите файл для задачи"
+              @update:model-value="onUpdateImage"
+            />
+          </div>
         </q-card-section>
         <q-card-section class="q-dialog__footer">
           <q-btn
@@ -94,6 +129,7 @@
 
 <script>
 import { defineComponent, ref } from "vue";
+import axios from "axios";
 
 import TaskClass from "src/utils/classes/Task.Class";
 
@@ -115,11 +151,35 @@ export default defineComponent({
       options: ref([]),
       isLoading: ref(false),
       ListAddChanels: ref([]),
+      file: ref(null),
     };
   },
 
   methods: {
+    onUpdateImage() {
+      const formData = new FormData();
+      formData.append("image_0", this.file);
+      axios({
+        url: "https://sinthy.fvds.ru:3443/upload/file",
+        method: "POST",
+        multipart: true,
+        headers: {
+          "Content-Type": "multipart/form-data",
+        },
+        data: formData,
+      }).then(async (response) => {
+        console.log(response);
+        Object.entries(response.data).forEach(([key, item]) => {
+          this.dialog.data.file = item;
+        });
+        console.log(this.dialog.data);
+        this.file = null;
+      });
+    },
+
     async onSubmit() {
+      console.log(this.dialog.data);
+
       if (this.dialog.method === "add") {
         this.dialog.data.owner_id = this.$q.appStore.user.id;
         this.dialog.data.userId = this.$q.appStore.user.id;
@@ -132,12 +192,12 @@ export default defineComponent({
         this.dialog.data,
         this.dialog.dataWas
       );
-      if (this.dialog.data.chanelId) {
-        const result2 = await this.Task.addTaskToChannel(
-          this.dialog.data.chanelId.value,
-          this.dialog.data.id
-        );
-      }
+      // if (this.dialog.data.chanelId) {
+      //   const result2 = await this.Task.addTaskToChannel(
+      //     this.dialog.data.chanelId.value,
+      //     this.dialog.data.id
+      //   );
+      // }
 
       this.processing = false;
       this.$emit("onSave", result);
