@@ -504,7 +504,7 @@
           <q-scroll-area style="height: 300px; max-width: 100%">
             <q-list bordered separator v-if="showTaskLog">
               <q-item
-                v-for="tgTask in taskLog"
+                v-for="tgTask in paginatedTaskLog"
                 :key="tgTask.id"
                 v-ripple
                 class="drawer-left__menu justify-between"
@@ -546,6 +546,19 @@
               </q-item>
             </q-list>
           </q-scroll-area>
+          <q-pagination
+            class="q-pa-sm justify-center"
+            direction-links
+            boundary-links
+            flat
+            color="grey"
+            active-color="primary"
+            v-model="pagination.page"
+            :max="Math.ceil(taskLog.length / pagination.rowsPerPage)"
+            :max-pages="6"
+            :rows-per-page-options="[10, 20, 50]"
+            @update:model-value="updatePagination"
+          />
         </div>
       </div>
     </div>
@@ -580,7 +593,7 @@
 // TODO:3.  Вывести отдельным окном или таблицей уже подключенные каналы, и предусмотреть отключение канала от задания (в api я добавлю);
 // TODO:5.  Добавить расписание.
 
-import { defineComponent, ref } from "vue";
+import { defineComponent, ref, watch } from "vue";
 import { date } from "quasar";
 
 import AccountClass from "src/utils/classes/Account.Class";
@@ -644,6 +657,11 @@ export default defineComponent({
       inception_Schedule_task: ref(false),
       // журнал
       taskLog: ref([]),
+      pagination: ref({
+        page: 1,
+        rowsPerPage: 5,
+      }),
+      paginatedTaskLog: ref([]),
       // вспомогательные переменные
       code: ref(),
       //
@@ -665,7 +683,9 @@ export default defineComponent({
   },
 
   async beforeMount() {
-    this.getData();
+    await this.getData();
+    this.taskLog = this.taskLog.reverse();
+    this.updatePaginatedTaskLog();
   },
 
   methods: {
@@ -730,7 +750,6 @@ export default defineComponent({
         method: "getList",
         args: {},
       });
-      console.log("responseTasks", responseTasks);
 
       if (responseTasks.type === "error") {
         this.$q.dialogStore.set({
@@ -777,6 +796,12 @@ export default defineComponent({
         this.listOfSchedules = [];
       }
     },
+    updatePaginatedTaskLog() {
+      const start = (this.pagination.page - 1) * this.pagination.rowsPerPage;
+      const end = start + this.pagination.rowsPerPage;
+      this.paginatedTaskLog = this.taskLog.slice(start, end);
+    },
+
     formatDate(dateString, locale) {
       return date.formatDate(dateString, "DD-MM-YYYY HH:mm:ss", {
         locale,
@@ -1300,7 +1325,6 @@ export default defineComponent({
     },
     async onGetListAddTasksToShedule(id) {
       const result = await this.Schedule.getTaskList(id);
-      console.log("onGetListAddTasksToShedule", result);
 
       if (!result.success) {
         this.$q.dialogStore.set({
@@ -1377,6 +1401,14 @@ export default defineComponent({
       this.vmodel_taskToAddInSchedule = null;
       this.vmodel_tasksAddedToSchedule = null;
       this.select_schedule = null;
+    },
+  },
+  watch: {
+    pagination: {
+      handler() {
+        this.updatePaginatedTaskLog();
+      },
+      deep: true,
     },
   },
 });

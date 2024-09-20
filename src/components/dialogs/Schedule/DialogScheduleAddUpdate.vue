@@ -288,7 +288,6 @@ export default defineComponent({
         this.timezone,
       ];
 
-      console.log(this.dialog.data.workingTime);
 
       const result = await this.Schedule.save(
         this.dialog.method,
@@ -335,7 +334,6 @@ export default defineComponent({
           .slice(0, 2)
           .join(":");
         this.frequency = this.dialog.data.frequency / (1000 * 60); // переводим в минуты
-        console.log(this.dialog.data);
 
         this.timezone = this.dialog.data.timeZone;
       }

@@ -240,7 +240,6 @@ class Schedule {
   }
 
   async addTaskToSchedule(scheduleId, taskId) {
-    console.log(scheduleId, taskId);
 
     const response = await this.$q.ws.sendRequest({
       type: "query",
@@ -251,8 +250,6 @@ class Schedule {
         task_id: taskId,
       },
     });
-
-    console.log(response);
 
     // Если ошибка
     if (response.type === "error") {
@@ -307,8 +304,6 @@ class Schedule {
         id: id,
       },
     });
-
-    console.log(response);
 
     // Если ошибка
     if (response.type === "error") {

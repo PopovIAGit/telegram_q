@@ -316,7 +316,11 @@ class Task {
       type: "query",
       iface: "tgTask",
       method: "getLogList",
-      args: {},
+      args: {
+        where: {
+          task_id: this.id,
+        },
+      },
     });
     // Если ошибка сохранения
     if (response.type === "error") {

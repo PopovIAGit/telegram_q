@@ -40,6 +40,7 @@
             </div>
             <q-input
               outlined
+              autogrow
               bg-color="white"
               hide-bottom-space
               v-model="dialog.data.message"
@@ -168,18 +169,15 @@ export default defineComponent({
         },
         data: formData,
       }).then(async (response) => {
-        console.log(response);
         Object.entries(response.data).forEach(([key, item]) => {
           this.dialog.data.file = item;
         });
-        console.log(this.dialog.data);
+
         this.file = null;
       });
     },
 
     async onSubmit() {
-      console.log(this.dialog.data);
-
       if (this.dialog.method === "add") {
         this.dialog.data.owner_id = this.$q.appStore.user.id;
         this.dialog.data.userId = this.$q.appStore.user.id;
