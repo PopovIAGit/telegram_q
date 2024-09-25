@@ -29,49 +29,6 @@
                 v-ripple
                 class="drawer-left__menu"
               >
-                <!-- модальное окно аккаунта -->
-                <div>
-                  <q-dialog v-model="inception">
-                    <q-card>
-                      <q-card-section>
-                        <div class="text-h6">Введите код активации</div>
-                      </q-card-section>
-
-                      <q-card-section class="q-pa-md">
-                        <div class="q-mb-md">
-                          Введите код пришедший на Телефон
-                        </div>
-
-                        <q-input
-                          mask="#####"
-                          v-model="code"
-                          outlined
-                          bg-color="white"
-                          hide-bottom-space
-                          hint="Код активации"
-                        ></q-input>
-                      </q-card-section>
-
-                      <q-card-actions align="right">
-                        <q-btn
-                          class="q-btn--outline-muted"
-                          outline
-                          no-caps
-                          label="Отмена"
-                          v-close-popup
-                        />
-                        <q-btn
-                          unelevated
-                          color="primary"
-                          no-caps
-                          label="Отправить"
-                          @click="onSignIn(tgAccount.id, code)"
-                          hint="Отправить код активации"
-                        />
-                      </q-card-actions>
-                    </q-card>
-                  </q-dialog>
-                </div>
                 <q-item-section class="col-1">
                   <q-item-label>{{ tgAccount.id }}</q-item-label>
                 </q-item-section>
@@ -128,6 +85,49 @@
                     >
                   </q-item-label>
                 </q-item-section>
+                <!-- модальное окно аккаунта -->
+                <div>
+                  <q-dialog v-model="inception">
+                    <q-card>
+                      <q-card-section>
+                        <div class="text-h6">Введите код активации</div>
+                      </q-card-section>
+
+                      <q-card-section class="q-pa-md">
+                        <div class="q-mb-md">
+                          Введите код пришедший на Телефон
+                        </div>
+
+                        <q-input
+                          mask="#####"
+                          v-model="code"
+                          outlined
+                          bg-color="white"
+                          hide-bottom-space
+                          hint="Код активации"
+                        ></q-input>
+                      </q-card-section>
+
+                      <q-card-actions align="right">
+                        <q-btn
+                          class="q-btn--outline-muted"
+                          outline
+                          no-caps
+                          label="Отмена"
+                          v-close-popup
+                        />
+                        <q-btn
+                          unelevated
+                          color="primary"
+                          no-caps
+                          label="Отправить"
+                          @click="onSignIn(clickedAccountId, code)"
+                          hint="Отправить код активации"
+                        />
+                      </q-card-actions>
+                    </q-card>
+                  </q-dialog>
+                </div>
               </q-item>
             </q-list>
           </q-scroll-area>
@@ -679,6 +679,8 @@ export default defineComponent({
       options_taskToAddInSchedule: ref([]),
       select_schedule: ref(null),
       listOfSchedulesAndTasks: ref([]),
+
+      clickedAccountId: ref(null),
     };
   },
 
@@ -885,6 +887,7 @@ export default defineComponent({
     },
     showAccountActive(Account) {
       this.onActivate(Account.id);
+      this.clickedAccountId = Account.id;
       this.inception = true;
     },
     async onActivate(id) {
@@ -923,6 +926,7 @@ export default defineComponent({
       } else {
         this.code = null;
         this.inception = false;
+        this.clickedAccountId = null;
         this.getData();
       }
     },

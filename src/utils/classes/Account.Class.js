@@ -195,6 +195,8 @@ class Account {
   }
 
   async activate(accountId) {
+    console.log(accountId);
+
     const response = await this.$q.ws.sendRequest({
       type: "query",
       iface: "tgAccount",
@@ -222,6 +224,8 @@ class Account {
   }
 
   async signIn(accountId, phoneCode) {
+    console.log(accountId, phoneCode);
+
     const response = await this.$q.ws.sendRequest({
       type: "query",
       iface: "tgAccount",
