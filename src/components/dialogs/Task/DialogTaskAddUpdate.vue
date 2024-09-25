@@ -55,7 +55,26 @@
             </q-input>
           </div>
           <div class="q-mb-md">
-            <div class="label">Загруженный файл</div>
+            <div class="label">
+              <div class="row">
+                <div class="col-6">
+                  <div>Загруженный файл</div>
+                </div>
+                <div class="col-6 text-right">
+                  <q-btn
+                    icon="close"
+                    flat
+                    round
+                    dense
+                    lab="удалить файл"
+                    @click="dialog.data.file = null"
+                    v-if="dialog.data.file"
+                  >
+                    <q-tooltip class="bg-negative">Удалить файл</q-tooltip>
+                  </q-btn>
+                </div>
+              </div>
+            </div>
             <template v-if="!dialog.data.file">
               <div
                 style="
