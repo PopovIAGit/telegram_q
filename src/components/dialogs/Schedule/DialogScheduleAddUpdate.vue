@@ -12,7 +12,7 @@
             <div class="q-dialog__title">
               {{
                 dialog.method === "add"
-                  ? "Новыое расписание "
+                  ? "Новое расписание "
                   : "Изменение расписания"
               }}
             </div>
@@ -287,7 +287,6 @@ export default defineComponent({
         this.timeEnd,
         this.timezone,
       ];
-
 
       const result = await this.Schedule.save(
         this.dialog.method,

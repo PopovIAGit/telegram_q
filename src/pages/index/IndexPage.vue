@@ -8,7 +8,7 @@
         <!-- аккаунты -->
         <div class="q-pa-sm col-lg-6 col-md-12 col-xs-12">
           <q-toolbar class="bg-primary text-white">
-            <q-toolbar-title>Aкаутны</q-toolbar-title>
+            <q-toolbar-title>Aккаутны</q-toolbar-title>
             <q-btn
               flat
               round
@@ -298,10 +298,10 @@
                 </q-item-section>
                 <q-item-section class="col-8">
                   <q-item-label>{{
-                    tgTask && tgTask.message ? tgTask.message : "N/A"
+                    tgTask && tgTask.description ? tgTask.description : "N/A"
                   }}</q-item-label>
                   <q-item-label caption lines="1">{{
-                    tgTask && tgTask.description ? tgTask.description : "N/A"
+                    tgTask && tgTask.message ? tgTask.message : "N/A"
                   }}</q-item-label>
                 </q-item-section>
                 <!-- кнопка подключения -->
