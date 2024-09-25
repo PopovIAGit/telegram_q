@@ -300,7 +300,7 @@
                   <q-item-label>{{
                     tgTask && tgTask.description ? tgTask.description : "N/A"
                   }}</q-item-label>
-                  <q-item-label caption lines="1">{{
+                  <q-item-label caption lines="30">{{
                     tgTask && tgTask.message ? tgTask.message : "N/A"
                   }}</q-item-label>
                 </q-item-section>
