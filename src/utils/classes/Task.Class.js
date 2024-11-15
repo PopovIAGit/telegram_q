@@ -91,23 +91,25 @@ class Task {
   }
 
   /**
-   * Сохранение пользователя (add или update)
+   * Сохранение задач (add или update)
    * @param method
    * @param data
    * @param dataWas
    * @return {Promise<{success: boolean, message: string}|{success: boolean, user: *}|{success: boolean, noChanges: boolean}>}
    */
   async save(method, data, dataWas) {
+    console.log(method, data, dataWas);
     // Если add
     if (method === "add" && data) {
       const _data = structuredClone(data);
-      delete _data.password2;
       const response = await this.$q.ws.sendRequest({
         type: "query",
         iface: "tgTask",
         method: "add",
         args: {
-          ..._data,
+          task: {
+            ..._data,
+          },
         },
       });
       // Если ошибка сохранения

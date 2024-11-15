@@ -517,6 +517,9 @@
 
 
 <script>
+//TODO: перенести логи в новую страницу
+//TODO: добавить
+
 import { defineComponent, ref, watch } from "vue";
 import { date } from "quasar";
 
@@ -603,7 +606,6 @@ export default defineComponent({
 
   async beforeMount() {
     await this.getData();
-
   },
 
   methods: {
