@@ -126,6 +126,55 @@
               </template>
             </q-input>
           </template>
+          <template v-slot:body-cell-accountTask="props">
+            <q-td :props="props">
+              <div>
+                Аккаунт: {{ props.row.account_id }}
+                {{
+                  this.$q.appStore.accountList.find(
+                    (account) => account.id == props.row.account_id
+                  ).description
+                }}
+              </div>
+              <div>
+                Задача: {{ props.row.task_id }}
+                {{
+                  this.$q.appStore.taskList.find(
+                    (task) => task.id == props.row.task_id
+                  ).description
+                }}
+              </div>
+              <div>
+                Канал: {{ props.row.channel_id }}
+                {{
+                  this.$q.appStore.chanelList.find(
+                    (channel) => channel.id == props.row.channel_id
+                  ).description
+                }}
+              </div>
+            </q-td>
+          </template>
+          <template v-slot:body-cell-url="props">
+            <q-td :props="props">
+              <div>
+                <a
+                  v-if="props.value"
+                  :href="props.value"
+                  color="purple"
+                  :label="props.value"
+                  >{{ props.value }}</a
+                >
+              </div>
+            </q-td>
+          </template>
+          <template v-slot:body-cell-success="props">
+            <q-td :props="props">
+              <q-badge
+                :color="props.value == 'успешно' ? 'green' : 'red'"
+                :label="props.value"
+              />
+            </q-td>
+          </template>
         </q-table>
       </div>
     </div>
@@ -169,11 +218,11 @@ export default {
             (channel) => channel.id == channelId
           );
 
-          return `
-        Аккаунт: id ${accountId} : ${account.description}
-        Задача: id ${taskId} : ${task.description}
-        Канал: id ${channelId} : ${channel.description}
-        `;
+          return [
+            `Account: id ${accountId} , описание: ${account.description}`,
+            `Task: id ${taskId} , описание: ${task.description}`,
+            `Channel: id ${channelId} , описание: ${channel.description}`,
+          ].join("\n");
         },
         align: "left",
       },
