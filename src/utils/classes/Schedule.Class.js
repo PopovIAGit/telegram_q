@@ -190,6 +190,11 @@ class Schedule {
     }
   }
 
+  /**
+   * Удаление расписания
+   * @param {*} scheduleId
+   * @returns {Promise<{success: boolean, message: string}|{success: boolean}>}
+   */
   async delete(scheduleId) {
     const response = await this.$q.ws.sendRequest({
       type: "query",
@@ -216,6 +221,10 @@ class Schedule {
     }
   }
 
+  /**
+   * Получение списка расписаний
+   * @returns {Promise<{success: boolean, message: string}|{success: boolean, schedules: *[]}>}
+   */
   async getList() {
     const response = await this.$q.ws.sendRequest({
       type: "query",
@@ -239,8 +248,13 @@ class Schedule {
     }
   }
 
+  /**
+   * Добавление задачи в расписание
+   * @param {*} scheduleId
+   * @param {*} taskId
+   * @returns {Promise<{success: boolean, message: string}|{success: boolean, schedule: *}>}
+   */
   async addTaskToSchedule(scheduleId, taskId) {
-
     const response = await this.$q.ws.sendRequest({
       type: "query",
       iface: "schedule",
@@ -268,6 +282,11 @@ class Schedule {
     }
   }
 
+  /**
+   * Получение списка задач в расписании
+   * @param {*} schedule_id
+   * @returns {Promise<{success: boolean, message: string}|{success: boolean, schedule: *}>}
+   */
   async getTaskList(schedule_id) {
     const response = await this.$q.ws.sendRequest({
       type: "query",
@@ -295,6 +314,11 @@ class Schedule {
     }
   }
 
+  /**
+   * Удаление задачи из расписания
+   * @param {*} id
+   * @returns {Promise<{success: boolean, message: string}|{success: boolean, schedule: *}>}
+   */
   async removeTask(id) {
     const response = await this.$q.ws.sendRequest({
       type: "query",

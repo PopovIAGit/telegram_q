@@ -28,12 +28,12 @@
           </q-item-section>
           <q-item-section>Главная</q-item-section>
         </q-item>
-        <!-- <q-item to="/tickets">
+        <q-item to="/Log">
           <q-item-section avatar>
-            <q-icon name="list_alt"/>
+            <q-icon name="list_alt" />
           </q-item-section>
-          <q-item-section>Тикеты</q-item-section>
-        </q-item> -->
+          <q-item-section>Журнал</q-item-section>
+        </q-item>
       </q-list>
     </div>
   </q-drawer>

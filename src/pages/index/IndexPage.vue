@@ -489,77 +489,6 @@
             </q-list>
           </q-scroll-area>
         </div>
-        <!-- Log -->
-        <div class="q-pa-sm col-lg-6 col-md-12 col-xs-12">
-          <q-toolbar class="bg-primary text-white">
-            <q-toolbar-title>Log</q-toolbar-title>
-            <q-btn
-              flat
-              round
-              dense
-              :icon="showTaskLog !== true ? 'visibility_off' : 'visibility'"
-              @click="showTaskLog = !showTaskLog"
-            />
-          </q-toolbar>
-          <q-scroll-area style="height: 300px; max-width: 100%">
-            <q-list bordered separator v-if="showTaskLog">
-              <q-item
-                v-for="tgTask in paginatedTaskLog"
-                :key="tgTask.id"
-                v-ripple
-                class="drawer-left__menu justify-between"
-              >
-                <q-item-section class="col-1">
-                  <q-item-label>{{ tgTask.id }}</q-item-label>
-                </q-item-section>
-                <q-item-section class="col-6 .col-md-auto">
-                  <q-item-label>
-                    Task: id {{ tgTask.task_id }} , описание:
-                    {{
-                      this.listOfTasks.find((task) => task.id == tgTask.task_id)
-                        .description
-                    }}
-                  </q-item-label>
-
-                  <q-item-label caption lines="1"
-                    >Channel: id {{ tgTask.channel_id }} , описание:
-                    {{
-                      this.listOfTgChanals.find(
-                        (channel) => channel.id == tgTask.channel_id
-                      ).description
-                    }}</q-item-label
-                  >
-                  <q-item-label caption lines="1"
-                    >Account: id {{ tgTask.account_id }} , описание:
-                    {{
-                      this.listOfTgAccounts.find(
-                        (account) => account.id == tgTask.account_id
-                      ).description
-                    }}</q-item-label
-                  >
-                </q-item-section>
-                <q-item-section class="col">
-                  <q-item-label
-                    >Дата: {{ formatDate(tgTask.date, "ru") }}</q-item-label
-                  >
-                </q-item-section>
-              </q-item>
-            </q-list>
-          </q-scroll-area>
-          <q-pagination
-            class="q-pa-sm justify-center"
-            direction-links
-            boundary-links
-            flat
-            color="grey"
-            active-color="primary"
-            v-model="pagination.page"
-            :max="Math.ceil(taskLog.length / pagination.rowsPerPage)"
-            :max-pages="6"
-            :rows-per-page-options="[10, 20, 50]"
-            @update:model-value="updatePagination"
-          />
-        </div>
       </div>
     </div>
     <dialog-account-add-update
@@ -588,11 +517,6 @@
 
 
 <script>
-// TODO:1.  В заданиях при подключении канала не отображать уже подключённые;
-// TODO:2.  Не понятно, что канал подключился к заданию;
-// TODO:3.  Вывести отдельным окном или таблицей уже подключенные каналы, и предусмотреть отключение канала от задания (в api я добавлю);
-// TODO:5.  Добавить расписание.
-
 import { defineComponent, ref, watch } from "vue";
 import { date } from "quasar";
 
@@ -635,7 +559,7 @@ export default defineComponent({
       showAccount: ref(true),
       showChannel: ref(true),
       showTask: ref(true),
-      showTaskLog: ref(true),
+
       showSchedule: ref(true),
       // экземпляры классов
       Account,
@@ -655,13 +579,6 @@ export default defineComponent({
       inception: ref(false),
       inception_task: ref(false),
       inception_Schedule_task: ref(false),
-      // журнал
-      taskLog: ref([]),
-      pagination: ref({
-        page: 1,
-        rowsPerPage: 5,
-      }),
-      paginatedTaskLog: ref([]),
       // вспомогательные переменные
       code: ref(),
       //
@@ -686,8 +603,7 @@ export default defineComponent({
 
   async beforeMount() {
     await this.getData();
-    this.taskLog = this.taskLog.reverse();
-    this.updatePaginatedTaskLog();
+
   },
 
   methods: {
@@ -766,21 +682,7 @@ export default defineComponent({
         this.listOfTasks = responseTasks.args.rows;
         this.$q.appStore.set({ taskList: this.listOfTasks });
       }
-      // получение лог задач
-      const resultTaskLog = await this.Task.getTaskLog();
-      if (resultTaskLog.success) {
-        this.taskLog = resultTaskLog.taskLog.rows;
-      } else {
-        this.$q.dialogStore.set({
-          show: true,
-          title: "Ошибка",
-          text: resultTaskLog.message,
-          ok: {
-            color: "red",
-          },
-        });
-        this.taskLog = [];
-      }
+
       // получение списка расписаний
       const resultSchedules = await this.Schedule.getList();
 
@@ -798,17 +700,7 @@ export default defineComponent({
         this.listOfSchedules = [];
       }
     },
-    updatePaginatedTaskLog() {
-      const start = (this.pagination.page - 1) * this.pagination.rowsPerPage;
-      const end = start + this.pagination.rowsPerPage;
-      this.paginatedTaskLog = this.taskLog.slice(start, end);
-    },
 
-    formatDate(dateString, locale) {
-      return date.formatDate(dateString, "DD-MM-YYYY HH:mm:ss", {
-        locale,
-      });
-    },
     // Account---------------------------------------------------------------------------------------------
     showAccountAdd() {
       const excludeFields = ["id", "isDeleted", "active"];
@@ -1405,14 +1297,6 @@ export default defineComponent({
       this.vmodel_taskToAddInSchedule = null;
       this.vmodel_tasksAddedToSchedule = null;
       this.select_schedule = null;
-    },
-  },
-  watch: {
-    pagination: {
-      handler() {
-        this.updatePaginatedTaskLog();
-      },
-      deep: true,
     },
   },
 });
