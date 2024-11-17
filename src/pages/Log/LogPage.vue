@@ -183,6 +183,8 @@
 
 <script>
 import { defineComponent, ref, watch } from "vue";
+import AccountClass from "src/utils/classes/Account.Class";
+import ChanelClass from "src/utils/classes/Chanel.Class";
 import TaskClass from "src/utils/classes/Task.Class";
 import { date, useQuasar } from "quasar";
 
@@ -191,7 +193,9 @@ export default {
 
   setup() {
     const Task = new TaskClass();
-    const $q = useQuasar();
+    const Account = new AccountClass();
+    const Chanel = new ChanelClass();
+    const $q = useQuasar(); // для работы с квазаром
 
     const tableColumns = [
       {
@@ -275,20 +279,28 @@ export default {
     ];
 
     return {
+      // objects
       Task,
-      showTaskLog: ref(true),
-      // журнал
+      Account,
+      Chanel,
+      // списки
+      listOfTgAccounts: ref([]),
+      listOfTgChanals: ref([]),
+      listOfTasks: ref([]),
       taskLog: ref([]),
+      // таблица
+      tableColumns, // описание столбцов таблицы
+      // журнал
       pagination: ref({
         page: 1,
         rowsPerPage: 10,
       }),
-      paginatedTaskLog: ref([]),
-      filterForSearch: ref(""),
-      loading: ref(false),
-      ready: ref(false),
+      paginatedTaskLog: ref([]), //
+      filterForSearch: ref(""), // строка поиска
+      // признак
+      loading: ref(false), // признак загрузки данных
+      ready: ref(false), // признак готовности данных
       rowAcc: ref(""),
-      tableColumns,
     };
   },
 
@@ -320,6 +332,80 @@ export default {
           },
         });
         this.taskLog = [];
+      }
+
+      const responseTgAccounts = await this.$q.ws.sendRequest({
+        type: "query",
+        iface: "tgAccount",
+        method: "getList",
+        args: {},
+      });
+      if (responseTgAccounts.type === "error") {
+        this.$q.dialogStore.set({
+          show: true,
+          title: "Ошибка",
+          text: "Ошибка получения списка аккаунтов",
+          ok: {
+            color: "red",
+          },
+        });
+      } else if (responseTgAccounts.type === "answer") {
+        this.listOfTgAccounts = responseTgAccounts.args.rows.map((account) => {
+          if (account.description === null) {
+            account.description = "";
+          }
+          return account;
+        });
+        this.$q.appStore.set({ accountList: this.listOfTgAccounts });
+      }
+      // получение списка каналов
+      const responseTgChannel = await this.$q.ws.sendRequest({
+        type: "query",
+        iface: "tgChannel",
+        method: "getList",
+        args: {},
+      });
+      if (responseTgChannel.type === "error") {
+        this.$q.dialogStore.set({
+          show: true,
+          title: "Ошибка",
+          text: "Ошибка получения списка каналов",
+          ok: {
+            color: "red",
+          },
+        });
+      } else if (responseTgChannel.type === "answer") {
+        this.listOfTgChanals = responseTgChannel.args.rows.map((channel) => {
+          if (channel.description === null) {
+            channel.description = "";
+          }
+          if (channel.url === null) {
+            channel.url = "";
+          }
+          return channel;
+        });
+        this.$q.appStore.set({ chanelList: this.listOfTgChanals });
+      }
+      // получение списка задач
+      const responseTasks = await this.$q.ws.sendRequest({
+        type: "query",
+        iface: "tgTask",
+        method: "getList",
+        args: {},
+      });
+
+      if (responseTasks.type === "error") {
+        this.$q.dialogStore.set({
+          show: true,
+          title: "Ошибка",
+          text: "Ошибка получения списка задач",
+          ok: {
+            color: "red",
+          },
+        });
+      } else if (responseTasks.type === "answer") {
+        this.listOfTasks = responseTasks.args.rows;
+        this.$q.appStore.set({ taskList: this.listOfTasks });
       }
     },
     updatePaginatedTaskLog() {

@@ -291,6 +291,104 @@
                   </q-dialog>
                 </div>
 
+                <!-- модальное окно журнала таска-->
+                <div>
+                  <q-dialog
+                    v-model="inception_task_log"
+                    @before-hide="beforeHideTaskJournalDialog"
+                  >
+                    <q-card>
+                      <q-card-section>
+                        <div class="text-h6">Журнал таска</div>
+                      </q-card-section>
+                      <q-card-section class="q-pa-md">
+                        <q-scroll-area
+                          style="height: 300px; max-width: 100%; width: 600rem"
+                        >
+                          <q-list bordered separator>
+                            <q-item
+                              v-for="tgTask in paginatedTaskLog"
+                              :key="tgTask.id"
+                              v-ripple
+                              class="drawer-left__menu justify-between"
+                            >
+                              <q-item-section class="col-1">
+                                <q-item-label>{{ tgTask.id }}</q-item-label>
+                              </q-item-section>
+                              <q-item-section class="col-4 .col-md-auto">
+                                <q-item-label>
+                                  Task: id {{ tgTask.task_id }} , описание:
+                                  {{
+                                    this.$q.appStore.taskList.find(
+                                      (task) => task.id == tgTask.task_id
+                                    ).description
+                                  }}
+                                </q-item-label>
+
+                                <q-item-label caption lines="1"
+                                  >Channel: id {{ tgTask.channel_id }} ,
+                                  описание:
+                                  {{
+                                    this.$q.appStore.chanelList.find(
+                                      (channel) =>
+                                        channel.id == tgTask.channel_id
+                                    ).description
+                                  }}</q-item-label
+                                >
+                                <q-item-label caption lines="1"
+                                  >Account: id {{ tgTask.account_id }} ,
+                                  описание:
+                                  {{
+                                    this.$q.appStore.accountList.find(
+                                      (account) =>
+                                        account.id == tgTask.account_id
+                                    ).description
+                                  }}</q-item-label
+                                >
+                              </q-item-section>
+                              <q-item-section class="col-4">
+                                <q-item-label class="text-wrap">
+                                  Сообщение:
+                                  <a
+                                    v-if="tgTask.url"
+                                    :href="tgTask.url"
+                                    target="_blank"
+                                    >{{ tgTask.url }}</a
+                                  >
+                                  <span v-else>{{ tgTask.url }}</span>
+                                </q-item-label>
+                              </q-item-section>
+                              <q-item-section class="col">
+                                <q-item-label
+                                  >Статус:
+                                  {{
+                                    tgTask.success ? "Успешно" : "Ошибка"
+                                  }}</q-item-label
+                                >
+                              </q-item-section>
+                            </q-item>
+                          </q-list>
+                        </q-scroll-area>
+                      </q-card-section>
+                      <q-pagination
+                        class="q-pa-sm justify-center"
+                        direction-links
+                        boundary-links
+                        flat
+                        color="grey"
+                        active-color="primary"
+                        v-model="pagination.page"
+                        :max="
+                          Math.ceil(taskLog.length / pagination.rowsPerPage)
+                        "
+                        :max-pages="6"
+                        :rows-per-page-options="[10, 20, 50]"
+                        @update:model-value="updatePagination"
+                      />
+                    </q-card>
+                  </q-dialog>
+                </div>
+                <!-- колонки -->
                 <q-item-section class="col-1">
                   <q-item-label>{{
                     tgTask && tgTask.id ? tgTask.id : "N/A"
@@ -304,7 +402,7 @@
                     tgTask && tgTask.message ? tgTask.message : "N/A"
                   }}</q-item-label>
                 </q-item-section>
-                <!-- кнопка подключения -->
+                <!-- кнопка подключения таска к каналу -->
                 <q-item-section class="col">
                   <q-item-label>
                     <q-btn
@@ -331,6 +429,19 @@
                       ><q-tooltip color="bg-accent"
                         >Редактировать</q-tooltip
                       ></q-btn
+                    >
+                  </q-item-label>
+                </q-item-section>
+                <!-- кнопка лог -->
+                <q-item-section class="col">
+                  <q-item-label>
+                    <q-btn
+                      flat
+                      round
+                      dense
+                      icon="list_alt"
+                      @click="showTaskLog(tgTask)"
+                      ><q-tooltip color="bg-accent">Журнал</q-tooltip></q-btn
                     >
                   </q-item-label>
                 </q-item-section>
@@ -514,14 +625,13 @@
   </q-page>
 </template>
 
-
-
 <script>
 //TODO: перенести логи в новую страницу
-//TODO: добавить
+//TODO: Расписание: дата начала, дата окончания
+//TODO: Задачи: аккаунты с которых слать
+//TODO: Задачи: лог внутри задачи
 
 import { defineComponent, ref, watch } from "vue";
-import { date } from "quasar";
 
 import AccountClass from "src/utils/classes/Account.Class";
 import ChanelClass from "src/utils/classes/Chanel.Class";
@@ -581,6 +691,7 @@ export default defineComponent({
       // вспомогательные диалоги
       inception: ref(false),
       inception_task: ref(false),
+      inception_task_log: ref(false),
       inception_Schedule_task: ref(false),
       // вспомогательные переменные
       code: ref(),
@@ -599,8 +710,14 @@ export default defineComponent({
       options_taskToAddInSchedule: ref([]),
       select_schedule: ref(null),
       listOfSchedulesAndTasks: ref([]),
-
+      //
       clickedAccountId: ref(null),
+      // для модяльного окна с логами
+      paginatedTaskLog: ref([]), //
+      pagination: ref({
+        page: 1,
+        rowsPerPage: 10,
+      }),
     };
   },
 
@@ -701,6 +818,7 @@ export default defineComponent({
         });
         this.listOfSchedules = [];
       }
+      // new methods_____________________________________________________________________________________
     },
 
     // Account---------------------------------------------------------------------------------------------
@@ -981,6 +1099,25 @@ export default defineComponent({
       }
     },
 
+    async showTaskLog(tgTask) {
+      this.inception_task_log = true;
+      const resultTaskLog = await this.Task.getTaskLog(tgTask.id);
+
+      if (!resultTaskLog.success) {
+        this.$q.dialogStore.set({
+          show: true,
+          title: "Ошибка",
+          text: result.message,
+          ok: {
+            color: "red",
+          },
+        });
+        this.inception_task_log = false;
+      } else {
+        this.paginatedTaskLog = resultTaskLog.taskLog.rows;
+        console.log("tgTask", this.paginatedTaskLog);
+      }
+    },
     // Подключение тасков к каналам -------------------------------------------------------------
     // показываем модальное окно добавление таска к каналу и готовим данные для списков
     async showTaskLink(tgTask) {
@@ -1090,6 +1227,9 @@ export default defineComponent({
     beforeHideTaskLinkDialog() {
       this.vmodel_chanelToAddInTask = null;
       this.vmodel_chanelsAddedToTask = null;
+      this.select_task = null;
+    },
+    beforeHideTaskJournalDialog() {
       this.select_task = null;
     },
 

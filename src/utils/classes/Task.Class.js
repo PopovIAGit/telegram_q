@@ -313,17 +313,75 @@ class Task {
     }
   }
 
-  async getTaskLog() {
+  /**
+   * Получение списка логов для задачи
+   * @param {*} id
+   * @returns {Promise<{success: boolean, message: string}|{success: boolean, taskLog: *}>}
+   */
+  async getTaskLog(id, limit, offset) {
+    let args = {};
+
+    if (id) {
+      args = {
+        where: {
+          task_id: id,
+        },
+      };
+    }
+
+    if (limit) {
+      args = {
+        ...args,
+        limit,
+      };
+    }
+
+    if (offset) {
+      args = {
+        ...args,
+        offset,
+      };
+    }
+
     const response = await this.$q.ws.sendRequest({
       type: "query",
       iface: "tgTask",
       method: "getLogList",
+      args,
+    });
+
+    // If there was an error saving
+    if (response.type === "error") {
+      return {
+        success: false,
+        message: response.args.message || "Ошибка",
+      };
+    }
+    // If everything is OK
+    else if (response.type === "answer") {
+      const taskLog = response.args;
+      return {
+        success: true,
+        taskLog,
+      };
+    }
+  }
+  //!----Новые методы------------------------------
+  /**
+   * Получение списка аккаунтов для задачи
+   * @param {*} id
+   * @returns {Promise<{success: boolean, message: string}|{success: boolean, taskLog: *}>}
+   */
+  async getAccountList(id) {
+    const response = await this.$q.ws.sendRequest({
+      type: "query",
+      iface: "tgTask",
+      method: "getAccountList",
       args: {
-        where: {
-          task_id: this.id,
-        },
+        task_id: id,
       },
     });
+
     // Если ошибка сохранения
     if (response.type === "error") {
       return {
@@ -339,6 +397,77 @@ class Task {
         taskLog,
       };
     }
+  }
+  async addAccount(id, account_id) {
+    const response = await this.$q.ws.sendRequest({
+      type: "query",
+      iface: "tgTask",
+      method: "addAccount",
+      args: {
+        task_id: id,
+        account_id: account_id,
+      },
+    });
+
+    // Если ошибка сохранения
+    if (response.type === "error") {
+      return {
+        success: false,
+        message: response.args.message || "Ошибка",
+      };
+    }
+    // Если всё ОК
+    else if (response.type === "answer") {
+      const taskLog = response.args;
+      return {
+        success: true,
+        taskLog,
+      };
+    }
+  }
+
+  async removeAccount(id, account_id) {
+    const response = await this.$q.ws.sendRequest({
+      type: "query",
+      iface: "tgTask",
+      method: "removeAccount",
+      args: {
+        task_id: id,
+        account_id: account_id,
+      },
+    });
+
+    // Если ошибка сохранения
+    if (response.type === "error") {
+      return {
+        success: false,
+        message: response.args.message || "Ошибка",
+      };
+    }
+    // Если всё ОК
+    else if (response.type === "answer") {
+      const taskLog = response.args;
+      return {
+        success: true,
+        taskLog,
+      };
+    }
+  }
+
+  async addNewTask(task, chanels, accounts) {
+    const data = {
+      task: task,
+      chanels: chanels,
+      accounts: accounts,
+    };
+    const response = await this.$q.ws.sendRequest({
+      type: "query",
+      iface: "tgTask",
+      method: "addNewTask",
+      args: {
+        data,
+      },
+    });
   }
 }
 export default Task;
