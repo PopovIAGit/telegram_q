@@ -207,9 +207,7 @@ class Task {
       iface: "tgTask",
       method: "getChannelList",
       args: {
-        where: {
-          task_id: id,
-        },
+        task_id: id,
       },
     });
 
@@ -230,14 +228,14 @@ class Task {
     }
   }
   async chanelTaskList(channel_id) {
+    console.log(channel_id);
+
     const response = await this.$q.ws.sendRequest({
       type: "query",
       iface: "tgTask",
       method: "getChannelList",
       args: {
-        where: {
-          channel_id: channel_id,
-        },
+        channel_id: channel_id,
       },
     });
 
@@ -391,10 +389,10 @@ class Task {
     }
     // Если всё ОК
     else if (response.type === "answer") {
-      const taskLog = response.args;
+      const taskAcc = response.args;
       return {
         success: true,
-        taskLog,
+        taskAcc,
       };
     }
   }

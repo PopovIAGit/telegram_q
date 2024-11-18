@@ -212,7 +212,7 @@
                 v-ripple
                 class="drawer-left__menu"
               >
-                <!-- модальное окно добавления таска к каналу-->
+                <!-- модальное окно добавления канала к задачеы-->
                 <div>
                   <q-dialog
                     v-model="inception_task"
@@ -220,7 +220,7 @@
                   >
                     <q-card>
                       <q-card-section>
-                        <div class="text-h6">Подключение таска к каналу</div>
+                        <div class="text-h6">Подключение канала к задаче</div>
                       </q-card-section>
 
                       <q-card-section class="q-pa-md">
@@ -238,7 +238,7 @@
                           </q-select>
                         </div>
                         <div class="q-mb-md">
-                          <div class="label">подключенные каналы</div>
+                          <div class="label">Подключенные каналы</div>
                           <q-select
                             outlined
                             lazy-rules
@@ -291,6 +291,93 @@
                   </q-dialog>
                 </div>
 
+                <!-- модальное окно добавления аккаунта к задаче-->
+                <div>
+                  <q-dialog
+                    v-model="inception_task_account"
+                    @before-hide="beforeHideTaskAccountDialog"
+                  >
+                    <q-card>
+                      <q-card-section>
+                        <div class="text-h6">Подключение аккаунта к задаче</div>
+                      </q-card-section>
+
+                      <q-card-section class="q-pa-md">
+                        <!-- chanelId -->
+                        <div class="q-mb-md">
+                          <div class="label">Аккаунт для подключения</div>
+                          <q-select
+                            multiple
+                            outlined
+                            bg-color="white"
+                            hide-bottom-space
+                            v-model="this.vmodel_accountToAddInTask"
+                            :options="this.options_accountToAddInTask"
+                            hint="Аккаунты для подключения к задаче"
+                          >
+                          </q-select>
+                        </div>
+                        <div class="q-mb-md">
+                          <div class="label">Подключенные аккаунты</div>
+                          <q-select
+                            multiple
+                            outlined
+                            lazy-rules
+                            bg-color="white"
+                            hide-bottom-space
+                            v-model="this.vmodel_accountsAddedToTask"
+                            :options="this.options_accountsAddedToTask"
+                            :loading="this.task_isLoading"
+                            hint="Аккаунты, подключенные к задаче"
+                          />
+                        </div>
+                      </q-card-section>
+
+                      <q-card-actions align="right">
+                        <q-btn
+                          unelevated
+                          color="negative"
+                          no-caps
+                          label="Удалить"
+                          @click="
+                            onRemoveAccountFromTask(
+                              tgTask.id,
+                              this.vmodel_accountsAddedToTask
+                            )
+                          "
+                        >
+                          <q-tooltip class="bg-primary"
+                            >Удалить канал из задачи</q-tooltip
+                          >
+                        </q-btn>
+                        <q-btn
+                          class="q-btn--outline-muted"
+                          outline
+                          no-caps
+                          label="Отмена"
+                          v-close-popup
+                        />
+                        <q-btn
+                          unelevated
+                          color="primary"
+                          no-caps
+                          label="Добавить"
+                          @click="
+                            onAddAccountToTask(
+                              tgTask.id,
+                              this.vmodel_accountToAddInTask
+                            )
+                          "
+                        >
+                          <q-tooltip class="bg-primary"
+                            >Для добавления выберите канал</q-tooltip
+                          >
+                        </q-btn>
+                      </q-card-actions>
+                    </q-card>
+                  </q-dialog>
+                </div>
+
                 <!-- модальное окно журнала таска-->
                 <div>
                   <q-dialog
@@ -331,7 +418,7 @@
                                 class="q-pa-none col-4 .col-md-auto"
                               >
                                 <q-item-label>
-                                  Task: id {{ tgTask.task_id }} , описание:
+                                  Task: id {{ tgTask.task_id }} :
                                   {{
                                     this.$q.appStore.taskList.find(
                                       (task) => task.id == tgTask.task_id
@@ -340,8 +427,8 @@
                                 </q-item-label>
 
                                 <q-item-label caption lines="1"
-                                  >Channel: id {{ tgTask.channel_id }} ,
-                                  описание:
+                                  >Channel: id {{ tgTask.channel_id }}
+                                  :
                                   {{
                                     this.$q.appStore.chanelList.find(
                                       (channel) =>
@@ -350,8 +437,8 @@
                                   }}</q-item-label
                                 >
                                 <q-item-label caption lines="1"
-                                  >Account: id {{ tgTask.account_id }} ,
-                                  описание:
+                                  >Account: id {{ tgTask.account_id }}
+                                  :
                                   {{
                                     this.$q.appStore.accountList.find(
                                       (account) =>
@@ -415,7 +502,7 @@
                     tgTask && tgTask.message ? tgTask.message : "N/A"
                   }}</q-item-label>
                 </q-item-section>
-                <!-- кнопка подключения таска к каналу -->
+                <!-- кнопка подключения канала к задаче -->
                 <q-item-section class="col">
                   <q-item-label>
                     <q-btn
@@ -425,7 +512,22 @@
                       icon="link"
                       @click="showTaskLink(tgTask)"
                       ><q-tooltip color="bg-accent"
-                        >Подключить канал к таску</q-tooltip
+                        >Подключить задачи к каналу</q-tooltip
+                      ></q-btn
+                    >
+                  </q-item-label>
+                </q-item-section>
+                <!-- кнопка подключения аккаунта к таску -->
+                <q-item-section class="col">
+                  <q-item-label>
+                    <q-btn
+                      flat
+                      round
+                      dense
+                      icon="leak_add"
+                      @click="showAccountLink(tgTask)"
+                      ><q-tooltip color="bg-accent"
+                        >Подключить задачи к аккунту</q-tooltip
                       ></q-btn
                     >
                   </q-item-label>
@@ -639,10 +741,11 @@
 </template>
 
 <script>
-//TODO: перенести логи в новую страницу
+//TODO: перенести логи в новую страницу - ready
 //TODO: Расписание: дата начала, дата окончания
 //TODO: Задачи: аккаунты с которых слать
-//TODO: Задачи: лог внутри задачи
+//TODO: Задачи: лог внутри задачи - ready
+//TODO: КАналы: редактирование ошибка
 
 import { defineComponent, ref, watch } from "vue";
 
@@ -705,6 +808,7 @@ export default defineComponent({
       inception_task: ref(false),
       inception_task_log: ref(false),
       inception_Schedule_task: ref(false),
+      inception_task_account: ref(false),
       // вспомогательные переменные
       code: ref(),
       //
@@ -746,6 +850,11 @@ export default defineComponent({
           value: "error",
         },
       ]),
+      // для модального окна с подключением аккаунтов к задачам
+      vmodel_accountToAddInTask: ref(null),
+      vmodel_accountsAddedToTask: ref(null),
+      options_accountToAddInTask: ref([]),
+      options_accountsAddedToTask: ref([]),
     };
   },
 
@@ -1126,7 +1235,7 @@ export default defineComponent({
         this.getData();
       }
     },
-
+    // модальное окно с логами
     async showTaskLog(tgTask) {
       this.inception_task_log = true;
       const resultTaskLog = await this.Task.getTaskLog(tgTask.id);
@@ -1161,7 +1270,12 @@ export default defineComponent({
       const end = start + this.paginationLog.rowsPerPage;
       this.paginatedTaskLog = filteredTaskLog.slice(start, end);
     },
-    // Подключение тасков к каналам -------------------------------------------------------------
+    beforeHideTaskJournalDialog() {
+      this.select_task = null;
+      this.vmodel_howShowLog = { label: "Все", value: "all" };
+    },
+
+    // Подключение тасков к каналам -модальное окно с подключенными каналами--------------------------------------------------------
     // показываем модальное окно добавление таска к каналу и готовим данные для списков
     async showTaskLink(tgTask) {
       this.inception_task = true;
@@ -1204,6 +1318,24 @@ export default defineComponent({
     // получаем список каналов подключенных в задачу
     async onGetListAddChanels(id) {
       const result = await this.Task.taskChanelList(id);
+
+      if (!result.success) {
+        this.$q.dialogStore.set({
+          show: true,
+          title: "Ошибка",
+          text: result.message,
+          ok: {
+            color: "red",
+          },
+        });
+        return [];
+      } else {
+        return result.task.rows;
+      }
+    },
+
+    async onGetListAddAccounts(id) {
+      const result = await this.Task.getAccountList(id);
 
       if (!result.success) {
         this.$q.dialogStore.set({
@@ -1272,9 +1404,126 @@ export default defineComponent({
       this.vmodel_chanelsAddedToTask = null;
       this.select_task = null;
     },
-    beforeHideTaskJournalDialog() {
-      this.select_task = null;
-      this.vmodel_howShowLog = { label: "Все", value: "all" };
+
+    //! модальное окно с подключением аккаунтов к задачам--------------------------------------------------------------
+
+    async showAccountLink(tgTask) {
+      console.log("tgTask", tgTask.id);
+      this.inception_task_account = true;
+      this.task_isLoading = true;
+      this.select_task = tgTask;
+
+      const options = await this.onGetListAddCAccounts(tgTask.id);
+
+      console.log("options", options);
+
+      const filteredObjects = options
+        .map((item) => {
+          const account = this.$q.appStore.accountList.find(
+            (account) => account.id === item.account_id
+          );
+          if (account && account.is_deleted === 0) {
+            return {
+              label: account.description,
+              value: account.id,
+            };
+          } else {
+            return null;
+          }
+        })
+        .filter((item) => item !== null);
+
+      this.options_accountsAddedToTask = filteredObjects;
+
+      this.options_accountToAddInTask = this.$q.appStore.accountList
+        .filter((item) => {
+          return (
+            item.is_deleted === 0 &&
+            !options.some((task) => task.account_id === item.id)
+          );
+        })
+        .map((item) => ({
+          label: item.description,
+          value: item.id,
+        }));
+
+      this.task_isLoading = false;
+    },
+
+    //Получаем список аккаунтов подключенных к задаче
+    async onGetListAddCAccounts(id) {
+      const result = await this.Task.getAccountList(id);
+
+      if (!result.success) {
+        this.$q.dialogStore.set({
+          show: true,
+          title: "Ошибка",
+          text: result.message,
+          ok: {
+            color: "red",
+          },
+        });
+        return [];
+      } else {
+        return result.taskAcc.rows;
+      }
+    },
+
+    async onAddAccountToTask(id, data) {
+      if (data === null) return;
+      if (this.processing) return;
+      this.processing = true;
+
+      const values = data.map((item) => parseInt(item.value));
+
+      const result = await this.Task.addAccount(id, values);
+
+      console.log("result", result);
+      if (!result.success) {
+        this.$q.dialogStore.set({
+          show: true,
+          title: "Ошибка",
+          text: result.message,
+          ok: {
+            color: "red",
+          },
+        });
+      } else {
+        this.inception_task_account = false;
+      }
+
+      this.processing = false;
+    },
+
+    async onRemoveAccountFromTask(id, data) {
+      if (data === null) return;
+      if (this.processing) return;
+      this.processing = true;
+
+      const values = data.map((item) => parseInt(item.value));
+
+      const result = await this.Task.removeAccount(id, values);
+
+      console.log("result", result);
+      if (!result.success) {
+        this.$q.dialogStore.set({
+          show: true,
+          title: "Ошибка",
+          text: result.message,
+          ok: {
+            color: "red",
+          },
+        });
+      } else {
+        this.inception_task_account = false;
+      }
+      this.processing = false;
+    },
+
+    // перед закрытием модального окна с подключением аккаунтов
+    beforeHideTaskAccountDialog() {
+      this.vmodel_accountToAddInTask = null;
+      this.vmodel_accountsAddedToTask = null;
     },
 
     // Расписание----------------------------------------------------------------
