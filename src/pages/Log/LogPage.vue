@@ -10,7 +10,7 @@
       </q-breadcrumbs>
       <h1>Журнал</h1>
       <div>
-        <!-- Log -->
+        <!-- Log List -->
         <!-- <div class="q-pa-sm col-lg-6 col-md-12 col-xs-12">
           <q-toolbar class="bg-primary text-white">
             <q-toolbar-title>Log</q-toolbar-title>
@@ -99,7 +99,6 @@
         </div> -->
         <!-- LogTable -->
         <q-table
-          v-if="ready"
           color="primary"
           binary-state-sort
           :rows="this.taskLog"
@@ -115,7 +114,7 @@
         >
           <template v-slot:top-right>
             <q-input
-              borderless
+              outlined
               dense
               debounce="300"
               v-model="filterForSearch"

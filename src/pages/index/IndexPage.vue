@@ -298,10 +298,22 @@
                     @before-hide="beforeHideTaskJournalDialog"
                   >
                     <q-card>
-                      <q-card-section>
+                      <q-card-section
+                        class="row justify-between q-col-gutter-x-md items-center"
+                      >
                         <div class="text-h6">Журнал таска</div>
+                        <q-select
+                          outlined
+                          bg-color="white"
+                          hide-bottom-space
+                          v-model="this.vmodel_howShowLog"
+                          :options="this.options_howShowLog"
+                          @update:model-value="updatePaginatedTaskLog"
+                        />
                       </q-card-section>
-                      <q-card-section class="q-pa-md">
+                      <q-separator />
+
+                      <div class="q-pa-none">
                         <q-scroll-area
                           style="height: 300px; max-width: 100%; width: 600rem"
                         >
@@ -315,7 +327,9 @@
                               <q-item-section class="col-1">
                                 <q-item-label>{{ tgTask.id }}</q-item-label>
                               </q-item-section>
-                              <q-item-section class="col-4 .col-md-auto">
+                              <q-item-section
+                                class="q-pa-none col-4 .col-md-auto"
+                              >
                                 <q-item-label>
                                   Task: id {{ tgTask.task_id }} , описание:
                                   {{
@@ -353,9 +367,10 @@
                                     v-if="tgTask.url"
                                     :href="tgTask.url"
                                     target="_blank"
+                                    style="word-break: break-all"
                                     >{{ tgTask.url }}</a
                                   >
-                                  <span v-else>{{ tgTask.url }}</span>
+                                  <span v-else>пустая</span>
                                 </q-item-label>
                               </q-item-section>
                               <q-item-section class="col">
@@ -369,7 +384,9 @@
                             </q-item>
                           </q-list>
                         </q-scroll-area>
-                      </q-card-section>
+                      </div>
+                      <q-separator />
+
                       <q-pagination
                         class="q-pa-sm justify-center"
                         direction-links
@@ -377,13 +394,9 @@
                         flat
                         color="grey"
                         active-color="primary"
-                        v-model="pagination.page"
-                        :max="
-                          Math.ceil(taskLog.length / pagination.rowsPerPage)
-                        "
+                        v-model="paginationLog.page"
+                        :max="maxPages"
                         :max-pages="6"
-                        :rows-per-page-options="[10, 20, 50]"
-                        @update:model-value="updatePagination"
                       />
                     </q-card>
                   </q-dialog>
@@ -672,7 +685,6 @@ export default defineComponent({
       showAccount: ref(true),
       showChannel: ref(true),
       showTask: ref(true),
-
       showSchedule: ref(true),
       // экземпляры классов
       Account,
@@ -713,11 +725,27 @@ export default defineComponent({
       //
       clickedAccountId: ref(null),
       // для модяльного окна с логами
-      paginatedTaskLog: ref([]), //
-      pagination: ref({
+      taskLog: ref([]), // журнал по Id
+      paginatedTaskLog: ref([]), // завернутый журнал в пагинацию
+      paginationLog: ref({
         page: 1,
         rowsPerPage: 10,
       }),
+      vmodel_howShowLog: ref({ label: "Все", value: "all" }),
+      options_howShowLog: ref([
+        {
+          label: "Все",
+          value: "all",
+        },
+        {
+          label: "Только успехи",
+          value: "success",
+        },
+        {
+          label: "Только ошибки",
+          value: "error",
+        },
+      ]),
     };
   },
 
@@ -1020,7 +1048,7 @@ export default defineComponent({
         this.getData();
       }
     },
-    // task--------------------------------------------------------------------------------------
+    //* task--------------------------------------------------------------------------------------
     showTaskAdd() {
       const excludeFields = ["id", "isDeleted", "active"];
       const data = {};
@@ -1114,9 +1142,24 @@ export default defineComponent({
         });
         this.inception_task_log = false;
       } else {
-        this.paginatedTaskLog = resultTaskLog.taskLog.rows;
-        console.log("tgTask", this.paginatedTaskLog);
+        this.taskLog = resultTaskLog.taskLog.rows.reverse();
+        this.updatePaginatedTaskLog();
       }
+    },
+
+    updatePaginatedTaskLog() {
+      let filteredTaskLog = this.taskLog;
+
+      if (this.vmodel_howShowLog.value === "success") {
+        filteredTaskLog = this.taskLog.filter((task) => task.success === 1);
+      } else if (this.vmodel_howShowLog.value === "error") {
+        filteredTaskLog = this.taskLog.filter((task) => task.success === 0);
+      }
+
+      const start =
+        (this.paginationLog.page - 1) * this.paginationLog.rowsPerPage;
+      const end = start + this.paginationLog.rowsPerPage;
+      this.paginatedTaskLog = filteredTaskLog.slice(start, end);
     },
     // Подключение тасков к каналам -------------------------------------------------------------
     // показываем модальное окно добавление таска к каналу и готовим данные для списков
@@ -1231,6 +1274,7 @@ export default defineComponent({
     },
     beforeHideTaskJournalDialog() {
       this.select_task = null;
+      this.vmodel_howShowLog = { label: "Все", value: "all" };
     },
 
     // Расписание----------------------------------------------------------------
@@ -1439,6 +1483,30 @@ export default defineComponent({
       this.vmodel_taskToAddInSchedule = null;
       this.vmodel_tasksAddedToSchedule = null;
       this.select_schedule = null;
+    },
+  },
+  watch: {
+    paginationLog: {
+      handler() {
+        this.updatePaginatedTaskLog();
+      },
+      deep: true,
+    },
+  },
+  computed: {
+    maxPages() {
+      const filteredTaskLog = this.taskLog.filter((task) => {
+        if (this.vmodel_howShowLog.value === "all") {
+          return true;
+        }
+        if (this.vmodel_howShowLog.value === "success") {
+          return task.success === 1;
+        }
+        if (this.vmodel_howShowLog.value === "error") {
+          return task.success === 0;
+        }
+      });
+      return Math.ceil(filteredTaskLog.length / this.paginationLog.rowsPerPage);
     },
   },
 });
