@@ -388,7 +388,7 @@
                       <q-card-section
                         class="row justify-between q-col-gutter-x-md items-center"
                       >
-                        <div class="text-h6">Журнал таска</div>
+                        <div class="text-h6">Журнал задач</div>
                         <q-select
                           outlined
                           bg-color="white"
@@ -743,7 +743,7 @@
 <script>
 //TODO: перенести логи в новую страницу - ready
 //TODO: Расписание: дата начала, дата окончания
-//TODO: Задачи: аккаунты с которых слать
+//TODO: Задачи: аккаунты с которых слать - ready
 //TODO: Задачи: лог внутри задачи - ready
 //TODO: КАналы: редактирование ошибка
 
