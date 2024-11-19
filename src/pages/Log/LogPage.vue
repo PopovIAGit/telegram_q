@@ -161,6 +161,7 @@
                   :href="props.value"
                   color="purple"
                   :label="props.value"
+                  target="_blank"
                   >{{ props.value }}</a
                 >
               </div>
@@ -317,7 +318,6 @@ export default {
     async getData() {
       // получение лог задач
       const resultTaskLog = await this.Task.getTaskLog();
-
 
       if (resultTaskLog.success) {
         this.taskLog = resultTaskLog.taskLog.rows;

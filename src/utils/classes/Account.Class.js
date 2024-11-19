@@ -158,8 +158,6 @@ class Account {
           },
         });
 
-
-
         // Если ошибка сохранения
         if (response.type === "error") {
           return {
@@ -207,7 +205,6 @@ class Account {
   }
 
   async activate(accountId) {
-
     const response = await this.$q.ws.sendRequest({
       type: "query",
       iface: "tgAccount",
@@ -235,7 +232,6 @@ class Account {
   }
 
   async signIn(accountId, phoneCode) {
-
     const response = await this.$q.ws.sendRequest({
       type: "query",
       iface: "tgAccount",
@@ -244,6 +240,58 @@ class Account {
         accountId: accountId,
         phoneCode: phoneCode,
       },
+    });
+
+    // Если ошибка удаления
+    if (response.type === "error") {
+      return {
+        success: false,
+        message: response.args.message || "Ошибка",
+      };
+    }
+    // Если получен ответ от login
+    else if (response.type === "answer") {
+      const answer = response.args;
+      return {
+        success: true,
+        answer,
+      };
+    }
+  }
+  async joinPublicChanel(accountId, chanelId) {
+    const response = await this.$q.ws.sendRequest({
+      type: "query",
+      iface: "tgAccount",
+      method: "joinPublicChanel",
+      args: {
+        accountId: accountId,
+        chanelId: chanelId,
+      },
+    });
+
+    // Если ошибка удаления
+    if (response.type === "error") {
+      return {
+        success: false,
+        message: response.args.message || "Ошибка",
+      };
+    }
+    // Если получен ответ от login
+    else if (response.type === "answer") {
+      const answer = response.args;
+      return {
+        success: true,
+        answer,
+      };
+    }
+  }
+
+  async confirmJoin(args) {
+    const response = await this.$q.ws.sendRequest({
+      type: "query",
+      iface: "tgAccount",
+      method: "confirmJoin",
+      args: args,
     });
 
     // Если ошибка удаления

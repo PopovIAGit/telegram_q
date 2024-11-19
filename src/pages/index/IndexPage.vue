@@ -39,15 +39,21 @@
                   }}</q-item-label>
                 </q-item-section>
                 <q-item-section class="col">
+                  <q-item-label>
+                    <q-btn
+                      flat
+                      round
+                      dense
+                      icon="add_task"
+                      @click="showAccountUpdate(tgAccount)"
+                      ><q-tooltip color="bg-accent"
+                        >Подключить к публичному каналу</q-tooltip
+                      ></q-btn
+                    >
+                  </q-item-label>
+                </q-item-section>
+                <q-item-section class="col">
                   <q-item-label v-if="tgAccount.active">
-                    <!-- <q-icon
-                      :name="
-                        tgAccount.active !== 0
-                          ? 'radio_button_checked'
-                          : 'radio_button_unchecked'
-                      "
-                      :color="tgAccount.active !== 0 ? 'green' : 'grey'"
-                    /> -->
                     <q-btn
                       flat
                       round
@@ -85,9 +91,52 @@
                     >
                   </q-item-label>
                 </q-item-section>
-                <!-- модальное окно аккаунта -->
+                <!-- модальное окно аккаунта add_task-->
                 <div>
                   <q-dialog v-model="inception">
+                    <q-card>
+                      <q-card-section>
+                        <div class="text-h6">Введите код активации</div>
+                      </q-card-section>
+
+                      <q-card-section class="q-pa-md">
+                        <div class="q-mb-md">
+                          Введите код пришедший на Телефон
+                        </div>
+
+                        <q-input
+                          mask="#####"
+                          v-model="code"
+                          outlined
+                          bg-color="white"
+                          hide-bottom-space
+                          hint="Код активации"
+                        ></q-input>
+                      </q-card-section>
+
+                      <q-card-actions align="right">
+                        <q-btn
+                          class="q-btn--outline-muted"
+                          outline
+                          no-caps
+                          label="Отмена"
+                          v-close-popup
+                        />
+                        <q-btn
+                          unelevated
+                          color="primary"
+                          no-caps
+                          label="Отправить"
+                          @click="onSignIn(clickedAccountId, code)"
+                          hint="Отправить код активации"
+                        />
+                      </q-card-actions>
+                    </q-card>
+                  </q-dialog>
+                </div>
+                <!-- модальное окно аккаунта подключения joinToPublicChannel-->
+                <div>
+                  <q-dialog v-model="inception_account">
                     <q-card>
                       <q-card-section>
                         <div class="text-h6">Введите код активации</div>
@@ -810,6 +859,7 @@ export default defineComponent({
       dialogScheduleAddUpdate: ref({}),
       // вспомогательные диалоги
       inception: ref(false),
+      inception_account: ref(false),
       inception_task: ref(false),
       inception_task_log: ref(false),
       inception_Schedule_task: ref(false),
@@ -1283,7 +1333,6 @@ export default defineComponent({
     // Подключение тасков к каналам -модальное окно с подключенными каналами--------------------------------------------------------
     // показываем модальное окно добавление таска к каналу и готовим данные для списков
     async showTaskLink(tgTask) {
-
       this.inception_task = true;
       this.task_isLoading = true;
       this.select_task = tgTask;
@@ -1414,14 +1463,11 @@ export default defineComponent({
     //! модальное окно с подключением аккаунтов к задачам--------------------------------------------------------------
 
     async showAccountLink(tgTask) {
-
       this.inception_task_account = true;
       this.task_isLoading = true;
       this.select_task = tgTask;
 
       const options = await this.onGetListAddCAccounts(tgTask.id);
-
-
 
       const filteredObjects = options
         .map((item) => {
@@ -1484,7 +1530,6 @@ export default defineComponent({
 
       const result = await this.Task.addAccount(id, values);
 
-
       if (!result.success) {
         this.$q.dialogStore.set({
           show: true,
@@ -1502,8 +1547,6 @@ export default defineComponent({
     },
 
     async onRemoveAccountFromTask(id, data) {
-
-
       if (data === null) return;
       if (this.processing) return;
       this.processing = true;
@@ -1511,7 +1554,6 @@ export default defineComponent({
       const values = data.map((item) => parseInt(item.value));
 
       const result = await this.Task.removeAccount(id, values);
-
 
       if (!result.success) {
         this.$q.dialogStore.set({
