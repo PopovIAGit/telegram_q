@@ -37,6 +37,16 @@ class Account {
           return val && val.length >= 2 && val.length <= 3000;
         },
       },
+      response: {
+        label: "ответ",
+        type: "string",
+        default: "",
+        min: 1,
+        max: 3000,
+        rules: (val) => {
+          return val && val.length >= 2 && val.length <= 3000;
+        },
+      },
       active: {
         label: "Активен",
         type: "boolean",
@@ -147,6 +157,8 @@ class Account {
             ..._data,
           },
         });
+
+        console.log("Acc", response);
 
         // Если ошибка сохранения
         if (response.type === "error") {

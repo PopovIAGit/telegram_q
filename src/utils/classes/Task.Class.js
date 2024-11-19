@@ -235,7 +235,9 @@ class Task {
       iface: "tgTask",
       method: "getChannelList",
       args: {
-        channel_id: channel_id,
+        where: {
+          channel_id: channel_id,
+        },
       },
     });
 
@@ -397,6 +399,7 @@ class Task {
     }
   }
   async addAccount(id, account_id) {
+    console.log(id, account_id);
     const response = await this.$q.ws.sendRequest({
       type: "query",
       iface: "tgTask",
@@ -425,6 +428,8 @@ class Task {
   }
 
   async removeAccount(id, account_id) {
+    console.log(id, account_id);
+
     const response = await this.$q.ws.sendRequest({
       type: "query",
       iface: "tgTask",

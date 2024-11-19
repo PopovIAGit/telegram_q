@@ -158,7 +158,81 @@
               :rules="[(val) => Schedule.fields.timezone.rules(val)]"
             />
           </div>
-
+          <!-- Даты работы -->
+          <div class="q-mb-md">
+            <div class="label">
+              {{ Schedule.fields.workingDate.label }}
+              {{ Schedule.fields.workingDate.required ? "*" : "" }}
+            </div>
+            <div class="row">
+              <div class="col q-pr-md">
+                <q-input
+                  mask="date"
+                  :rules="['date']"
+                  outlined
+                  bg-color="white"
+                  hide-bottom-space
+                  v-model="dateStart"
+                  :required="Schedule.fields.workingDate.required"
+                  hint="Дата начала работы"
+                >
+                  <template v-slot:append>
+                    <q-icon name="calendar_month" class="cursor-pointer">
+                      <q-popup-proxy
+                        cover
+                        transition-show="scale"
+                        transition-hide="scale"
+                      >
+                        <q-date v-model="dateStart" minimal mask="YYYY-MM-DD">
+                          <div class="row items-center justify-end">
+                            <q-btn
+                              v-close-popup
+                              label="Закрыть"
+                              color="primary"
+                              flat
+                            />
+                          </div>
+                        </q-date>
+                      </q-popup-proxy>
+                    </q-icon>
+                  </template>
+                </q-input>
+              </div>
+              <div class="col">
+                <q-input
+                  mask="date"
+                  :rules="['date']"
+                  outlined
+                  bg-color="white"
+                  hide-bottom-space
+                  v-model="dateEnd"
+                  :required="Schedule.fields.workingDate.required"
+                  hint="Дата окончания работы"
+                >
+                  <template v-slot:append>
+                    <q-icon name="calendar_month" class="cursor-pointer">
+                      <q-popup-proxy
+                        cover
+                        transition-show="scale"
+                        transition-hide="scale"
+                      >
+                        <q-date v-model="timeEnd" minimal mask="YYYY-MM-DD">
+                          <div class="row items-center justify-end">
+                            <q-btn
+                              v-close-popup
+                              label="Закрыть"
+                              color="primary"
+                              flat
+                            />
+                          </div>
+                        </q-date>
+                      </q-popup-proxy>
+                    </q-icon>
+                  </template>
+                </q-input>
+              </div>
+            </div>
+          </div>
           <!-- Частота -->
           <div class="q-mb-md">
             <div class="label">
@@ -212,6 +286,7 @@
 import { defineComponent, ref } from "vue";
 
 import ScheduleClass from "src/utils/classes/Schedule.Class";
+import { date } from "quasar";
 
 export default defineComponent({
   name: "DialogScheduleAddUpdate",
@@ -230,6 +305,8 @@ export default defineComponent({
       weeksDay: ref([]),
       timeStart: ref(null),
       timeEnd: ref(null),
+      dateStart: ref(date.formatDate(Date.now(), "YYYY-MM-DD")),
+      dateEnd: ref(date.formatDate(Date.now(), "YYYY-MM-DD")),
       frequency: ref(null),
       timezone: ref(null),
       weekDaysOptions: ref([

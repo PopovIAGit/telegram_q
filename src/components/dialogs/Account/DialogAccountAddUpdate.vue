@@ -56,6 +56,25 @@
               </template>
             </q-input>
           </div>
+
+          <!-- Описание -->
+          <div class="q-mb-md">
+            <div class="label">
+              {{ Account.fields.response.label }}
+              {{ Account.fields.response.required ? "*" : "" }}
+            </div>
+            <q-input
+              outlined
+              bg-color="white"
+              hide-bottom-space
+              v-model="dialog.data.response"
+              :min="Account.fields.response.min"
+              :max="Account.fields.response.max"
+              :required="Account.fields.response.required"
+              :rules="[(val) => Account.fields.response.rules(val)]"
+              hint="Сообщение для ответа"
+            />
+          </div>
           <!-- Код подтверждения -->
           <div class="q-mb-md" v-if="isActive">
             <div class="label">Sign Up Code *</div>

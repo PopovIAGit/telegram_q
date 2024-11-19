@@ -47,6 +47,17 @@ class Schedule {
           return val && val.length >= 2 && val.length <= 3000;
         },
       },
+      workingDate: {
+        label: "Даты работы",
+        type: "string",
+        default: "",
+        required: true,
+        min: 2,
+        max: 3000,
+        rules: (val) => {
+          return val && val.length >= 2 && val.length <= 3000;
+        },
+      },
       timezone: {
         label: "Часовой пояс UTC",
         type: "string",

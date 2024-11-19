@@ -51,7 +51,7 @@
             >
             </q-input>
           </div>
-          <!-- Список тасков на канале -->
+          <!-- Список тасков на канале
           <div class="q-mb-md" v-if="dialog.method === 'update'">
             <div class="label">Список задач на канале</div>
             <q-select
@@ -64,7 +64,7 @@
               :loading="isLoading"
               @focus="onPopupShow()"
             />
-          </div>
+          </div>-->
         </q-card-section>
         <q-card-section class="q-dialog__footer">
           <q-btn

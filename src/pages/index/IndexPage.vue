@@ -220,7 +220,9 @@
                   >
                     <q-card>
                       <q-card-section>
-                        <div class="text-h6">Подключение канала к задаче</div>
+                        <div class="text-h6">
+                          Подключение канала к задаче {{ this.select_task.id }}
+                        </div>
                       </q-card-section>
 
                       <q-card-section class="q-pa-md">
@@ -299,7 +301,10 @@
                   >
                     <q-card>
                       <q-card-section>
-                        <div class="text-h6">Подключение аккаунта к задаче</div>
+                        <div class="text-h6">
+                          Подключение аккаунта к задаче
+                          {{ this.select_task.id }}
+                        </div>
                       </q-card-section>
 
                       <q-card-section class="q-pa-md">
@@ -341,7 +346,7 @@
                           label="Удалить"
                           @click="
                             onRemoveAccountFromTask(
-                              tgTask.id,
+                              this.select_task.id,
                               this.vmodel_accountsAddedToTask
                             )
                           "
@@ -364,7 +369,7 @@
                           label="Добавить"
                           @click="
                             onAddAccountToTask(
-                              tgTask.id,
+                              this.select_task.id,
                               this.vmodel_accountToAddInTask
                             )
                           "
@@ -1278,6 +1283,7 @@ export default defineComponent({
     // Подключение тасков к каналам -модальное окно с подключенными каналами--------------------------------------------------------
     // показываем модальное окно добавление таска к каналу и готовим данные для списков
     async showTaskLink(tgTask) {
+      console.log("tgTask", tgTask.id);
       this.inception_task = true;
       this.task_isLoading = true;
       this.select_task = tgTask;
@@ -1496,6 +1502,8 @@ export default defineComponent({
     },
 
     async onRemoveAccountFromTask(id, data) {
+      console.log("id", id, "data", data);
+
       if (data === null) return;
       if (this.processing) return;
       this.processing = true;
@@ -1524,6 +1532,7 @@ export default defineComponent({
     beforeHideTaskAccountDialog() {
       this.vmodel_accountToAddInTask = null;
       this.vmodel_accountsAddedToTask = null;
+      this.select_task = null;
     },
 
     // Расписание----------------------------------------------------------------
