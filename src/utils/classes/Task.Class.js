@@ -98,7 +98,6 @@ class Task {
    * @return {Promise<{success: boolean, message: string}|{success: boolean, user: *}|{success: boolean, noChanges: boolean}>}
    */
   async save(method, data, dataWas) {
-    console.log(method, data, dataWas);
     // Если add
     if (method === "add" && data) {
       const _data = structuredClone(data);
@@ -228,7 +227,7 @@ class Task {
     }
   }
   async chanelTaskList(channel_id) {
-    console.log(channel_id);
+
 
     const response = await this.$q.ws.sendRequest({
       type: "query",
@@ -399,7 +398,6 @@ class Task {
     }
   }
   async addAccount(id, account_id) {
-    console.log(id, account_id);
     const response = await this.$q.ws.sendRequest({
       type: "query",
       iface: "tgTask",
@@ -428,7 +426,6 @@ class Task {
   }
 
   async removeAccount(id, account_id) {
-    console.log(id, account_id);
 
     const response = await this.$q.ws.sendRequest({
       type: "query",

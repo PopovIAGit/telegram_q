@@ -1283,7 +1283,7 @@ export default defineComponent({
     // Подключение тасков к каналам -модальное окно с подключенными каналами--------------------------------------------------------
     // показываем модальное окно добавление таска к каналу и готовим данные для списков
     async showTaskLink(tgTask) {
-      console.log("tgTask", tgTask.id);
+
       this.inception_task = true;
       this.task_isLoading = true;
       this.select_task = tgTask;
@@ -1414,14 +1414,14 @@ export default defineComponent({
     //! модальное окно с подключением аккаунтов к задачам--------------------------------------------------------------
 
     async showAccountLink(tgTask) {
-      console.log("tgTask", tgTask.id);
+
       this.inception_task_account = true;
       this.task_isLoading = true;
       this.select_task = tgTask;
 
       const options = await this.onGetListAddCAccounts(tgTask.id);
 
-      console.log("options", options);
+
 
       const filteredObjects = options
         .map((item) => {
@@ -1484,7 +1484,7 @@ export default defineComponent({
 
       const result = await this.Task.addAccount(id, values);
 
-      console.log("result", result);
+
       if (!result.success) {
         this.$q.dialogStore.set({
           show: true,
@@ -1502,7 +1502,7 @@ export default defineComponent({
     },
 
     async onRemoveAccountFromTask(id, data) {
-      console.log("id", id, "data", data);
+
 
       if (data === null) return;
       if (this.processing) return;
@@ -1512,7 +1512,7 @@ export default defineComponent({
 
       const result = await this.Task.removeAccount(id, values);
 
-      console.log("result", result);
+
       if (!result.success) {
         this.$q.dialogStore.set({
           show: true,

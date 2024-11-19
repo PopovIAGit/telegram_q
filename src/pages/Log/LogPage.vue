@@ -317,7 +317,7 @@ export default {
     async getData() {
       // получение лог задач
       const resultTaskLog = await this.Task.getTaskLog();
-      console.log(" resultTaskLog", resultTaskLog);
+
 
       if (resultTaskLog.success) {
         this.taskLog = resultTaskLog.taskLog.rows;

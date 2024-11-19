@@ -158,7 +158,7 @@ class Account {
           },
         });
 
-        console.log("Acc", response);
+
 
         // Если ошибка сохранения
         if (response.type === "error") {
@@ -207,7 +207,6 @@ class Account {
   }
 
   async activate(accountId) {
-    console.log(accountId);
 
     const response = await this.$q.ws.sendRequest({
       type: "query",
@@ -236,7 +235,6 @@ class Account {
   }
 
   async signIn(accountId, phoneCode) {
-    console.log(accountId, phoneCode);
 
     const response = await this.$q.ws.sendRequest({
       type: "query",

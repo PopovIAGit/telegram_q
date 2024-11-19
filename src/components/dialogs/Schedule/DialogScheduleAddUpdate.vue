@@ -161,19 +161,24 @@
           <!-- Даты работы -->
           <div class="q-mb-md">
             <div class="label">
-              {{ Schedule.fields.workingDate.label }}
-              {{ Schedule.fields.workingDate.required ? "*" : "" }}
+              {{ Schedule.fields.stratDate.label }}
+              {{ Schedule.fields.stratDate.required ? "*" : "" }}
             </div>
             <div class="row">
               <div class="col q-pr-md">
                 <q-input
                   mask="date"
-                  :rules="['date']"
+                  :rules="[
+                    'date',
+                    (val) =>
+                      val <= dateEnd ||
+                      'Дата начала не может быть позже даты окончания',
+                  ]"
                   outlined
                   bg-color="white"
                   hide-bottom-space
                   v-model="dateStart"
-                  :required="Schedule.fields.workingDate.required"
+                  :required="Schedule.fields.stratDate.required"
                   hint="Дата начала работы"
                 >
                   <template v-slot:append>
@@ -201,12 +206,17 @@
               <div class="col">
                 <q-input
                   mask="date"
-                  :rules="['date']"
+                  :rules="[
+                    'date',
+                    (val) =>
+                      val >= dateStart ||
+                      'Дата окончания не может быть раньше даты начала',
+                  ]"
                   outlined
                   bg-color="white"
                   hide-bottom-space
                   v-model="dateEnd"
-                  :required="Schedule.fields.workingDate.required"
+                  :required="Schedule.fields.endDate.required"
                   hint="Дата окончания работы"
                 >
                   <template v-slot:append>
@@ -216,7 +226,7 @@
                         transition-show="scale"
                         transition-hide="scale"
                       >
-                        <q-date v-model="timeEnd" minimal mask="YYYY-MM-DD">
+                        <q-date v-model="dateEnd" minimal mask="YYYY-MM-DD">
                           <div class="row items-center justify-end">
                             <q-btn
                               v-close-popup
@@ -305,8 +315,8 @@ export default defineComponent({
       weeksDay: ref([]),
       timeStart: ref(null),
       timeEnd: ref(null),
-      dateStart: ref(date.formatDate(Date.now(), "YYYY-MM-DD")),
-      dateEnd: ref(date.formatDate(Date.now(), "YYYY-MM-DD")),
+      dateStart: ref(null),
+      dateEnd: ref(null),
       frequency: ref(null),
       timezone: ref(null),
       weekDaysOptions: ref([
@@ -359,6 +369,9 @@ export default defineComponent({
 
       this.dialog.data.frequency = Number(this.frequency * 1000 * 60);
       this.dialog.data.weeksDay = this.weeksDay.map((day) => day.value);
+
+      this.dialog.data.stratDate = this.dateStart;
+      this.dialog.data.endDate = this.dateEnd;
       this.dialog.data.workingTime = [
         this.timeStart,
         this.timeEnd,
@@ -388,6 +401,8 @@ export default defineComponent({
       this.timeEnd = null;
       this.frequency = null;
       this.timezone = null;
+      this.dateStart = null;
+      this.dateEnd = null;
     },
 
     /**
@@ -412,6 +427,17 @@ export default defineComponent({
         this.frequency = this.dialog.data.frequency / (1000 * 60); // переводим в минуты
 
         this.timezone = this.dialog.data.timeZone;
+
+        // this.dateStart = this.dialog.data.stratDate;
+        // this.dateEnd = this.dialog.data.endDate;
+        this.dateStart = new Date(this.dialog.data.stratDate)
+          .toISOString()
+          .slice(0, 10)
+          .replace(/-/g, "/");
+        this.dateEnd = new Date(this.dialog.data.endDate)
+          .toISOString()
+          .slice(0, 10)
+          .replace(/-/g, "/");
       }
     },
   },

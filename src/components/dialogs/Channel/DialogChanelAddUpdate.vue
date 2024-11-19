@@ -145,7 +145,6 @@ export default defineComponent({
     },
     async onGetChanelTaskList() {
       const result = await this.Task.chanelTaskList(this.dialog.data.id);
-      console.log("result", result);
 
       if (!result.success) {
         this.$q.dialogStore.set({

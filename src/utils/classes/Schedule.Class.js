@@ -47,8 +47,19 @@ class Schedule {
           return val && val.length >= 2 && val.length <= 3000;
         },
       },
-      workingDate: {
-        label: "Даты работы",
+      stratDate: {
+        label: "Даты начала работы",
+        type: "string",
+        default: "",
+        required: true,
+        min: 2,
+        max: 3000,
+        rules: (val) => {
+          return val && val.length >= 2 && val.length <= 3000;
+        },
+      },
+      endDate: {
+        label: "Даты окончания работы",
         type: "string",
         default: "",
         required: true,
