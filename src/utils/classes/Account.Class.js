@@ -259,15 +259,19 @@ class Account {
     }
   }
   async joinPublicChanel(accountId, chanelId) {
+    console.log(accountId, chanelId);
+
     const response = await this.$q.ws.sendRequest({
       type: "query",
       iface: "tgAccount",
-      method: "joinPublicChanel",
+      method: "joinToPublicChanel",
       args: {
         accountId: accountId,
         chanelId: chanelId,
       },
     });
+
+    console.log(response);
 
     // Если ошибка удаления
     if (response.type === "error") {

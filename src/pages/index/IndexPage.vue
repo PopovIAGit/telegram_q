@@ -143,7 +143,7 @@
                     v-model="inception_account"
                     @before-hide="beforeHideAccountPublicChanelConnection"
                   >
-                    <q-card>
+                    <q-card v-if="!newjoinPublicChanel">
                       <q-card-section>
                         <div class="text-h6">
                           Подключение к каналу с капчей {{ select_account.id }}
@@ -187,6 +187,37 @@
                             )
                           "
                           hint="Отправить код активации"
+                        />
+                      </q-card-actions>
+                    </q-card>
+                    <q-card v-else-if="newjoinPublicChanel">
+                      <q-card-section>
+                        <div class="text-h6">Отвеь на капчу</div>
+                      </q-card-section>
+
+                      <q-card-section class="q-pa-md">
+                        <div class="q-mb-md">
+                          {{ answerjoinPublicChanel.message.text }}
+                        </div>
+                      </q-card-section>
+
+                      <q-card-actions align="right">
+                        <q-btn
+                          v-for="(button, index) in answerjoinPublicChanel
+                            .message.buttons"
+                          :key="index"
+                          unelevated
+                          color="primary"
+                          no-caps
+                          :label="button[0].text"
+                          @click="handleButtonClick(button, index)"
+                        />
+                        <q-btn
+                          class="q-btn--outline-muted"
+                          outline
+                          no-caps
+                          label="Отмена"
+                          v-close-popup
                         />
                       </q-card-actions>
                     </q-card>
@@ -928,6 +959,8 @@ export default defineComponent({
       // для модального окна с подключением аккаунтов к каналу с капчей
       select_account: ref(null),
       vmodel_chanelToAddInTask: ref(null),
+      newjoinPublicChanel: ref(false),
+      answerjoinPublicChanel: ref(null),
     };
   },
 
@@ -1162,8 +1195,6 @@ export default defineComponent({
     },
 
     async joinPublicChanel(accountId, chanelId) {
-      console.log(accountId, chanelId);
-
       const result = await this.Account.joinPublicChanel(accountId, chanelId);
       if (!result.success) {
         this.inception_account = false;
@@ -1176,16 +1207,46 @@ export default defineComponent({
           },
         });
       } else {
+        this.newjoinPublicChanel = true;
+        this.answerjoinPublicChanel = result.answer;
         console.log(result.answer);
-
-        this.inception_account = false;
-        this.select_account = null;
-        this.getData();
       }
+    },
+    async handleButtonClick(button, index) {
+      const response = {
+        args: {
+          accountId: this.select_account.id,
+          message: {
+            chatId: this.answerjoinPublicChanel.args.message.chatId,
+            ids: this.answerjoinPublicChanel.args.message.ids,
+            button: [index, 0],
+          },
+        },
+      };
+      // Send the response
+      console.log("Sending response:", response);
+      // const result = await this.Account.confirmJoin(response.args);
+      // if (!result.success) {
+      //   this.inception_account = false;
+      //   this.$q.dialogStore.set({
+      //     show: true,
+      //     title: "Ошибка",
+      //     text: result.message,
+      //     ok: {
+      //       color: "red",
+      //     },
+      //   });
+      // } else {
+      //   this.inception_account = false;
+      // }
+
+      // You can also send the response to the server or API here
     },
 
     beforeHideAccountPublicChanelConnection() {
       this.select_account = null;
+      this.answerjoinPublicChanel = null;
+      this.newjoinPublicChanel = false;
     },
     // Chanel--------------------------------------------------------------------------------------
     showChanelAdd() {
