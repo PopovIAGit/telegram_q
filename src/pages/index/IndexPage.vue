@@ -45,9 +45,9 @@
                       round
                       dense
                       icon="add_task"
-                      @click="showAccountUpdate(tgAccount)"
+                      @click="showAccountPublicChanelConnection(tgAccount)"
                       ><q-tooltip color="bg-accent"
-                        >Подключить к публичному каналу</q-tooltip
+                        >Подключить к каналу c капчей</q-tooltip
                       ></q-btn
                     >
                   </q-item-label>
@@ -91,9 +91,12 @@
                     >
                   </q-item-label>
                 </q-item-section>
-                <!-- модальное окно аккаунта add_task-->
+                <!-- модальное окно аккаунта-->
                 <div>
-                  <q-dialog v-model="inception">
+                  <q-dialog
+                    v-model="inception"
+                    @before-hide="beforeHideTgAccount"
+                  >
                     <q-card>
                       <q-card-section>
                         <div class="text-h6">Введите код активации</div>
@@ -127,7 +130,7 @@
                           color="primary"
                           no-caps
                           label="Отправить"
-                          @click="onSignIn(clickedAccountId, code)"
+                          @click="onSignIn(select_account.id, code)"
                           hint="Отправить код активации"
                         />
                       </q-card-actions>
@@ -136,25 +139,32 @@
                 </div>
                 <!-- модальное окно аккаунта подключения joinToPublicChannel-->
                 <div>
-                  <q-dialog v-model="inception_account">
+                  <q-dialog
+                    v-model="inception_account"
+                    @before-hide="beforeHideAccountPublicChanelConnection"
+                  >
                     <q-card>
                       <q-card-section>
-                        <div class="text-h6">Введите код активации</div>
+                        <div class="text-h6">
+                          Подключение к каналу с капчей {{ select_account.id }}
+                        </div>
                       </q-card-section>
 
                       <q-card-section class="q-pa-md">
                         <div class="q-mb-md">
-                          Введите код пришедший на Телефон
+                          Список каналов для подключения
                         </div>
 
-                        <q-input
-                          mask="#####"
-                          v-model="code"
+                        <q-select
                           outlined
                           bg-color="white"
                           hide-bottom-space
-                          hint="Код активации"
-                        ></q-input>
+                          v-model="vmodel_chanelToAddInTask"
+                          :options="listOfTgChanals"
+                          option-label="description"
+                          option-value="id"
+                          hint="Канал для подключения к аккаунту"
+                        ></q-select>
                       </q-card-section>
 
                       <q-card-actions align="right">
@@ -170,7 +180,12 @@
                           color="primary"
                           no-caps
                           label="Отправить"
-                          @click="onSignIn(clickedAccountId, code)"
+                          @click="
+                            joinPublicChanel(
+                              select_account.id,
+                              vmodel_chanelToAddInTask.id
+                            )
+                          "
                           hint="Отправить код активации"
                         />
                       </q-card-actions>
@@ -796,10 +811,11 @@
 
 <script>
 //TODO: перенести логи в новую страницу - ready
-//TODO: Расписание: дата начала, дата окончания
+//TODO: Расписание: дата начала, дата окончания - ready
 //TODO: Задачи: аккаунты с которых слать - ready
 //TODO: Задачи: лог внутри задачи - ready
-//TODO: КАналы: редактирование ошибка
+//TODO: КАналы: редактирование ошибка - ready
+//TODO: Accounts: капча
 
 import { defineComponent, ref, watch } from "vue";
 
@@ -882,7 +898,6 @@ export default defineComponent({
       select_schedule: ref(null),
       listOfSchedulesAndTasks: ref([]),
       //
-      clickedAccountId: ref(null),
       // для модяльного окна с логами
       taskLog: ref([]), // журнал по Id
       paginatedTaskLog: ref([]), // завернутый журнал в пагинацию
@@ -910,6 +925,9 @@ export default defineComponent({
       vmodel_accountsAddedToTask: ref(null),
       options_accountToAddInTask: ref([]),
       options_accountsAddedToTask: ref([]),
+      // для модального окна с подключением аккаунтов к каналу с капчей
+      select_account: ref(null),
+      vmodel_chanelToAddInTask: ref(null),
     };
   },
 
@@ -1091,7 +1109,7 @@ export default defineComponent({
     },
     showAccountActive(Account) {
       this.onActivate(Account.id);
-      this.clickedAccountId = Account.id;
+      this.select_account = Account;
       this.inception = true;
     },
     async onActivate(id) {
@@ -1130,9 +1148,44 @@ export default defineComponent({
       } else {
         this.code = null;
         this.inception = false;
-        this.clickedAccountId = null;
+        this.select_account = null;
         this.getData();
       }
+    },
+    beforeHideTgAccount() {
+      this.select_account = null;
+    },
+    showAccountPublicChanelConnection(Account) {
+      console.log(Account.id);
+      this.select_account = Account;
+      this.inception_account = true;
+    },
+
+    async joinPublicChanel(accountId, chanelId) {
+      console.log(accountId, chanelId);
+
+      const result = await this.Account.joinPublicChanel(accountId, chanelId);
+      if (!result.success) {
+        this.inception_account = false;
+        this.$q.dialogStore.set({
+          show: true,
+          title: "Ошибка",
+          text: result.message,
+          ok: {
+            color: "red",
+          },
+        });
+      } else {
+        console.log(result.answer);
+
+        this.inception_account = false;
+        this.select_account = null;
+        this.getData();
+      }
+    },
+
+    beforeHideAccountPublicChanelConnection() {
+      this.select_account = null;
     },
     // Chanel--------------------------------------------------------------------------------------
     showChanelAdd() {
