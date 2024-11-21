@@ -75,6 +75,28 @@
               hint="Сообщение для ответа"
             />
           </div>
+          <!-- Авто подключение -->
+          <div class="q-mb-md">
+            <div class="label">
+              {{ Account.fields.autoConnect.label }}
+              {{ Account.fields.autoConnect.required ? "*" : "" }}
+            </div>
+            <!-- <q-input
+              outlined
+              bg-color="white"
+              hide-bottom-space
+              v-model="dialog.data.aoutoConnect"
+              :rules="[(val) => Account.fields.aoutoConnect.rules(val)]"
+              hint="Автоподключение для ответов"
+            /> -->
+            <q-checkbox
+              class="outlined bg-color-white"
+              v-model="dialog.data.autoConnect"
+              :true-value="1"
+              :false-value="0"
+              hint="Автоподключение для ответов"
+            />
+          </div>
           <!-- Код подтверждения -->
           <div class="q-mb-md" v-if="isActive">
             <div class="label">Sign Up Code *</div>

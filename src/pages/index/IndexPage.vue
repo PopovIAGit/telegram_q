@@ -91,7 +91,7 @@
                     >
                   </q-item-label>
                 </q-item-section>
-                <!-- модальное окно аккаунта-->
+                <!-- модальное окно аккаунта  -->
                 <div>
                   <q-dialog
                     v-model="inception"
@@ -210,7 +210,9 @@
                           color="primary"
                           no-caps
                           :label="button[0].text"
-                          @click="handleButtonClick(button, index)"
+                          @click="
+                            handleButtonClickJoinPublicChanel(button, index)
+                          "
                         />
                         <q-btn
                           class="q-btn--outline-muted"
@@ -841,12 +843,7 @@
 </template>
 
 <script>
-//TODO: перенести логи в новую страницу - ready
-//TODO: Расписание: дата начала, дата окончания - ready
-//TODO: Задачи: аккаунты с которых слать - ready
-//TODO: Задачи: лог внутри задачи - ready
-//TODO: КАналы: редактирование ошибка - ready
-//TODO: Accounts: капча
+//TODO: Accounts: капча - парсинг ответа с динамическим созданием
 
 import { defineComponent, ref, watch } from "vue";
 
@@ -971,12 +968,10 @@ export default defineComponent({
   methods: {
     async getData() {
       // получение списка аккаунтов
-      const responseTgAccounts = await this.$q.ws.sendRequest({
-        type: "query",
-        iface: "tgAccount",
-        method: "getList",
-        args: {},
-      });
+      const responseTgAccounts = await this.Account.getList();
+
+      console.log(responseTgAccounts);
+
       if (responseTgAccounts.type === "error") {
         this.$q.dialogStore.set({
           show: true,
@@ -1064,8 +1059,7 @@ export default defineComponent({
       // new methods_____________________________________________________________________________________
     },
 
-    //#region Account
-    // Account---------------------------------------------------------------------------------------------
+    //#region Account---------------------------------------------------------------------
     showAccountAdd() {
       const excludeFields = ["id", "isDeleted", "active"];
       const data = {};
@@ -1189,12 +1183,21 @@ export default defineComponent({
     beforeHideTgAccount() {
       this.select_account = null;
     },
+    /**
+     * Открытием модального окна подключения к публичному каналу
+     * @param Account
+     */
     showAccountPublicChanelConnection(Account) {
       console.log(Account.id);
       this.select_account = Account;
       this.inception_account = true;
     },
 
+    /**
+     *
+     * @param accountId
+     * @param channelId
+     */
     async joinPublicChanel(accountId, channelId) {
       const result = await this.Account.joinPublicChanel(accountId, channelId);
       if (!result.success) {
@@ -1213,7 +1216,7 @@ export default defineComponent({
         console.log(result.answer);
       }
     },
-    async handleButtonClick(button, index) {
+    async handleButtonClickJoinPublicChanel(button, index) {
       const response = {
         args: {
           accountId: this.select_account.id,
@@ -1244,6 +1247,9 @@ export default defineComponent({
       // You can also send the response to the server or API here
     },
 
+    /**
+     *  Действия при закрытии модального окна подключения к публичному каналу
+     */
     beforeHideAccountPublicChanelConnection() {
       this.select_account = null;
       this.answerjoinPublicChanel = null;

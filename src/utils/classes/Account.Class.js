@@ -38,7 +38,7 @@ class Account {
         },
       },
       response: {
-        label: "ответ",
+        label: "Автоматический ответ",
         type: "string",
         default: "",
         min: 1,
@@ -57,6 +57,14 @@ class Account {
       },
       isDeleted: {
         label: "Удален",
+        type: "boolean",
+        default: false,
+        rules: (val) => {
+          return typeof val === "boolean";
+        },
+      },
+      autoConnect: {
+        label: "Автоматическое подключение",
         type: "boolean",
         default: false,
         rules: (val) => {
@@ -313,6 +321,16 @@ class Account {
         answer,
       };
     }
+  }
+
+  async getList() {
+    const response = await this.$q.ws.sendRequest({
+      type: "query",
+      iface: "tgAccount",
+      method: "getList",
+      args: {},
+    });
+    return response;
   }
 }
 
