@@ -321,7 +321,7 @@
                       </q-card-section>
 
                       <q-card-section class="q-pa-md">
-                        <!-- chanelId -->
+                        <!-- channelId -->
                         <div class="q-mb-md">
                           <div class="label">Каналы для подключения</div>
                           <q-select
@@ -403,7 +403,7 @@
                       </q-card-section>
 
                       <q-card-section class="q-pa-md">
-                        <!-- chanelId -->
+                        <!-- channelId -->
                         <div class="q-mb-md">
                           <div class="label">Аккаунт для подключения</div>
                           <q-select
@@ -703,7 +703,7 @@
                       </q-card-section>
 
                       <q-card-section class="q-pa-md">
-                        <!-- chanelId -->
+                        <!-- channelId -->
                         <div class="q-mb-md">
                           <div class="label">Задачи для подключения</div>
                           <q-select
@@ -1064,6 +1064,7 @@ export default defineComponent({
       // new methods_____________________________________________________________________________________
     },
 
+    //#region Account
     // Account---------------------------------------------------------------------------------------------
     showAccountAdd() {
       const excludeFields = ["id", "isDeleted", "active"];
@@ -1194,8 +1195,8 @@ export default defineComponent({
       this.inception_account = true;
     },
 
-    async joinPublicChanel(accountId, chanelId) {
-      const result = await this.Account.joinPublicChanel(accountId, chanelId);
+    async joinPublicChanel(accountId, channelId) {
+      const result = await this.Account.joinPublicChanel(accountId, channelId);
       if (!result.success) {
         this.inception_account = false;
         this.$q.dialogStore.set({
@@ -1217,28 +1218,28 @@ export default defineComponent({
         args: {
           accountId: this.select_account.id,
           message: {
-            chatId: this.answerjoinPublicChanel.args.message.chatId,
-            ids: this.answerjoinPublicChanel.args.message.ids,
+            chatId: this.answerjoinPublicChanel.message.chatId,
+            ids: this.answerjoinPublicChanel.message.ids,
             button: [index, 0],
           },
         },
       };
       // Send the response
       console.log("Sending response:", response);
-      // const result = await this.Account.confirmJoin(response.args);
-      // if (!result.success) {
-      //   this.inception_account = false;
-      //   this.$q.dialogStore.set({
-      //     show: true,
-      //     title: "Ошибка",
-      //     text: result.message,
-      //     ok: {
-      //       color: "red",
-      //     },
-      //   });
-      // } else {
-      //   this.inception_account = false;
-      // }
+      const result = await this.Account.confirmJoin(response.args);
+      if (!result.success) {
+        this.inception_account = false;
+        this.$q.dialogStore.set({
+          show: true,
+          title: "Ошибка",
+          text: result.message,
+          ok: {
+            color: "red",
+          },
+        });
+      } else {
+        this.inception_account = false;
+      }
 
       // You can also send the response to the server or API here
     },
@@ -1248,7 +1249,8 @@ export default defineComponent({
       this.answerjoinPublicChanel = null;
       this.newjoinPublicChanel = false;
     },
-    // Chanel--------------------------------------------------------------------------------------
+    //#endregion
+    //#region Chanel---------------------------------------------------------------------
     showChanelAdd() {
       const excludeFields = ["id", "isDeleted", "active"];
       const data = {};
@@ -1326,7 +1328,8 @@ export default defineComponent({
         this.getData();
       }
     },
-    //* task--------------------------------------------------------------------------------------
+    //#endregion
+    //#region task------------------------------------------------------------------------
     showTaskAdd() {
       const excludeFields = ["id", "isDeleted", "active"];
       const data = {};
@@ -1691,7 +1694,8 @@ export default defineComponent({
       this.select_task = null;
     },
 
-    // Расписание----------------------------------------------------------------
+    //#endregion
+    //#region Расписание----------------------------------------------------------------
     showSheduleAdd() {
       const excludeFields = ["id", "isDeleted", "active"];
       const data = {};
@@ -1898,6 +1902,7 @@ export default defineComponent({
       this.vmodel_tasksAddedToSchedule = null;
       this.select_schedule = null;
     },
+    //#endregion
   },
   watch: {
     paginationLog: {

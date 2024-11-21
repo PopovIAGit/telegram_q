@@ -258,8 +258,8 @@ class Account {
       };
     }
   }
-  async joinPublicChanel(accountId, chanelId) {
-    console.log(accountId, chanelId);
+  async joinPublicChanel(accountId, channelId) {
+    console.log(accountId, channelId);
 
     const response = await this.$q.ws.sendRequest({
       type: "query",
@@ -267,7 +267,7 @@ class Account {
       method: "joinToPublicChanel",
       args: {
         accountId: accountId,
-        chanelId: chanelId,
+        channelId: channelId,
       },
     });
 
