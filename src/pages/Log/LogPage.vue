@@ -316,8 +316,10 @@ export default {
 
   methods: {
     async getData() {
+      const order = ["id", "desc"];
       // получение лог задач
-      const resultTaskLog = await this.Task.getTaskLog();
+      const resultTaskLog = await this.Task.getTaskLog(order);
+      console.log(resultTaskLog);
 
       if (resultTaskLog.success) {
         this.taskLog = resultTaskLog.taskLog.rows;

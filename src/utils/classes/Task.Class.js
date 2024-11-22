@@ -227,8 +227,6 @@ class Task {
     }
   }
   async chanelTaskList(channel_id) {
-
-
     const response = await this.$q.ws.sendRequest({
       type: "query",
       iface: "tgTask",
@@ -313,12 +311,23 @@ class Task {
   }
 
   /**
-   * Получение списка логов для задачи
+   *
    * @param {*} id
-   * @returns {Promise<{success: boolean, message: string}|{success: boolean, taskLog: *}>}
+   * @param {*} limit
+   * @param {*} offset
+   * @param {*} order [a,b] a - field ,b - asc or desc
+   * @returns
    */
-  async getTaskLog(id, limit, offset) {
+  async getTaskLog(id, limit, offset, order) {
     let args = {};
+
+    if (order) {
+      args = {
+        where: {
+          order: order,
+        },
+      };
+    }
 
     if (id) {
       args = {
@@ -426,7 +435,6 @@ class Task {
   }
 
   async removeAccount(id, account_id) {
-
     const response = await this.$q.ws.sendRequest({
       type: "query",
       iface: "tgTask",

@@ -27,18 +27,21 @@
                 )"
                 :key="tgAccount.id"
                 v-ripple
-                class="drawer-left__menu"
+                class="no-wrap justify-around items-stretch content-stretch"
               >
                 <q-item-section class="col-1">
                   <q-item-label>{{ tgAccount.id }}</q-item-label>
                 </q-item-section>
-                <q-item-section class="col-8">
+                <q-item-section
+                  class="col-xl-6 col-lg-6 col-md-6 col-sm-6 col-xs-4"
+                >
                   <q-item-label>{{ tgAccount.phone }}</q-item-label>
                   <q-item-label caption lines="1">{{
                     tgAccount.description
                   }}</q-item-label>
                 </q-item-section>
-                <q-item-section class="col">
+                <q-item-section class="col-1"></q-item-section>
+                <q-item-section class="col-1">
                   <q-item-label>
                     <q-btn
                       flat
@@ -52,7 +55,7 @@
                     >
                   </q-item-label>
                 </q-item-section>
-                <q-item-section class="col">
+                <q-item-section class="col-1">
                   <q-item-label v-if="tgAccount.active">
                     <q-btn
                       flat
@@ -77,7 +80,7 @@
                     </q-btn>
                   </q-item-label>
                 </q-item-section>
-                <q-item-section class="col">
+                <q-item-section class="col-1">
                   <q-item-label>
                     <q-btn
                       flat
@@ -191,37 +194,82 @@
                       </q-card-actions>
                     </q-card>
                     <q-card v-else-if="newjoinPublicChanel">
-                      <q-card-section>
-                        <div class="text-h6">Отвеь на капчу</div>
-                      </q-card-section>
+                      <div
+                        v-if="answerjoinPublicChanel.message.buttonCount == 0"
+                      >
+                        <q-card-section>
+                          <div class="text-h6">Отвеь на капчу с тестом</div>
+                        </q-card-section>
+                        <q-card-section class="q-pa-md">
+                          <div class="q-mb-md">
+                            {{ answerjoinPublicChanel.message.text }}
+                          </div>
+                        </q-card-section>
+                        <q-card-section class="q-pa-md">
+                          <q-input
+                            v-model="answerForCaptcha"
+                            outlined
+                            bg-color="white"
+                            hide-bottom-space
+                            hint="Ответ на капчу"
+                          ></q-input>
+                        </q-card-section>
+                        <q-card-actions align="right">
+                          <q-btn
+                            unelevated
+                            color="primary"
+                            no-caps
+                            label="Отправить"
+                            :disable="
+                              answerForCaptcha == '' || answerForCaptcha == null
+                            "
+                            @click="
+                              handleButtonClickJoinPublicChanelText(
+                                answerForCaptcha
+                              )
+                            "
+                          />
 
-                      <q-card-section class="q-pa-md">
-                        <div class="q-mb-md">
-                          {{ answerjoinPublicChanel.message.text }}
-                        </div>
-                      </q-card-section>
-
-                      <q-card-actions align="right">
-                        <q-btn
-                          v-for="(button, index) in answerjoinPublicChanel
-                            .message.buttons"
-                          :key="index"
-                          unelevated
-                          color="primary"
-                          no-caps
-                          :label="button[0].text"
-                          @click="
-                            handleButtonClickJoinPublicChanel(button, index)
-                          "
-                        />
-                        <q-btn
-                          class="q-btn--outline-muted"
-                          outline
-                          no-caps
-                          label="Отмена"
-                          v-close-popup
-                        />
-                      </q-card-actions>
+                          <q-btn
+                            class="q-btn--outline-muted"
+                            outline
+                            no-caps
+                            label="Отмена"
+                            v-close-popup
+                          />
+                        </q-card-actions>
+                      </div>
+                      <div v-else>
+                        <q-card-section>
+                          <div class="text-h6">Отвеь на капчу с кнопкой</div>
+                        </q-card-section>
+                        <q-card-section class="q-pa-md">
+                          <div class="q-mb-md">
+                            {{ answerjoinPublicChanel.message.text }}
+                          </div>
+                        </q-card-section>
+                        <q-card-actions align="right">
+                          <q-btn
+                            v-for="(button, index) in answerjoinPublicChanel
+                              .message.buttons"
+                            :key="index"
+                            unelevated
+                            color="primary"
+                            no-caps
+                            :label="button[0].text"
+                            @click="
+                              handleButtonClickJoinPublicChanel(button, index)
+                            "
+                          />
+                          <q-btn
+                            class="q-btn--outline-muted"
+                            outline
+                            no-caps
+                            label="Отмена"
+                            v-close-popup
+                          />
+                        </q-card-actions>
+                      </div>
                     </q-card>
                   </q-dialog>
                 </div>
@@ -250,14 +298,16 @@
                 )"
                 :key="tgChannel.id"
                 v-ripple
-                class="drawer-left__menu"
+                class="no-wrap justify-around items-stretch content-stretch"
               >
                 <q-item-section class="col-1">
                   <q-item-label>{{
                     tgChannel && tgChannel.id ? tgChannel.id : "N/A"
                   }}</q-item-label>
                 </q-item-section>
-                <q-item-section class="col-8">
+                <q-item-section
+                  class="col-xl-6 col-lg-6 col-md-6 col-sm-6 col-xs-4"
+                >
                   <q-item-label>{{
                     tgChannel && tgChannel.url ? tgChannel.url : "N/A"
                   }}</q-item-label>
@@ -267,8 +317,10 @@
                       : "N/A"
                   }}</q-item-label>
                 </q-item-section>
-                <q-item-section class="col"> </q-item-section>
-                <q-item-section class="col">
+                <q-item-section class="col-1"></q-item-section>
+                <q-item-section class="col-1"></q-item-section>
+                <q-item-section class="col-1"></q-item-section>
+                <q-item-section class="col-1">
                   <q-item-label>
                     <q-btn
                       flat
@@ -307,7 +359,7 @@
                 )"
                 :key="tgTask.id"
                 v-ripple
-                class="drawer-left__menu"
+                class="no-wrap justify-around items-stretch"
               >
                 <!-- модальное окно добавления канала к задачеы-->
                 <div>
@@ -596,7 +648,9 @@
                     tgTask && tgTask.id ? tgTask.id : "N/A"
                   }}</q-item-label>
                 </q-item-section>
-                <q-item-section class="col-8">
+                <q-item-section
+                  class="col-xl-6 col-lg-6 col-md-6 col-sm-6 col-xs-4"
+                >
                   <q-item-label>{{
                     tgTask && tgTask.description ? tgTask.description : "N/A"
                   }}</q-item-label>
@@ -605,7 +659,7 @@
                   }}</q-item-label>
                 </q-item-section>
                 <!-- кнопка подключения канала к задаче -->
-                <q-item-section class="col">
+                <q-item-section class="col-1">
                   <q-item-label>
                     <q-btn
                       flat
@@ -620,7 +674,7 @@
                   </q-item-label>
                 </q-item-section>
                 <!-- кнопка подключения аккаунта к таску -->
-                <q-item-section class="col">
+                <q-item-section class="col-1">
                   <q-item-label>
                     <q-btn
                       flat
@@ -635,7 +689,7 @@
                   </q-item-label>
                 </q-item-section>
                 <!-- кнопка редактировать -->
-                <q-item-section class="col">
+                <q-item-section class="col-1">
                   <q-item-label>
                     <q-btn
                       flat
@@ -650,7 +704,7 @@
                   </q-item-label>
                 </q-item-section>
                 <!-- кнопка лог -->
-                <q-item-section class="col">
+                <q-item-section class="col-1">
                   <q-item-label>
                     <q-btn
                       flat
@@ -689,7 +743,7 @@
                 )"
                 :key="Schedule.id"
                 v-ripple
-                class="drawer-left__menu"
+                class="no-wrap justify-around items-stretch"
               >
                 <!-- модальное окно добавления расписания к таску-->
                 <div>
@@ -776,7 +830,9 @@
                     Schedule && Schedule.id ? Schedule.id : "N/A"
                   }}</q-item-label>
                 </q-item-section>
-                <q-item-section class="col-8">
+                <q-item-section
+                  class="col-xl-6 col-lg-6 col-md-6 col-sm-6 col-xs-4"
+                >
                   <q-item-label>{{
                     Schedule && Schedule.description
                       ? Schedule.description
@@ -784,13 +840,15 @@
                   }}</q-item-label>
                 </q-item-section>
                 <!-- кнопка подключения -->
-                <q-item-section class="col">
+                <q-item-section class="col-1"></q-item-section>
+                <q-item-section class="col-1"></q-item-section>
+                <q-item-section class="col-1">
                   <q-item-label>
                     <q-btn
                       flat
                       round
                       dense
-                      icon="timer"
+                      icon="link"
                       @click="showScheduleClock(Schedule)"
                       ><q-tooltip color="bg-accent"
                         >Подключить задачу к расписанию</q-tooltip
@@ -799,7 +857,7 @@
                   </q-item-label>
                 </q-item-section>
                 <!-- кнопка редактировать -->
-                <q-item-section class="col">
+                <q-item-section class="col-1">
                   <q-item-label>
                     <q-btn
                       flat
@@ -958,6 +1016,7 @@ export default defineComponent({
       vmodel_chanelToAddInTask: ref(null),
       newjoinPublicChanel: ref(false),
       answerjoinPublicChanel: ref(null),
+      answerForCaptcha: ref(""),
     };
   },
 
@@ -969,8 +1028,6 @@ export default defineComponent({
     async getData() {
       // получение списка аккаунтов
       const responseTgAccounts = await this.Account.getList();
-
-      console.log(responseTgAccounts);
 
       if (responseTgAccounts.type === "error") {
         this.$q.dialogStore.set({
@@ -1193,11 +1250,6 @@ export default defineComponent({
       this.inception_account = true;
     },
 
-    /**
-     *
-     * @param accountId
-     * @param channelId
-     */
     async joinPublicChanel(accountId, channelId) {
       const result = await this.Account.joinPublicChanel(accountId, channelId);
       if (!result.success) {
@@ -1213,7 +1265,7 @@ export default defineComponent({
       } else {
         this.newjoinPublicChanel = true;
         this.answerjoinPublicChanel = result.answer;
-        console.log(result.answer);
+        console.log(result);
       }
     },
     async handleButtonClickJoinPublicChanel(button, index) {
@@ -1243,8 +1295,38 @@ export default defineComponent({
       } else {
         this.inception_account = false;
       }
+    },
 
-      // You can also send the response to the server or API here
+    async handleButtonClickJoinPublicChanelText(text) {
+      console.log(text);
+
+      const response = {
+        args: {
+          accountId: this.select_account.id,
+          message: {
+            chatId: this.answerjoinPublicChanel.message.chatId,
+            ids: this.answerjoinPublicChanel.message.ids,
+            button: null,
+            text: text,
+          },
+        },
+      };
+      // Send the response
+      console.log("Sending response:", response);
+      const result = await this.Account.confirmJoin(response.args);
+      if (!result.success) {
+        this.inception_account = false;
+        this.$q.dialogStore.set({
+          show: true,
+          title: "Ошибка",
+          text: result.message,
+          ok: {
+            color: "red",
+          },
+        });
+      } else {
+        this.inception_account = false;
+      }
     },
 
     /**
@@ -1254,6 +1336,8 @@ export default defineComponent({
       this.select_account = null;
       this.answerjoinPublicChanel = null;
       this.newjoinPublicChanel = false;
+      this.answerForCaptcha = "";
+      this.vmodel_chanelToAddInTask = null;
     },
     //#endregion
     //#region Chanel---------------------------------------------------------------------
