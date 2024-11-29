@@ -250,7 +250,6 @@ export default {
         label: "Аккаунт",
         field: "account_id",
         align: "left",
-        sortable: true,
         format: (val) => {
           const account = $q.appStore.accountList.find(
             (account) => account.id == val
@@ -263,7 +262,7 @@ export default {
         label: "Канал",
         field: "channel_id",
         align: "left",
-        sortable: true,
+
         format: (val) => {
           const channel = $q.appStore.chanelList.find(
             (channel) => channel.id == val
@@ -276,7 +275,7 @@ export default {
         label: "Задача",
         field: "task_id",
         align: "left",
-        sortable: true,
+
         format: (val) => {
           const task = $q.appStore.taskList.find((task) => task.id == val);
           return `id ${task.id} , ${task.description}`;
@@ -391,9 +390,17 @@ export default {
   },
 
   methods: {
-    async getData() {
+    async getData(props, params) {
       if (this.loading) return;
       this.loading = true;
+
+      let { page, rowsPerPage, sortBy, descending } = props
+        ? props.pagination
+        : this.pagination;
+
+      if (params && params.where) {
+        where = params.where;
+      }
       //#region получение списка аккаунтов
       const responseTgAccounts = await this.$q.ws.sendRequest({
         type: "query",
@@ -474,21 +481,38 @@ export default {
 
       //#region получение лог задач
 
+      this.$router.replace({
+        query: {
+          rowsPerPage,
+          page,
+          sortBy,
+          descending,
+          search: this.$route.query.search,
+        },
+      });
       const resultTaskLog = await this.$q.ws.sendRequest({
         type: "query",
         iface: "tgTask",
         method: "getLogList",
         args: {
-          limit: this.pagination.rowsPerPage,
-          offset: (this.pagination.page - 1) * this.pagination.rowsPerPage,
-          search: this.filterForSearch,
-          order: [["id", this.pagination.descending ? "DESC" : "ASC"]],
+          limit: rowsPerPage,
+          offset: (page - 1) * rowsPerPage,
+          search: this.$route.query.search,
+          order: [[sortBy, descending ? "DESC" : "ASC"]],
         },
       });
       console.log(resultTaskLog);
 
       if (resultTaskLog.type === "answer") {
         this.taskLog = resultTaskLog.args.rows;
+        this.pagination.page = page;
+        this.pagination.rowsPerPage = rowsPerPage;
+        this.pagination.rowsNumber = resultTaskLog.args.count;
+        this.pagination.sortBy = sortBy;
+        this.pagination.descending = descending;
+        this.pagesNumber = Math.ceil(
+          resultTaskLog.args.count / this.pagination.rowsPerPage
+        );
       } else {
         this.$q.dialogStore.set({
           show: true,
