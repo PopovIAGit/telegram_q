@@ -318,44 +318,12 @@ class Task {
    * @param {*} order [a,b] a - field ,b - asc or desc
    * @returns
    */
-  async getTaskLog(id, limit, offset, order) {
-    let args = {};
-
-    if (order) {
-      args = {
-        where: {
-          order: order,
-        },
-      };
-    }
-
-    if (id) {
-      args = {
-        where: {
-          task_id: id,
-        },
-      };
-    }
-
-    if (limit) {
-      args = {
-        ...args,
-        limit,
-      };
-    }
-
-    if (offset) {
-      args = {
-        ...args,
-        offset,
-      };
-    }
-
+  async getTaskLog() {
     const response = await this.$q.ws.sendRequest({
       type: "query",
       iface: "tgTask",
       method: "getLogList",
-      args,
+      args: {},
     });
 
     // If there was an error saving

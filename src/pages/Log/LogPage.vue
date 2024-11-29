@@ -103,10 +103,10 @@
           binary-state-sort
           :rows="this.taskLog"
           :columns="tableColumns"
-          :pagination="pagination"
+          v-model:pagination="pagination"
           row-key="id"
           rows-per-page-label="Количество на странице"
-          :rows-per-page-options="[10, 20, 50]"
+          :rows-per-page-options="[5, 10, 20, 50]"
           :loading="loading"
           @request="getData"
           :grid="$q.screen.lt.md"
@@ -118,10 +118,23 @@
               dense
               debounce="300"
               v-model="filterForSearch"
-              placeholder="Search"
+              placeholder="Поиск"
+              bg-color="white"
+              hide-bottom-space
+              autocomplete="off"
             >
               <template v-slot:append>
-                <q-icon name="search" />
+                <q-icon
+                  v-if="filterForSearch !== ''"
+                  name="close"
+                  @click="search({ reset: true })"
+                  class="cursor-pointer"
+                />
+                <q-icon
+                  name="search"
+                  @click="searchUser"
+                  class="cursor-pointer"
+                />
               </template>
             </q-input>
           </template>
@@ -183,6 +196,7 @@
 
 <script>
 import { defineComponent, ref, watch } from "vue";
+import { useRoute } from "vue-router";
 import AccountClass from "src/utils/classes/Account.Class";
 import ChanelClass from "src/utils/classes/Chanel.Class";
 import TaskClass from "src/utils/classes/Task.Class";
@@ -196,6 +210,7 @@ export default {
     const Account = new AccountClass();
     const Chanel = new ChanelClass();
     const $q = useQuasar(); // для работы с квазаром
+    const query = useRoute().query;
 
     const tableColumns = [
       {
@@ -205,30 +220,67 @@ export default {
         align: "left",
         sortable: true,
       },
+      // {
+      //   name: "accountTask",
+      //   label: "Название",
+      //   field: (row) => [row.account_id, row.task_id, row.channel_id],
+      //   format: (val) => {
+      //     const accountId = val[0];
+      //     const taskId = val[1];
+      //     const channelId = val[2];
+
+      //     const account = $q.appStore.accountList.find(
+      //       (account) => account.id == accountId
+      //     );
+      //     const task = $q.appStore.taskList.find((task) => task.id == taskId);
+      //     const channel = $q.appStore.chanelList.find(
+      //       (channel) => channel.id == channelId
+      //     );
+
+      //     return [
+      //       `Account: id ${accountId} , описание: ${account.description}`,
+      //       `Task: id ${taskId} , описание: ${task.description}`,
+      //       `Channel: id ${channelId} , описание: ${channel.description}`,
+      //     ].join("\n");
+      //   },
+      //   align: "left",
+      // },
       {
-        name: "accountTask",
-        label: "Название",
-        field: (row) => [row.account_id, row.task_id, row.channel_id],
-        format: (val) => {
-          const accountId = val[0];
-          const taskId = val[1];
-          const channelId = val[2];
-
-          const account = $q.appStore.accountList.find(
-            (account) => account.id == accountId
-          );
-          const task = $q.appStore.taskList.find((task) => task.id == taskId);
-          const channel = $q.appStore.chanelList.find(
-            (channel) => channel.id == channelId
-          );
-
-          return [
-            `Account: id ${accountId} , описание: ${account.description}`,
-            `Task: id ${taskId} , описание: ${task.description}`,
-            `Channel: id ${channelId} , описание: ${channel.description}`,
-          ].join("\n");
-        },
+        name: "Account",
+        label: "Аккаунт",
+        field: "account_id",
         align: "left",
+        sortable: true,
+        format: (val) => {
+          const account = $q.appStore.accountList.find(
+            (account) => account.id == val
+          );
+          return ` id ${account.id} ,  ${account.description}`;
+        },
+      },
+      {
+        name: "Channel",
+        label: "Канал",
+        field: "channel_id",
+        align: "left",
+        sortable: true,
+        format: (val) => {
+          const channel = $q.appStore.chanelList.find(
+            (channel) => channel.id == val
+          );
+          return ` id ${channel.id} , ${channel.description}`;
+        },
+      },
+      {
+        name: "Task",
+        label: "Задача",
+        field: "task_id",
+        align: "left",
+        sortable: true,
+        format: (val) => {
+          const task = $q.appStore.taskList.find((task) => task.id == val);
+          return `id ${task.id} , ${task.description}`;
+        },
       },
       {
         name: "url",
@@ -278,6 +330,23 @@ export default {
       },
     ];
 
+    const pagination = {
+      page: query.page ? parseInt("" + query.page) : 1,
+      rowsPerPage: query.rowsPerPage ? parseInt("" + query.rowsPerPage) : 5,
+      sortBy: query.sortBy || "id",
+      descending: query.descending ? query.descending === "true" : true,
+      rowsNumber: 0,
+    };
+
+    let filterForSearch = ref({});
+
+    if (query.filter) {
+      try {
+        filterForSearch = JSON.parse(query.filter);
+      } catch (e) {}
+    }
+    const search = ref(query.search || "");
+
     return {
       // objects
       Task,
@@ -291,12 +360,10 @@ export default {
       // таблица
       tableColumns, // описание столбцов таблицы
       // журнал
-      pagination: ref({
-        page: 1,
-        rowsPerPage: 10,
-      }),
+      pagination: ref(pagination),
       paginatedTaskLog: ref([]), //
-      filterForSearch: ref(""), // строка поиска
+      filterForSearch, // строка поиска
+      search,
       // признак
       loading: ref(false), // признак загрузки данных
       ready: ref(false), // признак готовности данных
@@ -305,36 +372,29 @@ export default {
   },
 
   async beforeMount() {
-    if (this.loading) return;
-    this.loading = true;
     await this.getData();
-    this.taskLog = this.taskLog.reverse();
-    this.updatePaginatedTaskLog();
-    this.ready = true;
-    this.loading = false;
+  },
+
+  beforeRouteUpdate(to, from, next) {
+    if (to.fullPath === "/log") {
+      this.pagination.page = 1;
+      this.pagination.sortBy = "id";
+      this.pagination.descending = true;
+      this.filterForSearch = "";
+      next();
+      setTimeout(() => {
+        this.getTableData();
+      }, 100);
+    } else {
+      next();
+    }
   },
 
   methods: {
     async getData() {
-      const order = ["id", "desc"];
-      // получение лог задач
-      const resultTaskLog = await this.Task.getTaskLog(order);
-      console.log(resultTaskLog);
-
-      if (resultTaskLog.success) {
-        this.taskLog = resultTaskLog.taskLog.rows;
-      } else {
-        this.$q.dialogStore.set({
-          show: true,
-          title: "Ошибка",
-          text: resultTaskLog.message,
-          ok: {
-            color: "red",
-          },
-        });
-        this.taskLog = [];
-      }
-
+      if (this.loading) return;
+      this.loading = true;
+      //#region получение списка аккаунтов
       const responseTgAccounts = await this.$q.ws.sendRequest({
         type: "query",
         iface: "tgAccount",
@@ -359,7 +419,8 @@ export default {
         });
         this.$q.appStore.set({ accountList: this.listOfTgAccounts });
       }
-      // получение списка каналов
+      //#endregion
+      //#region получение списка каналов
       const responseTgChannel = await this.$q.ws.sendRequest({
         type: "query",
         iface: "tgChannel",
@@ -387,7 +448,8 @@ export default {
         });
         this.$q.appStore.set({ chanelList: this.listOfTgChanals });
       }
-      // получение списка задач
+      //#endregion
+      //#region получение списка задач
       const responseTasks = await this.$q.ws.sendRequest({
         type: "query",
         iface: "tgTask",
@@ -408,24 +470,47 @@ export default {
         this.listOfTasks = responseTasks.args.rows;
         this.$q.appStore.set({ taskList: this.listOfTasks });
       }
+      //#endregion
+
+      //#region получение лог задач
+
+      const resultTaskLog = await this.$q.ws.sendRequest({
+        type: "query",
+        iface: "tgTask",
+        method: "getLogList",
+        args: {
+          limit: this.pagination.rowsPerPage,
+          offset: (this.pagination.page - 1) * this.pagination.rowsPerPage,
+          search: this.filterForSearch,
+          order: [["id", this.pagination.descending ? "DESC" : "ASC"]],
+        },
+      });
+      console.log(resultTaskLog);
+
+      if (resultTaskLog.type === "answer") {
+        this.taskLog = resultTaskLog.args.rows;
+      } else {
+        this.$q.dialogStore.set({
+          show: true,
+          title: "Ошибка!",
+          text: resultTaskLog.message,
+          ok: {
+            color: "red",
+          },
+        });
+        this.taskLog = [];
+      }
+      //#endregion
+      this.ready = true;
+      this.loading = false;
     },
-    updatePaginatedTaskLog() {
-      const start = (this.pagination.page - 1) * this.pagination.rowsPerPage;
-      const end = start + this.pagination.rowsPerPage;
-      this.paginatedTaskLog = this.taskLog.slice(start, end);
+    search() {
+      console.log("search", this.filterForSearch);
     },
     formatDate(dateString, locale) {
       return date.formatDate(dateString, "DD-MM-YYYY HH:mm:ss", {
         locale,
       });
-    },
-  },
-  watch: {
-    pagination: {
-      handler() {
-        this.updatePaginatedTaskLog();
-      },
-      deep: true,
     },
   },
   computed: {
