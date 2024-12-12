@@ -279,8 +279,6 @@ class Account {
       },
     });
 
-    console.log(response);
-
     // Если ошибка удаления
     if (response.type === "error") {
       return {

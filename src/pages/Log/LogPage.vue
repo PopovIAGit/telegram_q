@@ -112,7 +112,7 @@
           :grid="$q.screen.lt.md"
           :filter="filterForSearch"
         >
-          <template v-slot:top-right>
+          <!-- <template v-slot:top-right>
             <q-input
               outlined
               dense
@@ -137,7 +137,7 @@
                 />
               </template>
             </q-input>
-          </template>
+          </template> -->
           <template v-slot:body-cell-accountTask="props">
             <q-td :props="props">
               <div>
@@ -501,7 +501,6 @@ export default {
           order: [[sortBy, descending ? "DESC" : "ASC"]],
         },
       });
-      console.log(resultTaskLog);
 
       if (resultTaskLog.type === "answer") {
         this.taskLog = resultTaskLog.args.rows;

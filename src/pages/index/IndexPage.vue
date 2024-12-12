@@ -1245,7 +1245,6 @@ export default defineComponent({
      * @param Account
      */
     showAccountPublicChanelConnection(Account) {
-      console.log(Account.id);
       this.select_account = Account;
       this.inception_account = true;
     },
@@ -1265,7 +1264,6 @@ export default defineComponent({
       } else {
         this.newjoinPublicChanel = true;
         this.answerjoinPublicChanel = result.answer;
-        console.log(result);
       }
     },
     async handleButtonClickJoinPublicChanel(button, index) {
@@ -1280,7 +1278,6 @@ export default defineComponent({
         },
       };
       // Send the response
-      console.log("Sending response:", response);
       const result = await this.Account.confirmJoin(response.args);
       if (!result.success) {
         this.inception_account = false;
@@ -1298,8 +1295,6 @@ export default defineComponent({
     },
 
     async handleButtonClickJoinPublicChanelText(text) {
-      console.log(text);
-
       const response = {
         args: {
           accountId: this.select_account.id,
@@ -1312,7 +1307,6 @@ export default defineComponent({
         },
       };
       // Send the response
-      console.log("Sending response:", response);
       const result = await this.Account.confirmJoin(response.args);
       if (!result.success) {
         this.inception_account = false;
@@ -1500,7 +1494,7 @@ export default defineComponent({
     // модальное окно с логами
     async showTaskLog(tgTask) {
       this.inception_task_log = true;
-      const resultTaskLog = await this.Task.getTaskLog(tgTask.id);
+      const resultTaskLog = await this.Task.getTaskLog();
 
       if (!resultTaskLog.success) {
         this.$q.dialogStore.set({
@@ -1513,7 +1507,9 @@ export default defineComponent({
         });
         this.inception_task_log = false;
       } else {
-        this.taskLog = resultTaskLog.taskLog.rows.reverse();
+        this.taskLog = resultTaskLog.taskLog.rows
+          .filter((task) => task.task_id === tgTask.id)
+          .reverse();
         this.updatePaginatedTaskLog();
       }
     },
