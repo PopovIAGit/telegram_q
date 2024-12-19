@@ -201,6 +201,14 @@
                           <div class="text-h6">Отвеь на капчу с тестом</div>
                         </q-card-section>
                         <q-card-section class="q-pa-md">
+                          <img
+                            v-if="this.imageCaptcha != null"
+                            :src="this.imageCaptcha"
+                            alt="no image"
+                            class="q-mb-md"
+                          />
+                        </q-card-section>
+                        <q-card-section class="q-pa-md">
                           <div class="q-mb-md">
                             {{ answerjoinPublicChanel.message.text }}
                           </div>
@@ -229,7 +237,6 @@
                               )
                             "
                           />
-
                           <q-btn
                             class="q-btn--outline-muted"
                             outline
@@ -914,6 +921,7 @@ import DialogChanelAddUpdate from "components/dialogs/Channel/DialogChanelAddUpd
 import DialogTaskAddUpdate from "components/dialogs/Task/DialogTaskAddUpdate";
 import DialogScheduleAddUpdate from "components/dialogs/Schedule/DialogScheduleAddUpdate";
 import { useRoute } from "vue-router";
+import Buffer from "vue-buffer";
 
 export default defineComponent({
   name: "IndexPage",
@@ -1017,6 +1025,7 @@ export default defineComponent({
       newjoinPublicChanel: ref(false),
       answerjoinPublicChanel: ref(null),
       answerForCaptcha: ref(""),
+      imageCaptcha: ref(null),
     };
   },
 
@@ -1251,6 +1260,8 @@ export default defineComponent({
 
     async joinPublicChanel(accountId, channelId) {
       const result = await this.Account.joinPublicChanel(accountId, channelId);
+      console.log("joinPublicChanel", result);
+
       if (!result.success) {
         this.inception_account = false;
         this.$q.dialogStore.set({
@@ -1264,6 +1275,17 @@ export default defineComponent({
       } else {
         this.newjoinPublicChanel = true;
         this.answerjoinPublicChanel = result.answer;
+        if (result.answer.message.media.type === "Buffer") {
+          console.log("Buffer", result.answer.message.media.data);
+          const base64 = btoa(
+            new Uint8Array(result.answer.message.media.data).reduce(
+              (data, byte) => data + String.fromCharCode(byte),
+              ""
+            )
+          );
+          this.imageCaptcha = "data:image/png;base64," + base64;
+          console.log("imageCaptcha", this.imageCaptcha);
+        }
       }
     },
     async handleButtonClickJoinPublicChanel(button, index) {
@@ -1332,6 +1354,7 @@ export default defineComponent({
       this.newjoinPublicChanel = false;
       this.answerForCaptcha = "";
       this.vmodel_chanelToAddInTask = null;
+      this.imageCaptcha = null;
     },
     //#endregion
     //#region Chanel---------------------------------------------------------------------
