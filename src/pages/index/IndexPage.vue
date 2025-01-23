@@ -40,7 +40,6 @@
                     tgAccount.description
                   }}</q-item-label>
                 </q-item-section>
-                <q-item-section class="col-1"></q-item-section>
                 <q-item-section class="col-1">
                   <q-item-label>
                     <q-btn
@@ -94,6 +93,129 @@
                     >
                   </q-item-label>
                 </q-item-section>
+                <!-- кнопка лог -->
+                <q-item-section class="col-1">
+                  <q-item-label>
+                    <q-btn
+                      flat
+                      round
+                      dense
+                      icon="list_alt"
+                      @click="showAccountLog(tgAccount)"
+                      ><q-tooltip color="bg-accent">Журнал</q-tooltip></q-btn
+                    >
+                  </q-item-label>
+                </q-item-section>
+                <!-- модальное окно журнала аккаунта -->
+                <div>
+                  <q-dialog
+                    v-model="inception_account_log"
+                    @before-hide="beforeHideAccountJournalDialog"
+                  >
+                    <q-card>
+                      <q-card-section
+                        class="row justify-between q-col-gutter-x-md items-center"
+                      >
+                        <div class="text-h6">Журнал аккаунта</div>
+                        <q-select
+                          outlined
+                          bg-color="white"
+                          hide-bottom-space
+                          v-model="this.vmodel_howShowLog"
+                          :options="this.options_howShowLog"
+                          @update:model-value="updatePaginatedAccountLog"
+                        />
+                      </q-card-section>
+                      <q-separator />
+
+                      <div class="q-pa-none">
+                        <q-scroll-area
+                          style="height: 300px; max-width: 100%; width: 600rem"
+                        >
+                          <q-list bordered separator>
+                            <q-item
+                              v-for="tgAccount in paginatedAccountLog"
+                              :key="tgAccount.id"
+                              v-ripple
+                              class="drawer-left__menu justify-between"
+                            >
+                              <q-item-section class="col-1">
+                                <q-item-label>{{ tgAccount.id }}</q-item-label>
+                              </q-item-section>
+                              <q-item-section
+                                class="q-pa-none col-4 .col-md-auto"
+                              >
+                                <q-item-label>
+                                  task: id {{ tgAccount.task_id }} :
+                                  {{
+                                    this.$q.appStore.taskList.find(
+                                      (task) => task.id == tgAccount.account_id
+                                    ).description
+                                  }}
+                                </q-item-label>
+
+                                <q-item-label caption lines="1"
+                                  >Channel: id {{ tgAccount.channel_id }}
+                                  :
+                                  {{
+                                    this.$q.appStore.chanelList.find(
+                                      (channel) =>
+                                        channel.id == tgAccount.channel_id
+                                    ).description
+                                  }}</q-item-label
+                                >
+                                <q-item-label caption lines="1"
+                                  >Account: id {{ tgAccount.account_id }}
+                                  :
+                                  {{
+                                    this.$q.appStore.accountList.find(
+                                      (account) =>
+                                        account.id == tgAccount.account_id
+                                    ).description
+                                  }}</q-item-label
+                                >
+                              </q-item-section>
+                              <q-item-section class="col-4">
+                                <q-item-label class="text-wrap">
+                                  Сообщение:
+                                  <a
+                                    v-if="tgAccount.url"
+                                    :href="tgAccount.url"
+                                    target="_blank"
+                                    style="word-break: break-all"
+                                    >{{ tgAccount.url }}</a
+                                  >
+                                  <span v-else>пустая</span>
+                                </q-item-label>
+                              </q-item-section>
+                              <q-item-section class="col">
+                                <q-item-label
+                                  >Статус:
+                                  {{
+                                    tgAccount.success ? "Успешно" : "Ошибка"
+                                  }}</q-item-label
+                                >
+                              </q-item-section>
+                            </q-item>
+                          </q-list>
+                        </q-scroll-area>
+                      </div>
+                      <q-separator />
+
+                      <q-pagination
+                        class="q-pa-sm justify-center"
+                        direction-links
+                        boundary-links
+                        flat
+                        color="grey"
+                        active-color="primary"
+                        v-model="paginatedAccountLog.page"
+                        :max="maxPages"
+                        :max-pages="6"
+                      />
+                    </q-card>
+                  </q-dialog>
+                </div>
                 <!-- модальное окно аккаунта  -->
                 <div>
                   <q-dialog
@@ -908,8 +1030,6 @@
 </template>
 
 <script>
-//TODO: Accounts: капча - парсинг ответа с динамическим созданием
-
 import { defineComponent, ref, watch } from "vue";
 
 import AccountClass from "src/utils/classes/Account.Class";
@@ -970,6 +1090,7 @@ export default defineComponent({
       // вспомогательные диалоги
       inception: ref(false),
       inception_account: ref(false),
+      inception_account_log: ref(false),
       inception_task: ref(false),
       inception_task_log: ref(false),
       inception_Schedule_task: ref(false),
@@ -992,7 +1113,14 @@ export default defineComponent({
       select_schedule: ref(null),
       listOfSchedulesAndTasks: ref([]),
       //
-      // для модяльного окна с логами
+      // для модального окна с логами account
+      accountLog: ref([]), // журнал по Id
+      paginatedAccountLog: ref([]), // завернутый журнал в пагинацию
+      paginationAccountLog: ref({
+        page: 1,
+        rowsPerPage: 10,
+      }),
+      // для модального окна с логами task
       taskLog: ref([]), // журнал по Id
       paginatedTaskLog: ref([]), // завернутый журнал в пагинацию
       paginationLog: ref({
@@ -1356,6 +1484,52 @@ export default defineComponent({
       this.vmodel_chanelToAddInTask = null;
       this.imageCaptcha = null;
     },
+    // модальное окно с логами
+    async showAccountLog(tgAccount) {
+      this.inception_account_log = true;
+      const resultAccountLog = await this.Account.getLog();
+      console.log("resultAccountLog", resultAccountLog);
+
+      if (!resultAccountLog.success) {
+        this.$q.dialogStore.set({
+          show: true,
+          title: "Ошибка",
+          text: result.message,
+          ok: {
+            color: "red",
+          },
+        });
+        this.inception_account_log = false;
+      } else {
+        this.accountLog = resultAccountLog.log.rows
+          .filter((account) => account.account_id === tgAccount.id)
+          .reverse();
+        console.log("this.accountLog", this.accountLog);
+
+        this.updatePaginatedAccountLog();
+      }
+    },
+
+    updatePaginatedAccountLog() {
+      let filteredAccountLog = this.accountLog;
+
+      if (this.vmodel_howShowLog.value === "success") {
+        filteredAccountLog = this.accountLog.filter(
+          (task) => task.success === 1
+        );
+      } else if (this.vmodel_howShowLog.value === "error") {
+        filteredAccountLog = this.accountLog.filter(
+          (task) => task.success === 0
+        );
+      }
+
+      const start =
+        (this.paginationAccountLog.page - 1) *
+        this.paginationAccountLog.rowsPerPage;
+      const end = start + this.paginationAccountLog.rowsPerPage;
+      this.paginatedAccountLog = filteredAccountLog.slice(start, end);
+    },
+    beforeHideAccountJournalDialog() {},
     //#endregion
     //#region Chanel---------------------------------------------------------------------
     showChanelAdd() {

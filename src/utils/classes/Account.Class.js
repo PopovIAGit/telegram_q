@@ -330,6 +330,30 @@ class Account {
     });
     return response;
   }
+  async getLog() {
+    const response = await this.$q.ws.sendRequest({
+      type: "query",
+      iface: "tgAccount",
+      method: "getLogList",
+      args: {},
+    });
+
+    // If there was an error saving
+    if (response.type === "error") {
+      return {
+        success: false,
+        message: response.args.message || "Ошибка",
+      };
+    }
+    // If everything is OK
+    else if (response.type === "answer") {
+      const log = response.args;
+      return {
+        success: true,
+        log,
+      };
+    }
+  }
 }
 
 export default Account;
