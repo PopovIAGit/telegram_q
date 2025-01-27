@@ -330,6 +330,11 @@ class Account {
     });
     return response;
   }
+
+  /**
+   * Get the list of logs for all accounts
+   * @return {Promise<{success: boolean, message: string}|{success: boolean, log: *}>}
+   */
   async getLog() {
     const response = await this.$q.ws.sendRequest({
       type: "query",

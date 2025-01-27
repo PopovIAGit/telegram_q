@@ -143,14 +143,14 @@
                                 <q-item-label>{{ tgAccount.id }}</q-item-label>
                               </q-item-section>
                               <q-item-section
-                                class="q-pa-none col-4 .col-md-auto"
+                                class="q-pa-none col-3 .col-md-auto"
                               >
                                 <q-item-label>
                                   task: id {{ tgAccount.task_id }} :
                                   {{
                                     this.$q.appStore.taskList.find(
                                       (task) => task.id == tgAccount.account_id
-                                    ).description
+                                    )?.description || "Описание не найдено"
                                   }}
                                 </q-item-label>
 
@@ -161,7 +161,7 @@
                                     this.$q.appStore.chanelList.find(
                                       (channel) =>
                                         channel.id == tgAccount.channel_id
-                                    ).description
+                                    )?.description || "Описание не найдено"
                                   }}</q-item-label
                                 >
                                 <q-item-label caption lines="1"
@@ -171,11 +171,11 @@
                                     this.$q.appStore.accountList.find(
                                       (account) =>
                                         account.id == tgAccount.account_id
-                                    ).description
+                                    )?.description || "Описание не найдено"
                                   }}</q-item-label
                                 >
                               </q-item-section>
-                              <q-item-section class="col-4">
+                              <q-item-section class="col-3">
                                 <q-item-label class="text-wrap">
                                   Сообщение:
                                   <a
@@ -185,8 +185,14 @@
                                     style="word-break: break-all"
                                     >{{ tgAccount.url }}</a
                                   >
-                                  <span v-else>пустая</span>
+                                  <span v-else>пустое</span>
                                 </q-item-label>
+                              </q-item-section>
+                              <q-item-section class="col-2">
+                                <q-item-label
+                                  >Дата:
+                                  {{ formatDate(tgAccount.date) }}</q-item-label
+                                >
                               </q-item-section>
                               <q-item-section class="col">
                                 <q-item-label
@@ -209,8 +215,8 @@
                         flat
                         color="grey"
                         active-color="primary"
-                        v-model="paginatedAccountLog.page"
-                        :max="maxPages"
+                        v-model="paginationAccountLog.page"
+                        :max="maxPagesAccount"
                         :max-pages="6"
                       />
                     </q-card>
@@ -698,7 +704,7 @@
                                 <q-item-label>{{ tgTask.id }}</q-item-label>
                               </q-item-section>
                               <q-item-section
-                                class="q-pa-none col-4 .col-md-auto"
+                                class="q-pa-none col-3 .col-md-auto"
                               >
                                 <q-item-label>
                                   Task: id {{ tgTask.task_id }} :
@@ -730,7 +736,7 @@
                                   }}</q-item-label
                                 >
                               </q-item-section>
-                              <q-item-section class="col-4">
+                              <q-item-section class="col-3">
                                 <q-item-label class="text-wrap">
                                   Сообщение:
                                   <a
@@ -742,6 +748,12 @@
                                   >
                                   <span v-else>пустая</span>
                                 </q-item-label>
+                              </q-item-section>
+                              <q-item-section class="col-2">
+                                <q-item-label
+                                  >Дата:
+                                  {{ formatDate(tgTask.date) }}</q-item-label
+                                >
                               </q-item-section>
                               <q-item-section class="col">
                                 <q-item-label
@@ -1127,6 +1139,7 @@ export default defineComponent({
         page: 1,
         rowsPerPage: 10,
       }),
+      //
       vmodel_howShowLog: ref({ label: "Все", value: "all" }),
       options_howShowLog: ref([
         {
@@ -1505,7 +1518,6 @@ export default defineComponent({
           .filter((account) => account.account_id === tgAccount.id)
           .reverse();
         console.log("this.accountLog", this.accountLog);
-
         this.updatePaginatedAccountLog();
       }
     },
@@ -1529,7 +1541,10 @@ export default defineComponent({
       const end = start + this.paginationAccountLog.rowsPerPage;
       this.paginatedAccountLog = filteredAccountLog.slice(start, end);
     },
-    beforeHideAccountJournalDialog() {},
+    beforeHideAccountJournalDialog() {
+      this.select_task = null;
+      this.vmodel_howShowLog = { label: "Все", value: "all" };
+    },
     //#endregion
     //#region Chanel---------------------------------------------------------------------
     showChanelAdd() {
@@ -2031,7 +2046,7 @@ export default defineComponent({
       } else if (result.success && result.schedule) {
         this.$q.dialogStore.set({
           show: true,
-          title: "Расписание сохронено",
+          title: "Расписание сохранено",
         });
         this.dialogScheduleAddUpdate.show = false;
         this.getData();
@@ -2186,11 +2201,23 @@ export default defineComponent({
       this.select_schedule = null;
     },
     //#endregion
+    formatDate(dateString) {
+      const date = new Date(dateString);
+      return date.toLocaleString(); // Форматируем дату в локальный формат
+    },
   },
   watch: {
     paginationLog: {
       handler() {
+        console.log("paginationLog");
         this.updatePaginatedTaskLog();
+      },
+      deep: true,
+    },
+    paginationAccountLog: {
+      handler() {
+        console.log("paginationAccount");
+        this.updatePaginatedAccountLog();
       },
       deep: true,
     },
@@ -2210,18 +2237,25 @@ export default defineComponent({
       });
       return Math.ceil(filteredTaskLog.length / this.paginationLog.rowsPerPage);
     },
+    maxPagesAccount() {
+      const filteredTaskLog = this.accountLog.filter((task) => {
+        if (this.vmodel_howShowLog.value === "all") {
+          return true;
+        }
+        if (this.vmodel_howShowLog.value === "success") {
+          return task.success === 1;
+        }
+        if (this.vmodel_howShowLog.value === "error") {
+          return task.success === 0;
+        }
+      });
+      return Math.ceil(
+        filteredTaskLog.length / this.paginationAccountLog.rowsPerPage
+      );
+    },
   },
 });
 </script>
 
 <style lang="scss">
-.example-row-column-width {
-  .row > div {
-    padding: 10px 15px;
-  }
-
-  .row + .row {
-    margin-top: 1rem;
-  }
-}
 </style>

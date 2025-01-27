@@ -251,6 +251,10 @@ export default {
         field: "account_id",
         align: "left",
         format: (val) => {
+          if (val === null) {
+            return "Аккаунт не указан";
+          }
+
           const account = $q.appStore.accountList.find(
             (account) => account.id == val
           );
@@ -264,10 +268,23 @@ export default {
         align: "left",
 
         format: (val) => {
+          console.log("Searching for channel with id:", val);
+          console.log("Channel list:", $q.appStore.chanelList);
+
+          if (val === null) {
+            return "Канал не указан";
+          }
+
           const channel = $q.appStore.chanelList.find(
             (channel) => channel.id == val
           );
-          return ` id ${channel.id} , ${channel.description}`;
+
+          if (!channel) {
+            console.warn("Channel not found for id:", val);
+            return "Канал не указан";
+          }
+
+          return `id ${channel.id}, ${channel.description}`;
         },
       },
       {
@@ -277,6 +294,10 @@ export default {
         align: "left",
 
         format: (val) => {
+          if (val === null) {
+            return "Задача не указана";
+          }
+
           const task = $q.appStore.taskList.find((task) => task.id == val);
           return `id ${task.id} , ${task.description}`;
         },
@@ -453,6 +474,8 @@ export default {
           }
           return channel;
         });
+        console.log("this.listOfTgChanals", this.listOfTgChanals);
+
         this.$q.appStore.set({ chanelList: this.listOfTgChanals });
       }
       //#endregion
